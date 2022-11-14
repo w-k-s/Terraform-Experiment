@@ -21,11 +21,49 @@ provider "aws" {
   region  = "ap-south-1"
 }
 
-resource "aws_s3_bucket" "b" {
-  bucket = "terraform.wks.io"
-  acl    = "public-read"
+resource "aws_s3_bucket" "bucket" {
+  bucket = var.bucket_name
+}
 
-  aws_s3_bucket_website_configuration = {
-    index_document = "index.html"
+resource "aws_s3_bucket_website_configuration" "website"{
+  bucket = aws_s3_bucket.bucket.id
+  index_document {
+    suffix = "index.html"
+  }
+}
+
+resource "aws_s3_bucket_policy" "website_policy" {
+  bucket = aws_s3_bucket.bucket.id
+  policy = data.aws_iam_policy_document.website_policy.json
+}
+
+data "aws_iam_policy_document" "website_policy" {
+  statement {
+    principals {
+      type        = "AWS"
+      identifiers = ["*"]
+    }
+
+    actions = [
+      "s3:GetObject"
+    ]
+
+    resources = [
+      aws_s3_bucket.bucket.arn,
+      "${aws_s3_bucket.bucket.arn}/*",
+    ]
+  }
+}
+
+
+resource "aws_route53_record" "root-a" {
+  zone_id = var.route53_hosted_zone_id
+  name = var.domain_name
+  type = "A"
+
+  alias {
+    name                   = aws_s3_bucket.bucket.website_endpoint
+    zone_id                = aws_s3_bucket.bucket.hosted_zone_id
+    evaluate_target_health = false
   }
 }
