@@ -1,4 +1,16 @@
-## Required Environment Variables:
+# Terraform Experiments
+
+## Experiments
+
+- [ ] 1. **Static Website** Route 53 -> Cloudfront -> S3 Website
+- [ ] 2. **Simple Service** Route 53 -> Api Gateway -> EC2 
+- [ ] 3. **LoadBalanced Service** Route 53 -> Api Gateway -> ELB -> EC2 
+- [ ] 4. **LoadBalanced Data Service** Route 53 -> Api Gateway -> ELB -> EC2 -> RDS
+- [ ] 5. **ECS Cluster** Route 53 -> Api Gateway -> ELB -> ECS -> RDS
+- [ ] 6. **EKS Cluster** Route 53 -> Api Gateway -> ELB -> EKS -> RDS
+
+
+## Required Environment Variables:
 
 - `AWS_ACCESS_KEY_ID` (or `~/.aws/credentials`)
 - `AWS_SECRET_ACCESS_KEY` (or `~/.aws/credentials`)
