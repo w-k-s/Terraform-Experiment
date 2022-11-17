@@ -34,6 +34,8 @@ jobs:
         run: terraform apply -auto-approve -var="domain_name=$STATIC_WEBSITE_DOMAIN_NAME" -var="bucket_name=$STATIC_WEBSITE_BUCKET_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"
   publish:
     runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
     needs: [terraform]
     defaults:
       run:
