@@ -43,4 +43,4 @@ jobs:
         uses: actions/checkout@v2
       - name: Publish Website
         run: |
-          aws s3 sync src s3://terraform.w-k-s.io --delete --region "$AWS_DEFAULT_REGION"
+          aws s3 sync src s3://terraform.w-k-s.io --delete --region $AWS_DEFAULT_REGION
