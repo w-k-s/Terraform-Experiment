@@ -1,5 +1,5 @@
 resource "aws_acm_certificate" "cert" {
-  provider = aws.acm_provider
+  provider          = aws.acm_provider
   domain_name       = var.domain_name
   validation_method = "EMAIL"
 
@@ -9,6 +9,6 @@ resource "aws_acm_certificate" "cert" {
 }
 
 resource "aws_acm_certificate_validation" "cert_validation" {
-  provider = aws.acm_provider
+  provider        = aws.acm_provider
   certificate_arn = aws_acm_certificate.cert.arn
 }

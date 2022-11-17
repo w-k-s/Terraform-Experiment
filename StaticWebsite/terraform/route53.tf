@@ -1,7 +1,7 @@
 resource "aws_route53_record" "root-a" {
   zone_id = var.route53_hosted_zone_id
-  name = var.domain_name
-  type = "A"
+  name    = var.domain_name
+  type    = "A"
 
   alias {
     # For S3 Website
