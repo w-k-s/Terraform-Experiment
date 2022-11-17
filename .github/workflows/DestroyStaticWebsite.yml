@@ -1,4 +1,4 @@
-name: "Static Website"
+name: "Static Website - Destroy"
 on:
   workflow_dispatch:
     branches:
@@ -23,24 +23,9 @@ jobs:
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
-        
-      - name: Terraform Format
-        run: terraform fmt -check
 
       - name: Terraform Init
         run: terraform init
 
-      - name: Terraform Apply
-        run: terraform apply -auto-approve -var="domain_name=$STATIC_WEBSITE_DOMAIN_NAME" -var="bucket_name=$STATIC_WEBSITE_BUCKET_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"
-  publish:
-    runs-on: ubuntu-latest
-    needs: [terraform]
-    defaults:
-      run:
-        working-directory: ./StaticWebsite
-    steps:
-      - name: Checkout
-        uses: actions/checkout@v2
-      - name: Configure Kubectl
-        run: |
-          aws s3 sync src s3://terraform.w-k-s.io --delete --region $AWS_REGION
+      - name: Terraform Destroy
+        run: terraform apply -auto-approve -destroy -var="domain_name=$STATIC_WEBSITE_DOMAIN_NAME" -var="bucket_name=$STATIC_WEBSITE_BUCKET_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"
