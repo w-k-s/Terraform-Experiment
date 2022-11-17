@@ -27,5 +27,9 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
+      - name: Empty out s3 bucket
+        run: |
+          aws s3 rm "s3://$STATIC_WEBSITE_BUCKET_NAME" --recursive --region $AWS_DEFAULT_REGION
+  
       - name: Terraform Destroy
         run: terraform apply -auto-approve -destroy -var="domain_name=$STATIC_WEBSITE_DOMAIN_NAME" -var="bucket_name=$STATIC_WEBSITE_BUCKET_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"
