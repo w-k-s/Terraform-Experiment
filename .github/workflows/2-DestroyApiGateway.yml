@@ -1,4 +1,4 @@
-name: "Static Website - Destroy"
+name: "API Gateway - Destroy"
 on:
   workflow_dispatch:
     branches:
@@ -11,12 +11,11 @@ jobs:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      STATIC_WEBSITE_DOMAIN_NAME: ${{ secrets.STATIC_WEBSITE_DOMAIN_NAME }}
-      STATIC_WEBSITE_BUCKET_NAME: ${{ secrets.STATIC_WEBSITE_BUCKET_NAME }}
+      API_GATEWAY_DOMAIN_NAME: ${{ secrets.API_GATEWAY_DOMAIN_NAME }}
       STATIC_WEBSITE_ZONE_ID: ${{ secrets.STATIC_WEBSITE_ZONE_ID }}
     defaults:
       run:
-        working-directory: ./1-StaticWebsite/terraform
+        working-directory: ./2-ApiGateway/terraform
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -27,9 +26,5 @@ jobs:
       - name: Terraform Init
         run: terraform init
 
-      - name: Empty out s3 bucket
-        run: |
-          aws s3 rm "s3://$STATIC_WEBSITE_BUCKET_NAME" --recursive --region $AWS_DEFAULT_REGION
-  
       - name: Terraform Destroy
-        run: terraform apply -auto-approve -destroy -var="domain_name=$STATIC_WEBSITE_DOMAIN_NAME" -var="bucket_name=$STATIC_WEBSITE_BUCKET_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"
+        run: terraform apply -auto-approve -destroy -var="domain_name=$API_GATEWAY_DOMAIN_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"

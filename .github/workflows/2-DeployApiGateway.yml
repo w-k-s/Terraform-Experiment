@@ -1,0 +1,51 @@
+name: "Static Website - Deploy"
+on:
+  workflow_dispatch:
+    branches:
+      - master
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      API_GATEWAY_DOMAIN_NAME: ${{ secrets.API_GATEWAY_DOMAIN_NAME }}
+      STATIC_WEBSITE_ZONE_ID: ${{ secrets.STATIC_WEBSITE_ZONE_ID }}
+    defaults:
+      run:
+        working-directory: ./2-ApiGateway/terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        
+      - name: Terraform Format
+        run: terraform fmt -check
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply
+        run: terraform apply -auto-approve -var="domain_name=$API_GATEWAY_DOMAIN_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"
+  test:
+    runs-on: ubuntu-latest
+    env:
+      API_GATEWAY_DOMAIN_NAME: ${{ secrets.API_GATEWAY_DOMAIN_NAME }}
+    needs: [terraform]
+    defaults:
+      run:
+        working-directory: ./2-ApiGateway/test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.19.0'
+      - name: Run tests
+        run: |
+          go run test.go

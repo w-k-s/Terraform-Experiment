@@ -29,6 +29,6 @@ func main() {
 	if !strings.Contains(actualContent, expectedContent) {
 		panic(fmt.Errorf("Expected: '%s', Got: '%s'", expectedContent, actualContent))
 	}
-	
+
 	fmt.Println("Success!")
 }

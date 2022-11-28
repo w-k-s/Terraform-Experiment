@@ -16,7 +16,7 @@ jobs:
       STATIC_WEBSITE_ZONE_ID: ${{ secrets.STATIC_WEBSITE_ZONE_ID }}
     defaults:
       run:
-        working-directory: ./StaticWebsite/terraform
+        working-directory: ./1-StaticWebsite/terraform
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -42,7 +42,7 @@ jobs:
     needs: [terraform]
     defaults:
       run:
-        working-directory: ./StaticWebsite
+        working-directory: ./1-StaticWebsite
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -56,7 +56,7 @@ jobs:
     needs: [terraform, publish]
     defaults:
       run:
-        working-directory: ./StaticWebsite/test
+        working-directory: ./1-StaticWebsite/test
     steps:
       - name: Checkout
         uses: actions/checkout@v2
