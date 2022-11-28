@@ -2,13 +2,13 @@
 
 ## Experiments
 
-- [x] 1. [**Static Website**](/StaticWebsite) Route 53 -> Cloudfront -> S3 Website
-- [ ] 2. **API Gateway** Route 53 -> Api Gateway -> Existing API
-- [ ] 3. **Simple Service** Route 53 -> Api Gateway -> EC2 
-- [ ] 4. **LoadBalanced Service** Route 53 -> Api Gateway -> ELB -> EC2 
-- [ ] 5. **LoadBalanced Data Service** Route 53 -> Api Gateway -> ELB -> EC2 -> RDS
-- [ ] 6. **ECS Cluster** Route 53 -> Api Gateway -> ELB -> ECS -> RDS
-- [ ] 7. **EKS Cluster** Route 53 -> Api Gateway -> ELB -> EKS -> RDS
+- [x] 1. [**Static Website**](/1-StaticWebsite) Route 53 -> Cloudfront -> S3 Website
+- [ ] 2. [**API Gateway**](2-ApiGateway) Route 53 -> Api Gateway (Edge) -> Existing API
+- [ ] 3. **Simple Service** Route 53 -> Api Gateway (Edge) -> EC2
+- [ ] 4. **LoadBalanced Service** Route 53 -> Api Gateway (Edge) -> ELB -> EC2 
+- [ ] 5. **LoadBalanced Data Service (VPC)** Route 53 -> Api Gateway (Edge) -> ELB -> EC2 -> RDS
+- [ ] 6. **ECS Cluster (VPC)** Route 53 -> Api Gateway (Edge) -> ELB -> ECS -> RDS
+- [ ] 7. **EKS Cluster (VPC)** Route 53 -> Api Gateway (Edge) -> ELB -> EKS -> RDS
 
 ## Required Environment Variables:
 
