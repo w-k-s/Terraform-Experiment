@@ -53,7 +53,7 @@ resource "aws_api_gateway_integration" "neutrinoapi_integration" {
 
 
 resource "aws_api_gateway_deployment" "unit_conversion" {
-  rest_api_id = aws_api_gateway_rest_api.unit_conversion.id
+  rest_api_id = aws_api_gateway_rest_api.unit_conversion_api.id
 
   lifecycle {
     create_before_destroy = true
@@ -68,7 +68,7 @@ resource "aws_api_gateway_stage" "dev" {
 
 resource "aws_api_gateway_domain_name" "api_domain" {
   domain_name     = var.domain_name
-  certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn.arn
+  certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn
   # Must be a reference to `aws_acm_certificate_validation`, only valid certificates accepted
 }
 
@@ -80,6 +80,6 @@ resource "aws_api_gateway_base_path_mapping" "example" {
 }
 
 resource "aws_cloudwatch_log_group" "unit_conversion_dev" {
-  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.unit_conversion.id}/dev"
+  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.unit_conversion_api.id}/dev"
   retention_in_days = 7
 }
