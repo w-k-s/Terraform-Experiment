@@ -62,7 +62,7 @@ resource "aws_api_gateway_deployment" "unit_conversion" {
 
 resource "aws_api_gateway_stage" "dev" {
   deployment_id = aws_api_gateway_deployment.unit_conversion.id
-  rest_api_id   = aws_api_gateway_rest_api.unit_conversion.id
+  rest_api_id   = aws_api_gateway_rest_api.unit_conversion_api.id
   stage_name    = "dev"
 }
 
@@ -74,7 +74,7 @@ resource "aws_api_gateway_domain_name" "api_domain" {
 
 # connects the domain name to the api
 resource "aws_api_gateway_base_path_mapping" "example" {
-  api_id      = aws_api_gateway_rest_api.unit_conversion.id
+  api_id      = aws_api_gateway_rest_api.unit_conversion_api.id
   stage_name  = aws_api_gateway_stage.dev.stage_name
   domain_name = aws_api_gateway_domain_name.api_domain.domain_name
 }
