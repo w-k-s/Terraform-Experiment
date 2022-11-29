@@ -1,4 +1,4 @@
-name: "Static Website - Deploy"
+name: "Api Gateway - Deploy"
 on:
   workflow_dispatch:
     branches:
@@ -35,6 +35,8 @@ jobs:
     runs-on: ubuntu-latest
     env:
       API_GATEWAY_DOMAIN_NAME: ${{ secrets.API_GATEWAY_DOMAIN_NAME }}
+      NEUTRINO_API_KEY: ${{ secrets.NEUTRINO_API_KEY }}
+      NEUTRINO_USER_ID: ${{ secrets.NEUTRINO_USER_ID }}
     needs: [terraform]
     defaults:
       run:
