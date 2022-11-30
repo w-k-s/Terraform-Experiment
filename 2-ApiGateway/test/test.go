@@ -17,7 +17,7 @@ func main() {
 		}
 	}
 
-	domainName := os.Getenv("API_GATEWAY_DOMAIN_NAME")
+	host := os.Getenv("API_GATEWAY_HOST")
 	userId := os.Getenv("NEUTRINO_USER_ID")
 	apiKey := os.Getenv("NEUTRINO_API_KEY")
 
@@ -31,7 +31,7 @@ func main() {
 
 	url := url.URL{
 		Scheme:   "https",
-		Host:     domainName,
+		Host:     host,
 		Path:     "api/v1/convert",
 		RawQuery: query.Encode(),
 	}

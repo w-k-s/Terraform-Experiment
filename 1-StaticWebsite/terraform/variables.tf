@@ -1,6 +1,6 @@
-variable "domain_name" {
+variable "hosted_zone_name" {
   type        = string
-  description = "The domain name for the website."
+  description = "Hosted zone domain name"
 }
 
 variable "bucket_name" {
@@ -8,7 +8,8 @@ variable "bucket_name" {
   description = "The name of the bucket without the www. prefix. Normally domain_name."
 }
 
-variable "route53_hosted_zone_id" {
+variable "static_website_host" {
   type        = string
-  description = "The id of the hosted zone where the static website will be deployed."
+  description = "The url host of the website e.g. terraform.example.com"
+  default = format("terraform.%s",var.domain_name")
 }

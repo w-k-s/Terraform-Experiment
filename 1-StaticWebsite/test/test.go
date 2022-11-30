@@ -17,8 +17,8 @@ func main() {
 		}
 	}
 
-	domainName := os.Getenv("STATIC_WEBSITE_DOMAIN_NAME")
-	resp, err := http.Get(fmt.Sprintf("https://%s", domainName))
+	host := os.Getenv("STATIC_WEBSITE_HOST")
+	resp, err := http.Get(fmt.Sprintf("https://%s", host))
 	panicOnError(err)
 
 	defer resp.Body.Close()

@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "cert" {
   provider          = aws.acm_provider
-  domain_name       = var.domain_name
+  domain_name       = var.static_website_host
   validation_method = "EMAIL"
 
   lifecycle {

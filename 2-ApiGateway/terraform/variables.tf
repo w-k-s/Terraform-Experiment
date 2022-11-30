@@ -1,9 +1,10 @@
-variable "domain_name" {
+variable "hosted_zone_name" {
   type        = string
-  description = "The domain name for the website."
+  description = "The hosted zone domain name."
 }
 
-variable "route53_hosted_zone_id" {
+variable "api_gateway_host" {
   type        = string
-  description = "The id of the hosted zone where the static website will be deployed."
+  description = "The url host of the api e.g. api.example.com"
+  default = format("api.%s",var.hosted_zone_name")
 }

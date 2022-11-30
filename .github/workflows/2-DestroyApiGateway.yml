@@ -11,8 +11,8 @@ jobs:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      API_GATEWAY_DOMAIN_NAME: ${{ secrets.API_GATEWAY_DOMAIN_NAME }}
-      STATIC_WEBSITE_ZONE_ID: ${{ secrets.STATIC_WEBSITE_ZONE_ID }}
+      HOSTED_ZONE_NAME: ${{ secrets.HOSTED_ZONE_NAME }}
+      API_GATEWAY_HOST: ${{ secrets.API_GATEWAY_HOST }}
     defaults:
       run:
         working-directory: ./2-ApiGateway/terraform
@@ -27,4 +27,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Destroy
-        run: terraform apply -auto-approve -destroy -var="domain_name=$API_GATEWAY_DOMAIN_NAME" -var="route53_hosted_zone_id=$STATIC_WEBSITE_ZONE_ID"
+        run: terraform apply -auto-approve -destroy -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="api_gateway_host=$API_GATEWAY_HOST"
