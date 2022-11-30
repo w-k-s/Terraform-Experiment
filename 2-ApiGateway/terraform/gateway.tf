@@ -46,7 +46,7 @@ resource "aws_api_gateway_integration" "neutrinoapi_integration" {
   resource_id = aws_api_gateway_resource.api_v1_convert_resource.id
   http_method = aws_api_gateway_method.convert_method.http_method
 
-  type                    = "HTTP"
+  type                    = "HTTP_PROXY"
   uri                     = "https://neutrinoapi.net/convert"
   integration_http_method = "GET"
 }
@@ -54,6 +54,21 @@ resource "aws_api_gateway_integration" "neutrinoapi_integration" {
 
 resource "aws_api_gateway_deployment" "unit_conversion" {
   rest_api_id = aws_api_gateway_rest_api.unit_conversion_api.id
+
+  triggers = {
+    # NOTE: The configuration below will satisfy ordering considerations,
+    #       but not pick up all future REST API changes. More advanced patterns
+    #       are possible, such as using the filesha1() function against the
+    #       Terraform configuration file(s) or removing the .id references to
+    #       calculate a hash against whole resources. Be aware that using whole
+    #       resources will show a difference after the initial implementation.
+    #       It will stabilize to only change when resources change afterwards.
+    redeployment = sha1(jsonencode([
+      aws_api_gateway_resource.api_v1_convert_resource.id,
+      aws_api_gateway_method.convert_method.id,
+      aws_api_gateway_integration.neutrinoapi_integration.id,
+    ]))
+  }
 
   lifecycle {
     create_before_destroy = true
@@ -68,7 +83,7 @@ resource "aws_api_gateway_stage" "dev" {
 
 resource "aws_api_gateway_domain_name" "api_domain" {
   domain_name     = var.domain_name
-  certificate_arn = aws_acm_certificate.cert.arn
+  certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn
 }
 
 # connects the domain name to the api
