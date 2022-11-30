@@ -1,6 +1,6 @@
 variable "hosted_zone_name" {
   type        = string
-  description = "Hosted zone domain name"
+  description = "The hosted zone domain name. For example, the hosted_zone_name for 'http://web.example.org' is 'example.org'"
 }
 
 variable "bucket_name" {
@@ -10,5 +10,5 @@ variable "bucket_name" {
 
 variable "static_website_host" {
   type        = string
-  description = "The url host of the website e.g. terraform.example.com"
+  description = "The host part of the website url. For example, the static_website_host for 'http://web.example.org' is 'web.example.org'"
 }

@@ -34,7 +34,7 @@ jobs:
   test:
     runs-on: ubuntu-latest
     env:
-      API_GATEWAY_DOMAIN_NAME: ${{ secrets.API_GATEWAY_DOMAIN_NAME }}
+      API_GATEWAY_HOST: ${{ secrets.API_GATEWAY_HOST }}
       NEUTRINO_API_KEY: ${{ secrets.NEUTRINO_API_KEY }}
       NEUTRINO_USER_ID: ${{ secrets.NEUTRINO_USER_ID }}
     needs: [terraform]
