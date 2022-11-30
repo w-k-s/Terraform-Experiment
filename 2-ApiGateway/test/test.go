@@ -19,11 +19,23 @@ func main() {
 	domainName := os.Getenv("API_GATEWAY_DOMAIN_NAME")
 	userId := os.Getenv("NEUTRINO_USER_ID")
 	apiKey := os.Getenv("NEUTRINO_API_KEY")
-	fromType := "Hour"
-	fromValue := "1"
-	toType := "Second"
 
-	resp, err := http.Get(fmt.Sprintf("https://%s?api-key=%s&user-id=%s&from-type=%s&from-value=%s&to-type=%s", domainName, apiKey, userId, fromType, fromValue, toType))
+	query := url.Values{
+		"api-key":    {apiKey},
+		"user-id":    {userId},
+		"from-type":  {"Hour"},
+		"to-type":    {"Second"},
+		"from-value": {"1"},
+	}
+
+	url := url.URL{
+		Scheme:   "https",
+		Host:     domainName,
+		Path:     "api/v1/convert",
+		RawQuery: query.Encode(),
+	}
+
+	resp, err := http.Get(url.String())
 	panicOnError(err)
 
 	defer resp.Body.Close()
