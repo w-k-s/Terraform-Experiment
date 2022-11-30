@@ -11,5 +11,5 @@ variable "bucket_name" {
 variable "static_website_host" {
   type        = string
   description = "The url host of the website e.g. terraform.example.com"
-  default = format("terraform.%s",var.domain_name")
+  default     = format("terraform.%s", var.domain_name)
 }
