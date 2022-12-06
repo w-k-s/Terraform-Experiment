@@ -36,11 +36,36 @@ resource "aws_security_group" "allow_http" {
   }
 }
 
-resource "aws_instance" "web" {
+resource "aws_security_group" "allow_ssh" {
+  name        = "allow_ssh"
+  description = "Allow SSH inbound traffic"
+
+  # Yeah, we're allowing ssh from everywhere. This is not a good idea. 
+  # Please don't mine crypto using my ec2 :'(
+
+  ingress {
+    description      = "SSH from Default VPC"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+}
+
+resource "aws_instance" "app_instance" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t3.micro"
-  security_groups             = ["${aws_security_group.allow_http.id}"]
-  user_data                   = file("application_setup.sh")
+  security_groups             = ["${aws_security_group.allow_http.id}", "${aws_security_group.allow_ssh.id}"]
+  user_data                   = file("ec2_user_data_script.sh")
   associate_public_ip_address = true
   ebs_block_device {
     device_name           = "/dev/xvda"

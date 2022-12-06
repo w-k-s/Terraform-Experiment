@@ -14,36 +14,28 @@ resource "aws_api_gateway_resource" "api_resource" {
   path_part   = "api"
 }
 
-resource "aws_api_gateway_resource" "api_v1_resource" {
+resource "aws_api_gateway_resource" "proxy_resource" {
   rest_api_id = aws_api_gateway_rest_api.todo_rest_api.id
   parent_id   = aws_api_gateway_resource.api_resource.id
-  path_part   = "v1"
+  path_part   = "{proxy+}"
 }
 
-resource "aws_api_gateway_resource" "api_v1_todo_resource" {
-  rest_api_id = aws_api_gateway_rest_api.todo_rest_api.id
-  parent_id   = aws_api_gateway_resource.api_v1_resource.id
-  path_part   = "convert"
-}
-
-# TODO: Proxy to backend. and support all methods
 resource "aws_api_gateway_method" "proxy_method" {
   rest_api_id   = aws_api_gateway_rest_api.todo_rest_api.id
-  resource_id   = aws_api_gateway_resource.api_v1_todo_resource.id
-  http_method   = "GET"
+  resource_id   = aws_api_gateway_resource.proxy_resource.id
+  http_method   = "ANY"
   authorization = "NONE"
-
 }
 
-# TODO: Set URI to ec2, and support all methods
 resource "aws_api_gateway_integration" "backend_integration" {
   rest_api_id = aws_api_gateway_rest_api.todo_rest_api.id
-  resource_id = aws_api_gateway_resource.api_v1_todo_resource.id
+  resource_id = aws_api_gateway_resource.proxy_resource.id
   http_method = aws_api_gateway_method.todo_method.proxy_method
 
-  type                    = "HTTP_PROXY"
-  uri                     = "https://neutrinoapi.net/convert"
-  integration_http_method = "GET"
+  type = "HTTP_PROXY"
+  # Proxying to an ec2's public ip is not a good idea. We'll use an ELB in a different recipe.
+  uri                     = format("http://%s", aws_instance.app_instance.public_ip)
+  integration_http_method = "ANY"
 }
 
 resource "aws_api_gateway_deployment" "todo_api_deployment" {
@@ -58,7 +50,7 @@ resource "aws_api_gateway_deployment" "todo_api_deployment" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.api_v1_todo_resource.id,
+      aws_api_gateway_resource.proxy_resource.id,
       aws_api_gateway_method.proxy_method.id,
       aws_api_gateway_integration.backend_integration.id,
     ]))
@@ -87,7 +79,7 @@ resource "aws_api_gateway_base_path_mapping" "example" {
   domain_name = aws_api_gateway_domain_name.api_domain.domain_name
 }
 
-resource "aws_cloudwatch_log_group" "unit_conversion_dev" {
+resource "aws_cloudwatch_log_group" "todo_logs" {
   name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.todo_rest_api.id}/dev"
   retention_in_days = 7
 }
