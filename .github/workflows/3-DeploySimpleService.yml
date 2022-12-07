@@ -29,6 +29,7 @@ jobs:
         with:
           name: app.jar
           path: ${{ steps.find_jar.outputs.EXECUTABLE_JAR_RELATIVE_PATH }}
+          retention-days: 2
 
   terraform:
     needs: build
