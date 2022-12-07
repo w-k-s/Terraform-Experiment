@@ -61,9 +61,18 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
-resource "aws_key_pair" "app_instance_key" {
+resource "tls_private_key" "app_instance_private_key" {
+  algorithm = "RSA"
+}
+
+resource "local_file" "app_instance_private_key_file" {
+  content  = tls_private_key.app_instance_private_key.private_key_pem
+  filename = var.private_key_output_file
+}
+
+resource "aws_key_pair" "app_instance_key_pair" {
   key_name   = var.ec2_key_pair_name
-  public_key = var.ec2_key_pair_public_key_content
+  public_key = tls_private_key.app_instance_private_key.public_key_openssh
 }
 
 resource "aws_instance" "app_instance" {
@@ -72,7 +81,7 @@ resource "aws_instance" "app_instance" {
   security_groups             = ["${aws_security_group.allow_http.id}", "${aws_security_group.allow_ssh.id}"]
   user_data                   = file("app_instance_user_data.sh")
   associate_public_ip_address = true
-  key_name                    = var.ec2_key_pair_name
+  key_name                    = aws_key_pair.app_instance_key_pair.key_name
   ebs_block_device {
     device_name           = "/dev/xvda"
     volume_size           = 8

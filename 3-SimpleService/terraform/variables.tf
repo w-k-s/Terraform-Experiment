@@ -12,3 +12,8 @@ variable "executable_jar_path" {
   type        = string
   description = "The absolute path to the executable jar" # Can this be relative? 
 }
+
+variable "private_key_output_file"{
+  type = string
+  description = "The path where the private key should be saved (including the private key file name) e.g. /User/example/.ssh/my-private-key.pem"
+}
