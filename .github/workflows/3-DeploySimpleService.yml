@@ -30,7 +30,6 @@ jobs:
           name: app.jar
           path: ${{ steps.find_jar.outputs.EXECUTABLE_JAR_RELATIVE_PATH }}
 
-
   terraform:
     needs: build
     runs-on: ubuntu-latest

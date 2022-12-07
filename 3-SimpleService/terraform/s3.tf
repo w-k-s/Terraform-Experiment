@@ -1,5 +1,9 @@
 resource "aws_s3_bucket" "app_bucket" {
   bucket = "io.wks.terraform.todobackend"
+}
+
+resource "aws_s3_bucket_acl" "app_bucket_acl"{
+  bucket = aws_s3_bucket.app_bucket.id
   acl    = "private"
 }
 

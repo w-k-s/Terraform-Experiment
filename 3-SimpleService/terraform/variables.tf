@@ -23,3 +23,9 @@ variable "private_key_output_file"{
   type = string
   description = "The path where the private key should be saved (including the private key file name) e.g. /User/example/.ssh/my-private-key.pem"
 }
+
+variable "ec2_key_pair_name"{
+  type = string
+  description = "The name of the key pair to be used to ssh to the EC2 instance"
+  default = "app_instance_key_pair"
+}
