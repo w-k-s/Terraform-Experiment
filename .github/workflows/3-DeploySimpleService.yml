@@ -23,7 +23,7 @@ jobs:
         run: mvn clean install
       - name: Find jar
         id: find_jar
-        run: echo "EXECUTABLE_JAR_RELATIVE_PATH=$(find target -name '*.jar')" >> $GITHUB_OUTPUT
+        run: echo "EXECUTABLE_JAR_RELATIVE_PATH=$(find target ~+ -maxdepth 1 -name '*.jar')" >> $GITHUB_OUTPUT
       - name: Upload executable jar
         uses: actions/upload-artifact@v2
         with:
@@ -32,6 +32,7 @@ jobs:
 
 
   terraform:
+    needs: build
     runs-on: ubuntu-latest
     env:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
