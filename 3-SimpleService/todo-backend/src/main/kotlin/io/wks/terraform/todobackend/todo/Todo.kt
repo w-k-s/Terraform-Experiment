@@ -9,9 +9,8 @@ import com.fasterxml.jackson.databind.annotation.JsonDeserialize
 import org.springframework.data.annotation.Id
 import java.time.Clock
 import java.time.OffsetDateTime
-import java.time.ZoneOffset
 
-data class TodoId @JsonCreator constructor(@JsonValue val value: Long){
+data class TodoId @JsonCreator constructor(@JsonValue val value: Long) {
     override fun toString() = value.toString()
 }
 
@@ -26,16 +25,19 @@ data class Todo(
     @JsonDeserialize(using = TodoIdDeserializer::class)
     val id: TodoId? = null, // TODO: Not nice, make it not-nullable
     val description: String,
-    val createdAt: OffsetDateTime = OffsetDateTime.now(ZoneOffset.UTC),
-    val completedAt: OffsetDateTime? = null
+    val createdAt: OffsetDateTime,
+    val completedAt: OffsetDateTime? = null,
 ) {
     init {
         require(description.isNotBlank()) { "A description is required" }
     }
 
-    fun complete(clock: Clock = Clock.systemUTC()): Todo {
-        return copy(completedAt = OffsetDateTime.now(clock))
+    companion object {
+        fun create(description: String, clock: Clock = Clock.systemUTC()) =
+            Todo(description = description, createdAt = OffsetDateTime.now(clock))
     }
+
+    fun complete(clock: Clock = Clock.systemUTC()) = copy(completedAt = OffsetDateTime.now(clock))
 }
 
 data class Todos(val todos: Collection<Todo>) : Collection<Todo> {

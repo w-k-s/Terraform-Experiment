@@ -61,12 +61,18 @@ resource "aws_security_group" "allow_ssh" {
   }
 }
 
+resource "aws_key_pair" "app_instance_key" {
+  key_name   = var.ec2_key_pair_name
+  public_key = var.ec2_key_pair_public_key_content
+}
+
 resource "aws_instance" "app_instance" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t3.micro"
   security_groups             = ["${aws_security_group.allow_http.id}", "${aws_security_group.allow_ssh.id}"]
-  user_data                   = file("ec2_user_data_script.sh")
+  user_data                   = file("app_instance_user_data.sh")
   associate_public_ip_address = true
+  key_name                    = var.ec2_key_pair_name
   ebs_block_device {
     device_name           = "/dev/xvda"
     volume_size           = 8
@@ -76,5 +82,4 @@ resource "aws_instance" "app_instance" {
       Name = "terraform-storage"
     }
   }
-  # TODO: key pair
 }

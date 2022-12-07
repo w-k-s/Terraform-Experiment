@@ -26,9 +26,9 @@ class TodoService(private val todoDao: TodoDao, private val clock: Clock) {
     fun createTodo(@Valid request: TodoRequest): TodoResponse {
         return TodoResponse(
             todoDao.save(
-                Todo(
+                Todo.create(
                     description = request.description,
-                    createdAt = OffsetDateTime.now(clock)
+                    clock = clock
                 )
             )
         )

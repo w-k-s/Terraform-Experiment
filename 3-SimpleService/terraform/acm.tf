@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "cert" {
   provider          = aws.acm_provider
-  domain_name       = var.api_gateway_host
+  domain_name       = var.simple_service_host
   validation_method = "DNS"
 
   lifecycle {
