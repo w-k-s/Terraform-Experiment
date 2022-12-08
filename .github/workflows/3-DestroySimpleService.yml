@@ -28,4 +28,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Destroy
-        run: terraform apply -auto-approve -destroy -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="simple_service_host=$SIMPLE_SERVICE_HOST" -var="executable_jar_path=app.jar" -var="private_key_output_file=$PRIVATE_KEY_OUTPUT_FILE"
+        run: terraform apply -auto-approve -destroy -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="simple_service_host=$SIMPLE_SERVICE_HOST" -var="executable_jar_path=" -var="private_key_output_file=$PRIVATE_KEY_OUTPUT_FILE"
