@@ -68,4 +68,4 @@ jobs:
         uses: actions/upload-artifact@v2
         with:
           name: simple_service_private_key.pem
-          path: "$PRIVATE_KEY_OUTPUT_FILE"
+          path: ./3-SimpleService/terraform/simple_service_private_key.pem
