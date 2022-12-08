@@ -50,7 +50,7 @@ jobs:
       - uses: actions/download-artifact@v3
         with:
           name: app.jar
-          path: .
+          path: ./3-SimpleService/terraform
       - name: Display structure of downloaded files
         run: ls -R
       - name: Setup Terraform
