@@ -34,7 +34,7 @@ resource "aws_api_gateway_integration" "backend_integration" {
 
   type = "HTTP_PROXY"
   # Proxying to an ec2's public ip is not a good idea. We'll use an ELB in a different recipe.
-  uri                     = format("http://%s", aws_instance.app_instance.public_ip)
+  uri                     = format("http://%s", aws_instance.app_instance.public_dns)
   integration_http_method = "ANY"
 }
 
@@ -80,6 +80,6 @@ resource "aws_api_gateway_base_path_mapping" "example" {
 }
 
 resource "aws_cloudwatch_log_group" "todo_logs" {
-  name              = "API-Gateway-Execution-Logs_${aws_api_gateway_rest_api.todo_rest_api.id}/dev"
+  name              = "${var.project_name}-Execution-Logs_${aws_api_gateway_rest_api.todo_rest_api.id}/dev"
   retention_in_days = 7
 }
