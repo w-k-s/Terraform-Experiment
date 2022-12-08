@@ -25,7 +25,7 @@ jobs:
         id: find_jar
         run: echo "EXECUTABLE_JAR_RELATIVE_PATH=$(find `pwd -P`/target -maxdepth 1 -name '*.jar')" >> $GITHUB_OUTPUT
       - name: Upload executable jar
-        uses: actions/upload-artifact@v2
+        uses: actions/upload-artifact@v3
         with:
           name: app.jar
           path: ${{ steps.find_jar.outputs.EXECUTABLE_JAR_RELATIVE_PATH }}
@@ -47,10 +47,12 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: actions/download-artifact@v2
+      - uses: actions/download-artifact@v3
         with:
           name: app.jar
           path: .
+      - name: Display structure of downloaded files
+        run: ls -R
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
       - name: Terraform Init
