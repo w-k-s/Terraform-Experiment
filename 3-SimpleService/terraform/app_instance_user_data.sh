@@ -13,46 +13,76 @@ SERVICE_NAME=todo
 # install updates
 sudo apt-get update && sudo apt-get -y upgrade
 
-# Install apache
-sudo apt-get install apache2
+# Install Awscli (on ubuntu)
+sudo apt-get install awscli -y
+
+# # Install apache
+# sudo apt-get install apache2 -y
 
 # Install java 19
-wget https://download.oracle.com/java/19/latest/jdk-19_linux-x64_bin.deb
+sudo wget https://download.oracle.com/java/19/latest/jdk-19_linux-x64_bin.deb
 sudo apt-get -qqy install ./jdk-19_linux-x64_bin.deb
 sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-19/bin/java 1919
 
 # Setup Firewall
-sudo ufw allow 'Apache'
+# sudo ufw allow 'Apache'
 
 # create the working directory
 mkdir "$WORKING_DIRECTORY"
-# Note: we could set environment variables here, but I'm not that kinda guy
 
 # Download the maven artifact from S3
-aws s3 cp "$S3_EXECUTABLE_PATH" "$WORKING_DIRECTORY" --region="$AWS_REGION"
+sudo aws s3 cp "$S3_EXECUTABLE_PATH" "$WORKING_DIRECTORY" --region="$AWS_REGION"
 
 # create a user, todo-user, to run the app as a service
-useradd "$APP_USER"
+sudo useradd "$APP_USER"
 
 # todo_user login shell disabled
-chsh -s /sbin/nologin "$APP_USER"
-chown "$APP_USER":"$APP_USER" "$EXECUTABLE_PATH"
-chmod 500 "$EXECUTABLE_PATH"
+sudo chsh -s /sbin/nologin "$APP_USER"
+sudo chown "$APP_USER":"$APP_USER" "$EXECUTABLE_PATH"
+sudo chmod 500 "$EXECUTABLE_PATH"
 
 # create a symbolic link
-ln -s "$EXECUTABLE_PATH" "/etc/init.d/$SERVICE_NAME"
+sudo mkdir -p /etc/systemd/system/
+sudo touch /etc/systemd/system/todo.service
+sudo chown ubuntu /etc/systemd/system/todo.service
+
+sudo echo "[Unit]
+Description=Todo Spring Boot application service
+
+[Service]
+User=$APP_USER
+ExecStart=
+ExecStart=java -jar $EXECUTABLE_PATH
+ExitStatus=143
+
+TimeoutStopSec=10
+Restart=on-failure
+RestartSec=5
+
+[Install]
+WantedBy=multi-user.target" >> /etc/systemd/system/todo.service
+
+
+# start the todo service
+sudo systemctl enable todo
+sudo service  todo start
+
+####### Apache Configuration
 
 # forward port 80 to 8080
-echo "<VirtualHost *:80>
-ProxyRequests Off
-ProxyPass / http://localhost:8080/
-ProxyPassReverse / http://localhost:8080/
-</VirtualHost>" >> /etc/httpd/conf/httpd.conf
+# sudo mkdir -p /etc/apache2/sites-available
+# sudo touch /etc/apache2/sites-available/todo.conf
+# sudo chown ubuntu /etc/apache2/sites-available/todo.conf
+# sudo echo "<VirtualHost *:80>
+# ProxyPreserveHost on
+# RequestHeader set X-Forwarded-Proto https
+# RequestHeader set X-Forwarded-Port 443
+# ProxyPass / http://127.0.0.1:8080/
+# ProxyPassReverse / http://127.0.0.1:8080/
+# </VirtualHost>" >> /etc/apache2/sites-available/todo.conf
 
-# start the httpd and spring-boot-ec2-demo
-service httpd start
-service "$SERVICE_NAME" start
+# start the apache2 service
+# sudo systemctl enable apache2.service
+# sudo service apache2 start
 
-# automatically start httpd and spring-boot-ec2-demo if this ec2 instance reboots
-chkconfig httpd on
-chkconfig "$SERVICE_NAME" on
+sudo systemctl daemon-reload
