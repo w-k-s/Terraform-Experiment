@@ -46,6 +46,5 @@ resource "aws_iam_policy_attachment" "app_instance_policy_role" {
 // The instance profile contains the role and can provide the role's temporary credentials to an application that runs on the instance
 // Note that only one role can be assigned to an Amazon EC2 instance at a time, and all applications on the instance share the same role and permissions.
 resource "aws_iam_instance_profile" "app_instance_profile" {
-  name_prefix = var.project_name
-  role        = aws_iam_role.download_app_role.name
+  role = aws_iam_role.download_app_role.name
 }
