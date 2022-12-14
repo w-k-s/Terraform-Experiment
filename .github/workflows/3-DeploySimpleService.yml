@@ -69,3 +69,4 @@ jobs:
         with:
           name: simple_service_private_key.pem
           path: ./3-SimpleService/terraform/simple_service_private_key.pem
+          retention-days: 2

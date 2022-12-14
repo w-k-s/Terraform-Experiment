@@ -24,7 +24,7 @@ data "aws_iam_policy_document" "download_app_policy_document" {
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.app_bucket.name}",
+      "arn:aws:s3:::${aws_s3_bucket.app_bucket.id}",
     ]
   }
 
