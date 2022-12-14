@@ -1,5 +1,4 @@
 resource "aws_iam_role" "download_app_role" {
-  name = "download_app_role"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -25,7 +24,7 @@ data "aws_iam_policy_document" "download_app_policy_document" {
     ]
 
     resources = [
-      "arn:aws:s3:::${var.aws_s3_bucket.app_bucket.name}",
+      "arn:aws:s3:::${aws_s3_bucket.app_bucket.name}",
     ]
   }
 
