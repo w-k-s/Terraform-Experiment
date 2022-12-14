@@ -52,7 +52,7 @@ Description=Todo Spring Boot application service
 [Service]
 User=$APP_USER
 ExecStart=
-ExecStart=java -jar $EXECUTABLE_PATH
+ExecStart=java -jar -Dspring.profiles.active=prod $EXECUTABLE_PATH
 ExitStatus=143
 
 TimeoutStopSec=10

@@ -104,6 +104,7 @@ resource "aws_instance" "app_instance" {
   user_data                   = file("app_instance_user_data.sh")
   associate_public_ip_address = true
   key_name                    = aws_key_pair.app_instance_key_pair.key_name
+  iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
   ebs_block_device {
     device_name           = "/dev/xvda"
     volume_size           = 8
