@@ -100,7 +100,7 @@ resource "aws_key_pair" "app_instance_key_pair" {
 resource "aws_instance" "app_instance" {
   ami                         = data.aws_ami.ubuntu.id
   instance_type               = "t3.micro"
-  vpc_security_group_ids      = ["${aws_security_group.allow_http.id}", "${aws_security_group.allow_ssh.id}"]
+  vpc_security_group_ids      = ["${aws_security_group.allow_http.id}", "${aws_security_group.allow_ssh.id}", "${aws_security_group.allow_https.id}"]
   user_data                   = file("app_instance_user_data.sh")
   associate_public_ip_address = true
   key_name                    = aws_key_pair.app_instance_key_pair.key_name
