@@ -8,15 +8,9 @@ resource "aws_api_gateway_rest_api" "todo_rest_api" {
   }
 }
 
-resource "aws_api_gateway_resource" "api_resource" {
-  rest_api_id = aws_api_gateway_rest_api.todo_rest_api.id
-  parent_id   = aws_api_gateway_rest_api.todo_rest_api.root_resource_id
-  path_part   = "api"
-}
-
 resource "aws_api_gateway_resource" "proxy_resource" {
   rest_api_id = aws_api_gateway_rest_api.todo_rest_api.id
-  parent_id   = aws_api_gateway_resource.api_resource.id
+  parent_id   = aws_api_gateway_rest_api.todo_rest_api.root_resource_id
   path_part   = "{proxy+}"
 }
 
@@ -25,17 +19,26 @@ resource "aws_api_gateway_method" "proxy_method" {
   resource_id   = aws_api_gateway_resource.proxy_resource.id
   http_method   = "ANY"
   authorization = "NONE"
+  request_parameters = {
+    "method.request.path.proxy" = true
+  }
 }
 
 resource "aws_api_gateway_integration" "backend_integration" {
   rest_api_id = aws_api_gateway_rest_api.todo_rest_api.id
   resource_id = aws_api_gateway_resource.proxy_resource.id
   http_method = "ANY"
-
   type = "HTTP_PROXY"
   # Proxying to an ec2's public ip is not a good idea. We'll use an ELB in a different recipe.
-  uri                     = format("http://%s", aws_instance.app_instance.public_dns)
+  uri                     = format("http://%s/{proxy}", aws_instance.app_instance.public_dns)
   integration_http_method = "ANY"
+
+  cache_key_parameters = ["method.request.path.proxy"]
+
+  request_parameters = {
+    "integration.request.path.proxy" = "method.request.path.proxy"
+  }
+
 }
 
 resource "aws_api_gateway_deployment" "todo_api_deployment" {

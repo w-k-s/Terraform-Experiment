@@ -60,8 +60,7 @@ Restart=on-failure
 RestartSec=5
 
 [Install]
-WantedBy=multi-user.target" >> /etc/systemd/system/todo.service
-
+WantedBy=multi-user.target" | sudo tee /etc/systemd/system/todo.service
 
 # start the todo service
 sudo systemctl enable todo

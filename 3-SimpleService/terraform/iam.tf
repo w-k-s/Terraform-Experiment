@@ -21,10 +21,11 @@ data "aws_iam_policy_document" "download_app_policy_document" {
     actions = [
       "s3:GetObject",
       "s3:List*",
+      "s3:HeadObject"
     ]
 
     resources = [
-      "arn:aws:s3:::${aws_s3_bucket.app_bucket.id}",
+      "arn:aws:s3:::${aws_s3_bucket.app_bucket.id}/*",
     ]
   }
 
