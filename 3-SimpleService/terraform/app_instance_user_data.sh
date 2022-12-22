@@ -17,7 +17,7 @@ sudo apt-get update && sudo apt-get -y upgrade
 sudo apt-get install awscli -y
 
 # # Install apache
-# sudo apt-get install apache2 -y
+sudo apt-get install apache2 -y
 
 # Install java 19
 sudo wget https://download.oracle.com/java/19/latest/jdk-19_linux-x64_bin.deb
@@ -49,15 +49,20 @@ sudo chown ubuntu /etc/systemd/system/todo.service
 sudo echo "[Unit]
 Description=Todo Spring Boot application service
 
-[Service]
-User=$APP_USER
-ExecStart=
-ExecStart=java -jar -Dspring.profiles.active=prod $EXECUTABLE_PATH
-ExitStatus=143
+[Socket]
+ListenStream=8080
+NoDelay=true
 
-TimeoutStopSec=10
+[Service]
+Type=simple
 Restart=on-failure
-RestartSec=5
+RestartSec=1
+User=$APP_USER
+Group=$APP_USER
+ExecStart=
+ExecStart=java -jar $EXECUTABLE_PATH
+WorkingDirectory=$WORKING_DIRECTORY
+ExitStatus=143
 
 [Install]
 WantedBy=multi-user.target" | sudo tee /etc/systemd/system/todo.service
@@ -69,19 +74,19 @@ sudo service  todo start
 ####### Apache Configuration
 
 # forward port 80 to 8080
-# sudo mkdir -p /etc/apache2/sites-available
-# sudo touch /etc/apache2/sites-available/todo.conf
-# sudo chown ubuntu /etc/apache2/sites-available/todo.conf
-# sudo echo "<VirtualHost *:80>
-# ProxyPreserveHost on
-# RequestHeader set X-Forwarded-Proto https
-# RequestHeader set X-Forwarded-Port 443
-# ProxyPass / http://127.0.0.1:8080/
-# ProxyPassReverse / http://127.0.0.1:8080/
-# </VirtualHost>" >> /etc/apache2/sites-available/todo.conf
+sudo mkdir -p /etc/apache2/sites-available
+sudo touch /etc/apache2/sites-available/todo.conf
+sudo chown ubuntu /etc/apache2/sites-available/todo.conf
+sudo echo "<VirtualHost *:80>
+ProxyPreserveHost on
+RequestHeader set X-Forwarded-Proto https
+RequestHeader set X-Forwarded-Port 443
+ProxyPass / http://127.0.0.1:8080/
+ProxyPassReverse / http://127.0.0.1:8080/
+</VirtualHost>" | sudo tee /etc/apache2/sites-available/todo.conf
 
 # start the apache2 service
-# sudo systemctl enable apache2.service
-# sudo service apache2 start
+sudo systemctl enable apache2.service
+sudo service apache2 start
 
 sudo systemctl daemon-reload

@@ -62,8 +62,6 @@ jobs:
         run: terraform init
       - name: Terraform Deploy
         run: terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="simple_service_host=$SIMPLE_SERVICE_HOST" -var="executable_jar_path=${{ steps.find_jar.outputs.EXECUTABLE_JAR_PATH }}" -var="private_key_output_file=$PRIVATE_KEY_OUTPUT_FILE"
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Upload private key
         uses: actions/upload-artifact@v2
         with:
