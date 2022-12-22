@@ -1,6 +1,7 @@
 #!/bin/bash
 
-# Define variables
+####### VARIABLES
+
 WORKING_DIRECTORY=/opt/todo
 AWS_REGION=ap-south-1
 JAR_NAME=app.jar
@@ -9,6 +10,8 @@ S3_EXECUTABLE_PATH="$S3_APP_BUCKET/$JAR_NAME"
 EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
 APP_USER=todo-user
 SERVICE_NAME=todo
+
+####### INSTALLATIONS
 
 # install updates
 sudo apt-get update && sudo apt-get -y upgrade
@@ -24,8 +27,8 @@ sudo wget https://download.oracle.com/java/19/latest/jdk-19_linux-x64_bin.deb
 sudo apt-get -qqy install ./jdk-19_linux-x64_bin.deb
 sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-19/bin/java 1919
 
-# Setup Firewall
-# sudo ufw allow 'Apache'
+
+####### APPLICATION CONFIGURATION
 
 # create the working directory
 mkdir "$WORKING_DIRECTORY"
@@ -71,7 +74,15 @@ WantedBy=multi-user.target" | sudo tee /etc/systemd/system/todo.service
 sudo systemctl enable todo
 sudo service  todo start
 
-####### Apache Configuration
+####### APACHE CONFIGURATION
+
+sudo a2enmod proxy
+sudo a2enmod headers
+sudo a2enmod proxy_http
+sudo systemctl restart apache2
+
+# Setup Firewall
+sudo ufw allow 'Apache'
 
 # forward port 80 to 8080
 sudo mkdir -p /etc/apache2/sites-available
