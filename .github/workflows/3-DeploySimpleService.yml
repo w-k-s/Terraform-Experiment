@@ -54,8 +54,6 @@ jobs:
       - name: Find jar
         id: find_jar
         run: echo "EXECUTABLE_JAR_PATH=$(find `pwd -P` -maxdepth 1 -name '*.jar')" >> $GITHUB_OUTPUT
-      - name: Display structure of downloaded files
-        run: ls -R
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
       - name: Terraform Init

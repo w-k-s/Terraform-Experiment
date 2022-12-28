@@ -36,12 +36,8 @@ mkdir "$WORKING_DIRECTORY"
 # Download the maven artifact from S3
 sudo aws s3 cp "$S3_EXECUTABLE_PATH" "$WORKING_DIRECTORY" --region="$AWS_REGION"
 
-# create a user, todo-user, to run the app as a service
-sudo useradd "$APP_USER"
-
-# todo_user login shell disabled
 sudo chsh -s /sbin/nologin "$APP_USER"
-sudo chown ubuntu:ubuntu "$EXECUTABLE_PATH"
+sudo chown "$APP_USER":"$APP_USER" "$EXECUTABLE_PATH"
 sudo chmod 500 "$EXECUTABLE_PATH"
 
 # create a symbolic link
@@ -57,6 +53,8 @@ ListenStream=8080
 NoDelay=true
 
 [Service]
+User=$APP_USER
+Group=$APP_USER
 Type=simple
 Restart=on-failure
 RestartSec=1
@@ -83,16 +81,21 @@ sudo systemctl restart apache2
 sudo ufw allow 'Apache'
 
 # forward port 80 to 8080
-sudo mkdir -p /etc/apache2/sites-available
-sudo touch /etc/apache2/sites-available/todo.conf
-sudo chown ubuntu /etc/apache2/sites-available/todo.conf
+sudo mkdir -p /etc/apache2/sites-enabled
+sudo touch /etc/apache2/sites-enabled/todo.conf
+sudo chown ubuntu /etc/apache2/sites-enabled/todo.conf
 sudo echo "<VirtualHost *:80>
 ProxyPreserveHost on
 RequestHeader set X-Forwarded-Proto https
 RequestHeader set X-Forwarded-Port 443
 ProxyPass / http://127.0.0.1:8080/
 ProxyPassReverse / http://127.0.0.1:8080/
-</VirtualHost>" | sudo tee /etc/apache2/sites-available/todo.conf
+ErrorLog ${APACHE_LOG_DIR}/error.log
+CustomLog ${APACHE_LOG_DIR}/access.log combined
+</VirtualHost>" | sudo tee /etc/apache2/sites-enabled/todo.conf
+
+# Print complete configuration
+#sudo apachectl -S
 
 # start the apache2 service
 sudo systemctl enable apache2.service
