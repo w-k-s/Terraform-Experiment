@@ -31,7 +31,7 @@ This project requires the following [Repository Secrets](https://docs.github.com
 ## Required IAM Permissions:
 
 To use S3 as Backend:
-```
+```json
 {
   "Version": "2012-10-17",
   "Statement": [
@@ -53,7 +53,7 @@ To use S3 as Backend:
 
 
 The IAM policy used by the terraform user (that runs these experiments):
-```
+```json
 {
     "Version": "2012-10-17",
     "Statement": [

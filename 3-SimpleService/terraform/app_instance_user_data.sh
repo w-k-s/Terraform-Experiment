@@ -8,7 +8,6 @@ JAR_NAME=app.jar
 S3_APP_BUCKET=s3://io.wks.terraform.todobackend
 S3_EXECUTABLE_PATH="$S3_APP_BUCKET/$JAR_NAME"
 EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
-APP_USER=todo-user
 SERVICE_NAME=todo
 
 ####### INSTALLATIONS
@@ -36,14 +35,19 @@ mkdir "$WORKING_DIRECTORY"
 # Download the maven artifact from S3
 sudo aws s3 cp "$S3_EXECUTABLE_PATH" "$WORKING_DIRECTORY" --region="$AWS_REGION"
 
-sudo chsh -s /sbin/nologin "$APP_USER"
-sudo chown "$APP_USER":"$APP_USER" "$EXECUTABLE_PATH"
-sudo chmod 500 "$EXECUTABLE_PATH"
+# create a user, todo-user, to run the app as a service
+sudo useradd todo-user
+sudo usermod -aG admin todo-user
+
+# todo_user login shell disabled
+sudo chsh -s /sbin/nologin todo-user
+sudo chown todo-user:todo-user "$EXECUTABLE_PATH"
+sudo chmod u+x "$EXECUTABLE_PATH"
 
 # create a symbolic link
 sudo mkdir -p /etc/systemd/system/
 sudo touch /etc/systemd/system/todo.service
-sudo chown ubuntu /etc/systemd/system/todo.service
+#sudo chown ubuntu /etc/systemd/system/todo.service
 
 sudo echo "[Unit]
 Description=Todo Spring Boot application service
@@ -53,11 +57,11 @@ ListenStream=8080
 NoDelay=true
 
 [Service]
-User=$APP_USER
-Group=$APP_USER
+User=todo-user
+Group=admin
 Type=simple
 Restart=on-failure
-RestartSec=1
+RestartSec=10
 ExecStart=
 ExecStart=java -jar $EXECUTABLE_PATH
 WorkingDirectory=$WORKING_DIRECTORY
@@ -83,7 +87,7 @@ sudo ufw allow 'Apache'
 # forward port 80 to 8080
 sudo mkdir -p /etc/apache2/sites-enabled
 sudo touch /etc/apache2/sites-enabled/todo.conf
-sudo chown ubuntu /etc/apache2/sites-enabled/todo.conf
+#sudo chown ubuntu /etc/apache2/sites-enabled/todo.conf
 sudo echo "<VirtualHost *:80>
 ProxyPreserveHost on
 RequestHeader set X-Forwarded-Proto https
