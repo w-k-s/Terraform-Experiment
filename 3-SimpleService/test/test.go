@@ -25,7 +25,7 @@ var baseUrl url.URL
 
 func init() {
 
-	host = "todo.w-k-s.io"//os.Getenv("SIMPLE_SERVICE_HOST")
+	host = os.Getenv("SIMPLE_SERVICE_HOST")
 
 	baseUrl = url.URL{
 		Scheme: "https",
@@ -146,6 +146,8 @@ func readResponse(response *http.Response, v any) error {
 	if err != nil {
 		return err
 	}
+
+	log.Printf("Response: %q", string(body))
 
 	err = json.Unmarshal(body, &v)
 	if err != nil {

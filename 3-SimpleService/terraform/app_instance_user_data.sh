@@ -84,10 +84,9 @@ sudo systemctl restart apache2
 # Setup Firewall
 sudo ufw allow 'Apache'
 
-# forward port 80 to 8080
-sudo mkdir -p /etc/apache2/sites-enabled
-sudo touch /etc/apache2/sites-enabled/todo.conf
-#sudo chown ubuntu /etc/apache2/sites-enabled/todo.conf
+# Set up port-forwarding with apache
+sudo mkdir -p /etc/apache2/sites-available
+sudo touch /etc/apache2/sites-available/todo.conf
 sudo echo "<VirtualHost *:80>
 ProxyPreserveHost on
 RequestHeader set X-Forwarded-Proto https
@@ -96,13 +95,9 @@ ProxyPass / http://127.0.0.1:8080/
 ProxyPassReverse / http://127.0.0.1:8080/
 ErrorLog ${APACHE_LOG_DIR}/error.log
 CustomLog ${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>" | sudo tee /etc/apache2/sites-enabled/todo.conf
+</VirtualHost>" | sudo tee /etc/apache2/sites-available/todo.conf
 
-# Print complete configuration
-#sudo apachectl -S
+sudo a2ensite todo
 
 # start the apache2 service
-sudo systemctl enable apache2.service
-sudo service apache2 start
-
-sudo systemctl daemon-reload
+sudo systemctl reload apache2

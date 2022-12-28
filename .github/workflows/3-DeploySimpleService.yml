@@ -66,3 +66,21 @@ jobs:
           name: simple_service_private_key.pem
           path: ./3-SimpleService/terraform/simple_service_private_key.pem
           retention-days: 2
+  test:
+    runs-on: ubuntu-latest
+    env:
+      SIMPLE_SERVICE_HOST: ${{ secrets.SIMPLE_SERVICE_HOST }}
+    needs: [terraform]
+    defaults:
+      run:
+        working-directory: ./3-SimpleService/test
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v3
+        with:
+          go-version: '>=1.19.0'
+      - name: Run tests
+        run: |
+          go run test.go
