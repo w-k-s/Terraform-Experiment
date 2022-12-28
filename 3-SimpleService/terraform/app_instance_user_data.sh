@@ -41,7 +41,7 @@ sudo useradd "$APP_USER"
 
 # todo_user login shell disabled
 sudo chsh -s /sbin/nologin "$APP_USER"
-sudo chown "$APP_USER":"$APP_USER" "$EXECUTABLE_PATH"
+sudo chown ubuntu:ubuntu "$EXECUTABLE_PATH"
 sudo chmod 500 "$EXECUTABLE_PATH"
 
 # create a symbolic link
@@ -60,8 +60,6 @@ NoDelay=true
 Type=simple
 Restart=on-failure
 RestartSec=1
-User=$APP_USER
-Group=$APP_USER
 ExecStart=
 ExecStart=java -jar $EXECUTABLE_PATH
 WorkingDirectory=$WORKING_DIRECTORY
