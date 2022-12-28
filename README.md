@@ -49,4 +49,212 @@ To use S3 as Backend:
 }
 
 ```
-[Terraform S3 Backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
+- [Reference: Terraform S3 Backend](https://www.terraform.io/docs/language/settings/backends/s3.html)
+
+
+The IAM policy used by the terraform user (that runs these experiments):
+```
+{
+    "Version": "2012-10-17",
+    "Statement": [
+        {
+            "Effect": "Allow",
+            "Action": [
+                "autoscaling:*",
+                "appmesh:*",
+                "application-autoscaling:*",
+                "route53:*",
+                "acm:*",
+                "route53domains:*",
+                "cloudfront:*",
+                "cloudformation:*",
+                "elasticloadbalancing:*",
+                "ec2:*",
+                "ecr:*",
+                "ecs:*",
+                "events:*",
+                "elasticfilesystem:*",
+                "codedeploy:*",
+                "logs:*",
+                "cloudwatch:*",
+                "cloudtrail:*",
+                "cloudfront:*",
+                "lambda:*",
+                "route53:*",
+                "servicediscovery:*",
+                "sns:ListTopics",
+                "waf:ListWebACLs",
+                "waf:GetWebACL",
+                "wafv2:ListWebACLs",
+                "wafv2:GetWebACL"
+            ],
+            "Resource": "*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "apigateway:*"
+            ],
+            "Resource": "arn:aws:apigateway:*::/*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:CreateServiceLinkedRole"
+            ],
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "iam:AWSServiceName": [
+                        "replication.ecr.amazonaws.com"
+                    ]
+                }
+            }
+        },
+        {
+            "Action": [
+                "s3:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:s3:::*"
+        },
+        {
+            "Action": [
+                "kinesis:ListStreams",
+                "kinesis:DescribeStream"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:kinesis:*:*:*"
+        },
+        {
+            "Action": [
+                "iam:*"
+            ],
+            "Effect": "Allow",
+            "Resource": "arn:aws:iam::*:*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": "iam:CreateServiceLinkedRole",
+            "Resource": "*",
+            "Condition": {
+                "StringEquals": {
+                    "iam:AWSServiceName": [
+                        "autoscaling.amazonaws.com",
+                        "ec2scheduled.amazonaws.com",
+                        "elasticloadbalancing.amazonaws.com",
+                        "spot.amazonaws.com",
+                        "spotfleet.amazonaws.com",
+                        "transitgateway.amazonaws.com"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": "iam:CreateServiceLinkedRole",
+            "Resource": "arn:aws:iam::*:role/aws-service-role/acm.amazonaws.com/AWSServiceRoleForCertificateManager*",
+            "Condition": {
+                "StringEquals": {
+                    "iam:AWSServiceName": "acm.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "iam:DeleteServiceLinkedRole",
+                "iam:GetServiceLinkedRoleDeletionStatus",
+                "iam:GetRole"
+            ],
+            "Resource": "arn:aws:iam::*:role/aws-service-role/acm.amazonaws.com/AWSServiceRoleForCertificateManager*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ssm:GetParameter",
+                "ssm:GetParameters",
+                "ssm:GetParametersByPath"
+            ],
+            "Resource": "arn:aws:ssm:*:*:parameter/aws/service/ecs*"
+        },
+        {
+            "Effect": "Allow",
+            "Action": [
+                "ec2:DeleteInternetGateway",
+                "ec2:DeleteRoute",
+                "ec2:DeleteRouteTable",
+                "ec2:DeleteSecurityGroup"
+            ],
+            "Resource": [
+                "*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "ec2:ResourceTag/aws:cloudformation:stack-name": "EC2ContainerService-*"
+                }
+            }
+        },
+        {
+            "Action": "iam:PassRole",
+            "Effect": "Allow",
+            "Resource": [
+                "*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "iam:PassedToService": "ecs-tasks.amazonaws.com"
+                }
+            }
+        },
+        {
+            "Action": "iam:PassRole",
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:iam::*:role/ecsInstanceRole*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "iam:PassedToService": [
+                        "ec2.amazonaws.com",
+                        "ec2.amazonaws.com.cn"
+                    ]
+                }
+            }
+        },
+        {
+            "Action": "iam:PassRole",
+            "Effect": "Allow",
+            "Resource": [
+                "arn:aws:iam::*:role/ecsAutoscaleRole*"
+            ],
+            "Condition": {
+                "StringLike": {
+                    "iam:PassedToService": [
+                        "application-autoscaling.amazonaws.com",
+                        "application-autoscaling.amazonaws.com.cn"
+                    ]
+                }
+            }
+        },
+        {
+            "Effect": "Allow",
+            "Action": "iam:CreateServiceLinkedRole",
+            "Resource": "*",
+            "Condition": {
+                "StringLike": {
+                    "iam:AWSServiceName": [
+                        "autoscaling.amazonaws.com",
+                        "ecs.amazonaws.com",
+                        "ecs.application-autoscaling.amazonaws.com",
+                        "spot.amazonaws.com",
+                        "spotfleet.amazonaws.com"
+                    ]
+                }
+            }
+        }
+    ]
+}
+```
+- *Don't count on me to update the IAM policy above*
+- **TODO**: Figure out the minimum set of permissions for each experiment. [This article](https://meirg.co.il/2021/04/23/determining-aws-iam-policies-according-to-terraform-and-aws-cli/) describes how it can be done using [iamlive](https://github.com/iann0036/iamlive) by [Ian Mckay](https://github.com/iann0036).
