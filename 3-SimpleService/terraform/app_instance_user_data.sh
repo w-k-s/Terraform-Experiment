@@ -3,9 +3,9 @@
 ####### VARIABLES
 
 WORKING_DIRECTORY=/opt/todo
-AWS_REGION=ap-south-1
-JAR_NAME=app.jar
-S3_APP_BUCKET=s3://io.wks.terraform.todobackend
+AWS_REGION=${aws_region}
+JAR_NAME=${jar_name}
+S3_APP_BUCKET=${s3_app_bucket}
 S3_EXECUTABLE_PATH="$S3_APP_BUCKET/$JAR_NAME"
 EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
 SERVICE_NAME=todo

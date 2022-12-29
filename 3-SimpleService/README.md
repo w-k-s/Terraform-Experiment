@@ -1,10 +1,7 @@
 # Simple Service
 
 ## TODO
-
-- [ ] Add end-to-end tests
 - [ ] Push application logs to cloudwatch
-- [ ] Use template file to pass user-data shell script. Pass region, bucket name and jar name through the template file.
 
 ## Future enhancements
 

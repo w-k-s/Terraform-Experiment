@@ -9,15 +9,15 @@ terraform {
   backend "s3" {
     # This assumes we have a bucket created called io.wks.terraform
     bucket = "io.wks.terraform"
-    key    = "static-website.state.json"
-    region = "ap-south-1"
+    key    = "simple-service.state.json"
+    region = var.aws_region
   }
 
   required_version = ">= 1.2.0"
 }
 
 provider "aws" {
-  region = "ap-south-1"
+  region = var.aws_region
   default_tags {
     tags = {
       Project = var.project_name
