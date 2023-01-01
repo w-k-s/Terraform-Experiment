@@ -93,8 +93,8 @@ RequestHeader set X-Forwarded-Proto https
 RequestHeader set X-Forwarded-Port 443
 ProxyPass / http://127.0.0.1:8080/
 ProxyPassReverse / http://127.0.0.1:8080/
-ErrorLog ${APACHE_LOG_DIR}/error.log
-CustomLog ${APACHE_LOG_DIR}/access.log combined
+ErrorLog $${APACHE_LOG_DIR}/error.log
+CustomLog $${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>" | sudo tee /etc/apache2/sites-available/todo.conf
 
 sudo a2ensite todo
