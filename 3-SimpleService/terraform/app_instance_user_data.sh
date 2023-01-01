@@ -99,6 +99,7 @@ ErrorLog $${APACHE_LOG_DIR}/error.log
 CustomLog $${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>" | sudo tee /etc/apache2/sites-available/todo.conf
 
+sudo a2dissite 000-default.conf
 sudo a2ensite todo
 
 # start the apache2 service
