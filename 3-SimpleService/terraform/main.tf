@@ -10,7 +10,7 @@ terraform {
     # This assumes we have a bucket created called io.wks.terraform
     bucket = "io.wks.terraform"
     key    = "simple-service.state.json"
-    region = var.aws_region
+    region = "ap-south-1"
   }
 
   required_version = ">= 1.2.0"
