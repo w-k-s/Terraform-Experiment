@@ -1,18 +1,17 @@
 #!/bin/bash
-# File Stored on server at: /var/lib/cloud/instance/user-data.txt
-# Output stored on server at in:  /var/log/cloud-init-output.log
+# File Stored on ec2 ubuntu server at: /var/lib/cloud/instance/user-data.txt
+# Output stored on ec2 ubuntu server at in:  /var/log/cloud-init-output.log
 ####### VARIABLES
 
 WORKING_DIRECTORY=/opt/todo
 AWS_REGION=${aws_region}
 JAR_NAME=${jar_name}
 S3_APP_BUCKET=${s3_app_bucket}
-S3_EXECUTABLE_PATH="$S3_APP_BUCKET/$JAR_NAME"
+S3_EXECUTABLE_PATH="s3://$S3_APP_BUCKET/$JAR_NAME"
 EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
 SERVICE_NAME=todo
 
 echo "S3_EXECUTABLE_PATH: '$S3_EXECUTABLE_PATH',EXECUTABLE_PATH: '$EXECUTABLE_PATH', REGION: '$AWS_REGION' ";
-echo "EXPERIMENT: S3_EXECUTABLE_PATH: '$${S3_EXECUTABLE_PATH}',EXECUTABLE_PATH: '$${EXECUTABLE_PATH}', REGION: '$${AWS_REGION}' "
 
 ####### INSTALLATIONS
 
