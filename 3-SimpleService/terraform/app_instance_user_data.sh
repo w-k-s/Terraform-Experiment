@@ -1,5 +1,6 @@
 #!/bin/bash
-
+# File Stored on server at: /var/lib/cloud/instance/user-data.txt
+# Output stored on server at in:  /var/log/cloud-init-output.log
 ####### VARIABLES
 
 WORKING_DIRECTORY=/opt/todo
@@ -9,6 +10,9 @@ S3_APP_BUCKET=${s3_app_bucket}
 S3_EXECUTABLE_PATH="$S3_APP_BUCKET/$JAR_NAME"
 EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
 SERVICE_NAME=todo
+
+echo "S3_EXECUTABLE_PATH: '$S3_EXECUTABLE_PATH',EXECUTABLE_PATH: '$EXECUTABLE_PATH', REGION: '$AWS_REGION' ";
+echo "EXPERIMENT: S3_EXECUTABLE_PATH: '$${S3_EXECUTABLE_PATH}',EXECUTABLE_PATH: '$${EXECUTABLE_PATH}', REGION: '$${AWS_REGION}' "
 
 ####### INSTALLATIONS
 
@@ -25,7 +29,6 @@ sudo apt-get install apache2 -y
 sudo wget https://download.oracle.com/java/19/latest/jdk-19_linux-x64_bin.deb
 sudo apt-get -qqy install ./jdk-19_linux-x64_bin.deb
 sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-19/bin/java 1919
-
 
 ####### APPLICATION CONFIGURATION
 
