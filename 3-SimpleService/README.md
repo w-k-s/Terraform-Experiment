@@ -1,8 +1,5 @@
 # Simple Service
 
-## TODO
-- [ ] Push application logs to cloudwatch
-
 ## Future enhancements
 
 - [ ] Auto redirect HTTP to HTTPS
