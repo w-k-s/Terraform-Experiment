@@ -22,6 +22,7 @@ resource "aws_s3_object" "cloudwatch_agent_config" {
   acl    = "private"
   content_base64 = base64encode(templatefile("amazon-cloudwatch-agent.json", {
     application_log_directory = var.application_log_directory
-    project_name              = trimspace(var.project_name)
+    application_log_file_name = var.application_log_file_name
+    project_name              = var.log_group_name
   }))
 }

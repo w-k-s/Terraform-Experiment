@@ -106,6 +106,7 @@ resource "aws_instance" "app_instance" {
     jar_name                  = "app.jar"
     s3_app_bucket             = aws_s3_bucket.app_bucket.id
     application_log_directory = var.application_log_directory
+    application_log_file_name = var.application_log_file_name
   }))
   associate_public_ip_address = true
   key_name                    = aws_key_pair.app_instance_key_pair.key_name

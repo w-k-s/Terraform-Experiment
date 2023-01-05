@@ -16,7 +16,7 @@
                         "log_stream_name": "access-log-{instance_id}.log"
                     },
                     {
-                        "file_path": "${application_log_directory}",
+                        "file_path": "${application_log_directory}/${application_log_file_name}",
                         "log_group_name": "${project_name}",
                         "log_stream_name": "application-log-{instance_id}.log"
                     }

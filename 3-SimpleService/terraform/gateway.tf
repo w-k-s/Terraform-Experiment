@@ -28,7 +28,7 @@ resource "aws_api_gateway_integration" "backend_integration" {
   rest_api_id = aws_api_gateway_rest_api.todo_rest_api.id
   resource_id = aws_api_gateway_resource.proxy_resource.id
   http_method = "ANY"
-  type = "HTTP_PROXY"
+  type        = "HTTP_PROXY"
   # Proxying to an ec2's public ip is not a good idea. We'll use an ELB in a different recipe.
   uri                     = format("http://%s/{proxy}", aws_instance.app_instance.public_dns)
   integration_http_method = "ANY"

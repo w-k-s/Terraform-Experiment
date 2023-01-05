@@ -41,3 +41,15 @@ variable "application_log_directory" {
   description = "The absolute path to where the log files will be saved"
   default     = "/var/log/todo"
 }
+
+variable "application_log_file_name" {
+  type        = string
+  description = "The name of the log file (file extension must be provided) e.g. 'myapp.log'"
+  default     = "application.og"
+}
+
+variable "log_group_name" {
+  type        = string
+  description = "CloudWatch log group name"
+  default     = "SimpleService"
+}

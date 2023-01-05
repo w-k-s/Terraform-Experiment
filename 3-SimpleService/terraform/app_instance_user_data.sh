@@ -17,7 +17,7 @@ S3_CLOUDWATCH_CONFIG_PATH="s3://$S3_APP_BUCKET/$CLOUDWATCH_CONFIG_FILE_NAME"
 LOCAL_CLOUDWATCH_CONFIG_DIR=/opt/aws/amazon-cloudwatch-agent/etc/
 
 LOG_DIRECTORY=${application_log_directory}
-LOG_NAME=application
+LOG_FILE_NAME=${application_log_file_name}
 
 echo "S3_EXECUTABLE_PATH: '$S3_EXECUTABLE_PATH'"
 echo "EXECUTABLE_PATH: '$LOCAL_EXECUTABLE_PATH'"
@@ -87,7 +87,7 @@ Type=simple
 Restart=on-failure
 RestartSec=10
 ExecStart=
-ExecStart=java -jar -Dlogging.file.path=$LOG_DIRECTORY -Dlogging.file.name=$LOG_NAME $LOCAL_EXECUTABLE_PATH
+ExecStart=java -jar -Dlogging.file.path=$LOG_DIRECTORY -Dlogging.file.name=$LOG_FILE_NAME $LOCAL_EXECUTABLE_PATH
 WorkingDirectory=$WORKING_DIRECTORY
 ExitStatus=143
 
