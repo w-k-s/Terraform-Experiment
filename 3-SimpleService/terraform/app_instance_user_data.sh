@@ -1,6 +1,7 @@
 #!/bin/bash
 # File Stored on ec2 ubuntu server at: /var/lib/cloud/instance/user-data.txt
 # Output stored on ec2 ubuntu server at in:  /var/log/cloud-init-output.log
+
 ####### VARIABLES
 
 WORKING_DIRECTORY=/opt/todo
@@ -8,20 +9,31 @@ AWS_REGION=${aws_region}
 JAR_NAME=${jar_name}
 S3_APP_BUCKET=${s3_app_bucket}
 S3_EXECUTABLE_PATH="s3://$S3_APP_BUCKET/$JAR_NAME"
-EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
+LOCAL_EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
 SERVICE_NAME=todo
 
-echo "S3_EXECUTABLE_PATH: '$S3_EXECUTABLE_PATH',EXECUTABLE_PATH: '$EXECUTABLE_PATH', REGION: '$AWS_REGION' ";
+CLOUDWATCH_CONFIG_FILE_NAME=amazon-cloudwatch-agent.json
+S3_CLOUDWATCH_CONFIG_PATH="s3://$S3_APP_BUCKET/$CLOUDWATCH_CONFIG_FILE_NAME"
+LOCAL_CLOUDWATCH_CONFIG_DIR=/opt/aws/amazon-cloudwatch-agent/etc/
+
+LOG_DIRECTORY=${application_log_directory}
+LOG_NAME=application
+
+echo "S3_EXECUTABLE_PATH: '$S3_EXECUTABLE_PATH'"
+echo "EXECUTABLE_PATH: '$LOCAL_EXECUTABLE_PATH'"
+echo "REGION: '$AWS_REGION' "
+echo "LOG_DIRECTORY: '$LOG_DIRECTORY'"
+echo "S3_CLOUDWATCH_CONFIG_PATH: '$S3_CLOUDWATCH_CONFIG_PATH'"
 
 ####### INSTALLATIONS
 
-# install updates
+# Update aptitude repository
 sudo apt-get update && sudo apt-get -y upgrade
 
 # Install Awscli (on ubuntu)
 sudo apt-get install awscli -y
 
-# # Install apache
+# # Install Apache
 sudo apt-get install apache2 -y
 
 # Install java 19
@@ -37,19 +49,25 @@ mkdir "$WORKING_DIRECTORY"
 # Download the maven artifact from S3
 sudo aws s3 cp "$S3_EXECUTABLE_PATH" "$WORKING_DIRECTORY" --region="$AWS_REGION"
 
+
 # create a user, todo-user, to run the app as a service
 sudo useradd todo-user
+
+# Add todo-user to the admin group
 sudo usermod -aG admin todo-user
 
 # todo_user login shell disabled
 sudo chsh -s /sbin/nologin todo-user
-sudo chown todo-user:todo-user "$EXECUTABLE_PATH"
-sudo chmod u+x "$EXECUTABLE_PATH"
 
-# create a symbolic link
+# set todo-user as the owner of executable
+sudo chown todo-user:todo-user "$LOCAL_EXECUTABLE_PATH"
+
+# Add executable permission to jar
+sudo chmod u+x "$LOCAL_EXECUTABLE_PATH"
+
+# Create todo service daemon
 sudo mkdir -p /etc/systemd/system/
 sudo touch /etc/systemd/system/todo.service
-#sudo chown ubuntu /etc/systemd/system/todo.service
 
 sudo echo "[Unit]
 Description=Todo Spring Boot application service
@@ -65,7 +83,7 @@ Type=simple
 Restart=on-failure
 RestartSec=10
 ExecStart=
-ExecStart=java -jar $EXECUTABLE_PATH
+ExecStart=java -jar -Dlogging.file.path=$LOG_DIRECTORY -Dlogging.file.name=$LOG_NAME $LOCAL_EXECUTABLE_PATH
 WorkingDirectory=$WORKING_DIRECTORY
 ExitStatus=143
 
@@ -99,8 +117,30 @@ ErrorLog $${APACHE_LOG_DIR}/error.log
 CustomLog $${APACHE_LOG_DIR}/access.log combined
 </VirtualHost>" | sudo tee /etc/apache2/sites-available/todo.conf
 
+# Disable the default site
 sudo a2dissite 000-default.conf
+# Enable the todo site
 sudo a2ensite todo
 
 # start the apache2 service
 sudo systemctl reload apache2
+
+##### CLOUDWATCH
+
+# Downlod the cloudwatch agent
+sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/amazon-cloudwatch-agent.deb
+
+# Install the cloudwatch agent
+sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
+
+# Download the cloudwatch file
+sudo mkdir -p "$LOCAL_CLOUDWATCH_CONFIG_DIR"
+sudo aws s3 cp "$S3_CLOUDWATCH_CONFIG_PATH" "$LOCAL_CLOUDWATCH_CONFIG_DIR" --region="$AWS_REGION"
+
+# Use cloudwatch config from SSM
+sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
+-a fetch-config \
+-m ec2 \
+-s \
+-c "file:$LOCAL_CLOUDWATCH_CONFIG_DIR/$CLOUDWATCH_CONFIG_FILE_NAME"
+
