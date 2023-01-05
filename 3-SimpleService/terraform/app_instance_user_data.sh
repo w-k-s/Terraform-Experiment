@@ -65,6 +65,10 @@ sudo chown todo-user:todo-user "$LOCAL_EXECUTABLE_PATH"
 # Add executable permission to jar
 sudo chmod u+x "$LOCAL_EXECUTABLE_PATH"
 
+# Set up log directory
+sudo mkdir -p "$LOG_DIRECTORY"
+sudo chown todo-user:todo-user "$LOG_DIRECTORY"
+
 # Create todo service daemon
 sudo mkdir -p /etc/systemd/system/
 sudo touch /etc/systemd/system/todo.service

@@ -8,17 +8,17 @@
                 "collect_list": [{
                         "file_path": "/var/log/apache2/error.log",
                         "log_group_name": "${project_name}",
-                        "log_stream_name": "Instance-{instance_id}.log"
+                        "log_stream_name": "error-log-{instance_id}.log"
                     },
                     {
                         "file_path": "/var/log/apache2/access.log",
                         "log_group_name": "${project_name}",
-                        "log_stream_name": "Instance-{instance_id}.log"
+                        "log_stream_name": "access-log-{instance_id}.log"
                     },
                     {
                         "file_path": "${application_log_directory}",
                         "log_group_name": "${project_name}",
-                        "log_stream_name": "Instance-{instance_id}.log"
+                        "log_stream_name": "application-log-{instance_id}.log"
                     }
                 ]
             }
