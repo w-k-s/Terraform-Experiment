@@ -40,13 +40,13 @@ resource "aws_iam_policy" "download_app_policy" {
 // Attaches a Managed IAM Policy to user(s), role(s), and/or group(s)
 resource "aws_iam_role_policy_attachment" "download_app_policy_attachment" {
   name       = "app_instance_policy_attachment"
-  roles      = [aws_iam_role.app_instance_role.name]
+  role       = aws_iam_role.app_instance_role.name
   policy_arn = aws_iam_policy.download_app_policy.arn
 }
 
 resource "aws_iam_role_policy_attachment" "cloudwatch_policy_attachment" {
   name       = "cloudwatch_policy_attachment"
-  roles      = [aws_iam_role.app_instance_role.name]
+  role       = aws_iam_role.app_instance_role.name
   policy_arn = aws_iam_policy.cloudwatch_policy.arn
 }
 
