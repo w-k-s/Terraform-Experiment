@@ -26,6 +26,7 @@ This project requires the following [Repository Secrets](https://docs.github.com
 | STATIC_WEBSITE_HOST        | For `1-StaticWebsite`, this is the host name at which the static website will be hosted.                                                                                                              | `terraform.example.io` |
 | API_GATEWAY_HOST           | For `2-ApiGateway`, this is the host name at which the API will be hosted                                                                                                                             | `api.example.io`       |
 | SIMPLE_SERVICE_HOST        | For `3-SimpleService`, this is the host name at which the API will be hosted                                                                                                                          | `todo.example.io`      |
+| LOAD_BALANCED_SERVICE_HOST| For `4-LoadBalancedService`, this is the host name at which the API will be hosted                                                                                                                          | `measurements.example.io`      |
 
 
 ## Required IAM Permissions:
