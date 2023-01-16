@@ -1,0 +1,1 @@
+https://www.tutorialsbuddy.com/secure-spring-boot-rest-apis-with-amazon-cognito-example
