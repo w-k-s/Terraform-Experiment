@@ -79,7 +79,7 @@ resource "aws_iam_policy" "session_management_policy" {
 
 resource "aws_iam_role_policy_attachment" "session_management_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
-  policy_arn = data.aws_iam_policy.session_management_policy.arn
+  policy_arn = aws_iam_policy.session_management_policy.arn
 }
 
 data "aws_iam_policy" "cloudwatch_policy" {
@@ -112,7 +112,7 @@ resource "aws_iam_policy" "get_ssm_parameter_policy" {
 
 resource "aws_iam_role_policy_attachment" "get_ssm_parameter_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
-  policy_arn = data.aws_iam_policy.get_ssm_parameter_policy.arn
+  policy_arn = aws_iam_policy.get_ssm_parameter_policy.arn
 }
 
 // The instance profile contains the role and can provide the role's temporary credentials to an application that runs on the instance
