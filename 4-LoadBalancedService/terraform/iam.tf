@@ -37,6 +37,13 @@ resource "aws_iam_policy" "download_app_policy" {
   policy = data.aws_iam_policy_document.download_app_policy_document.json
 }
 
+// Attaches a Managed IAM Policy to user(s), role(s), and/or group(s)
+resource "aws_iam_role_policy_attachment" "download_app_policy_attachment" {
+  role       = aws_iam_role.app_instance_role.name
+  policy_arn = aws_iam_policy.download_app_policy.arn
+}
+
+
 # Using session manager to access ec2 instance (rather than using key-pairs and ssh)
 data "aws_iam_policy_document" "session_management_policy_document" {
   statement {
@@ -64,30 +71,48 @@ data "aws_iam_policy_document" "session_management_policy_document" {
 
 }
 
-resource "aws_iam_policy" "session_management_policy"{
+resource "aws_iam_policy" "session_management_policy" {
   name   = "session_management_policy"
   path   = "/"
   policy = data.aws_iam_policy_document.session_management_policy_document.json
 }
 
-// Attaches a Managed IAM Policy to user(s), role(s), and/or group(s)
-resource "aws_iam_role_policy_attachment" "download_app_policy_attachment" {
+resource "aws_iam_role_policy_attachment" "session_management_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
-  policy_arn = aws_iam_policy.download_app_policy.arn
+  policy_arn = data.aws_iam_policy.session_management_policy.arn
 }
 
 data "aws_iam_policy" "cloudwatch_policy" {
   arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
+
 resource "aws_iam_role_policy_attachment" "cloudwatch_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
   policy_arn = data.aws_iam_policy.cloudwatch_policy.arn
 }
 
-resource "aws_iam_role_policy_attachment" "session_management_policy_attachment" {
+data "aws_iam_policy_document" "get_ssm_parameter_policy_document" {
+  statement {
+    actions = [
+      "ssm:GetParameter"
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "get_ssm_parameter_policy" {
+  name   = "get_ssm_parameter_policy"
+  path   = "/"
+  policy = data.aws_iam_policy_document.get_ssm_parameter_policy_document.json
+}
+
+resource "aws_iam_role_policy_attachment" "get_ssm_parameter_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
-  policy_arn = data.aws_iam_policy.session_management_policy.arn
+  policy_arn = data.aws_iam_policy.get_ssm_parameter_policy.arn
 }
 
 // The instance profile contains the role and can provide the role's temporary credentials to an application that runs on the instance

@@ -12,10 +12,6 @@ S3_EXECUTABLE_PATH="s3://$S3_APP_BUCKET/$JAR_NAME"
 LOCAL_EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
 SERVICE_NAME=unit_conversion
 
-CLOUDWATCH_CONFIG_FILE_NAME=amazon-cloudwatch-agent.json
-S3_CLOUDWATCH_CONFIG_PATH="s3://$S3_APP_BUCKET/$CLOUDWATCH_CONFIG_FILE_NAME"
-LOCAL_CLOUDWATCH_CONFIG_DIR=/opt/aws/amazon-cloudwatch-agent/etc/
-
 LOG_DIRECTORY=${application_log_directory}
 LOG_FILE_NAME=${application_log_file_name}
 
@@ -23,7 +19,6 @@ echo "S3_EXECUTABLE_PATH: '$S3_EXECUTABLE_PATH'"
 echo "EXECUTABLE_PATH: '$LOCAL_EXECUTABLE_PATH'"
 echo "REGION: '$AWS_REGION' "
 echo "LOG_DIRECTORY: '$LOG_DIRECTORY'"
-echo "S3_CLOUDWATCH_CONFIG_PATH: '$S3_CLOUDWATCH_CONFIG_PATH'"
 
 ####### INSTALLATIONS
 
@@ -137,14 +132,11 @@ sudo wget https://s3.amazonaws.com/amazoncloudwatch-agent/ubuntu/amd64/latest/am
 # Install the cloudwatch agent
 sudo dpkg -i -E ./amazon-cloudwatch-agent.deb
 
-# Download the cloudwatch file
-sudo mkdir -p "$LOCAL_CLOUDWATCH_CONFIG_DIR"
-sudo aws s3 cp "$S3_CLOUDWATCH_CONFIG_PATH" "$LOCAL_CLOUDWATCH_CONFIG_DIR" --region="$AWS_REGION"
 
 # Use cloudwatch config from SSM
 sudo /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl \
 -a fetch-config \
 -m ec2 \
 -s \
--c "file:$LOCAL_CLOUDWATCH_CONFIG_DIR/$CLOUDWATCH_CONFIG_FILE_NAME"
+-c ssm:${ssm_cloudwatch_config}
 

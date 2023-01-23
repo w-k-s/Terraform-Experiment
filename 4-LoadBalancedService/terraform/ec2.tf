@@ -69,6 +69,7 @@ resource "aws_instance" "app_instance" {
     s3_app_bucket             = aws_s3_bucket.app_bucket.id
     application_log_directory = var.application_log_directory
     application_log_file_name = var.application_log_file_name
+    ssm_cloudwatch_config     = aws_ssm_parameter.cloudwatch_agent_config.name
   }))
   associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
