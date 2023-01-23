@@ -1,4 +1,4 @@
-name: "Simple Service - Deploy"
+name: "3. Simple Service - Deploy"
 on:
   workflow_dispatch:
     branches:

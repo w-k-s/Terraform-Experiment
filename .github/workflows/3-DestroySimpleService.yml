@@ -1,4 +1,4 @@
-name: "Simple Service - Destroy"
+name: "3. Simple Service - Destroy"
 on:
   workflow_dispatch:
     branches:

@@ -1,4 +1,4 @@
-name: "Static Website - Deploy"
+name: "1. Static Website - Deploy"
 on:
   workflow_dispatch:
     branches:

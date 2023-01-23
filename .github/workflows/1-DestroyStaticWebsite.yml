@@ -1,4 +1,4 @@
-name: "Static Website - Destroy"
+name: "1. Static Website - Destroy"
 on:
   workflow_dispatch:
     branches:

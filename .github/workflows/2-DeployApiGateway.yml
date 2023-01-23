@@ -1,4 +1,4 @@
-name: "Api Gateway - Deploy"
+name: "2. Api Gateway - Deploy"
 on:
   workflow_dispatch:
     branches:

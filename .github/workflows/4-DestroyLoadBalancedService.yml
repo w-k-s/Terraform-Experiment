@@ -1,4 +1,4 @@
-name: "Load Balanced Service - Destroy"
+name: "4. Load Balanced Service - Destroy"
 on:
   workflow_dispatch:
     branches:

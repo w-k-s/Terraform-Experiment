@@ -1,4 +1,4 @@
-name: "Load Balanced Service - Deploy"
+name: "4. Load Balanced Service - Deploy"
 on:
   workflow_dispatch:
     branches:
