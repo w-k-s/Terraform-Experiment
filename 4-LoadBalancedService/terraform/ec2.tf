@@ -83,4 +83,8 @@ resource "aws_instance" "app_instance" {
       Name = "terraform-storage"
     }
   }
+
+  tags = {
+    Name = format("%s-app-instance", var.project_name)
+  }
 }
