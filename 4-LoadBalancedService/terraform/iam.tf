@@ -86,7 +86,6 @@ data "aws_iam_policy" "cloudwatch_policy" {
   arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
 
-
 resource "aws_iam_role_policy_attachment" "cloudwatch_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
   policy_arn = data.aws_iam_policy.cloudwatch_policy.arn
@@ -113,6 +112,15 @@ resource "aws_iam_policy" "get_ssm_parameter_policy" {
 resource "aws_iam_role_policy_attachment" "get_ssm_parameter_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
   policy_arn = aws_iam_policy.get_ssm_parameter_policy.arn
+}
+
+data "aws_iam_policy" "ssm_access_policy" {
+  arn = "arn:aws:iam::aws:policy/EC2AccessForSSM"
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_access_policy_attachment" {
+  role       = aws_iam_role.app_instance_role.name
+  policy_arn = data.aws_iam_policy.ssm_access_policy.arn
 }
 
 // The instance profile contains the role and can provide the role's temporary credentials to an application that runs on the instance
