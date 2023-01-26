@@ -14,55 +14,30 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
-resource "aws_security_group" "allow_http" {
-  name        = "allow_http"
-  description = "Allow HTTP inbound traffic"
+resource "aws_security_group" "allow_lb" {
+  name        = "allow_lb"
+  description = "Allow Load balancer inbound traffic"
 
   ingress {
-    description      = "TLS from Default VPC"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    description     = "TLS from Default VPC"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.allow_http.id}"]
   }
 
   egress {
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 }
 
-resource "aws_security_group" "allow_https" {
-  name        = "allow_https"
-  description = "Allow HTTPS inbound traffic"
-
-  ingress {
-    description      = "TLS from Default VPC"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-}
-
-
-resource "aws_instance" "app_instance" {
+resource "aws_launch_configuration" "this" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
-  vpc_security_group_ids = ["${aws_security_group.allow_http.id}", "${aws_security_group.allow_https.id}"]
+  vpc_security_group_ids = ["${aws_security_group.allow_lb.id}"]
   user_data = base64encode(templatefile("app_instance_user_data.sh", {
     aws_region                = var.aws_region
     jar_name                  = "app.jar"
