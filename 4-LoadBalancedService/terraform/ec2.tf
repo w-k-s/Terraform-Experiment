@@ -35,9 +35,10 @@ resource "aws_security_group" "allow_lb" {
 }
 
 resource "aws_launch_configuration" "this" {
-  ami                    = data.aws_ami.ubuntu.id
-  instance_type          = "t3.micro"
-  vpc_security_group_ids = ["${aws_security_group.allow_lb.id}"]
+  name_prefix     = var.project_name
+  image_id        = data.aws_ami.ubuntu.id
+  instance_type   = "t3.micro"
+  security_groups = ["${aws_security_group.allow_lb.id}"]
   user_data = base64encode(templatefile("app_instance_user_data.sh", {
     aws_region                = var.aws_region
     jar_name                  = "app.jar"
@@ -57,9 +58,5 @@ resource "aws_launch_configuration" "this" {
     tags = {
       Name = "terraform-storage"
     }
-  }
-
-  tags = {
-    Name = format("%s-app-instance", var.project_name)
   }
 }
