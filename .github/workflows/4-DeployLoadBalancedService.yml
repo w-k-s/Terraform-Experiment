@@ -55,6 +55,8 @@ jobs:
         run: echo "EXECUTABLE_JAR_PATH=$(find `pwd -P` -maxdepth 1 -name '*.jar')" >> $GITHUB_OUTPUT
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.3.7"
       - name: Terraform Init
         run: terraform init
       - name: Terraform Deploy
