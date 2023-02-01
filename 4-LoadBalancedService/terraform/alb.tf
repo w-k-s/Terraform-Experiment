@@ -21,7 +21,6 @@ resource "aws_security_group" "allow_http" {
 }
 
 resource "aws_lb" "this" {
-  name               = trimspace(format("%s-LoadBalancer", var.project_name))
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.allow_http.id]
@@ -39,7 +38,6 @@ resource "aws_lb_listener" "listener_http" {
 }
 
 resource "aws_lb_target_group" "this" {
-  name     = trimspace(format("%s-TargetGroup", var.project_name))
   port     = 80
   protocol = "HTTP"
 
