@@ -55,8 +55,5 @@ resource "aws_launch_configuration" "this" {
     volume_size           = 8
     volume_type           = "gp2"
     delete_on_termination = true
-    tags = {
-      Name = "terraform-storage"
-    }
   }
 }
