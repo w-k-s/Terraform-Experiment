@@ -24,7 +24,7 @@ resource "aws_lb" "this" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.allow_http.id]
-  subnets            = aws_subnets.public_subnets.ids
+  subnets            = data.aws_subnets.public_subnets.ids
 }
 
 resource "aws_lb_listener" "listener_http" {
@@ -54,4 +54,5 @@ resource "aws_autoscaling_group" "this" {
   min_size             = 2
   max_size             = 3
   target_group_arns    = ["${aws_lb_target_group.this.arn}"]
+  vpc_zone_identifier  = data.aws_subnets.public_subnets.ids
 }
