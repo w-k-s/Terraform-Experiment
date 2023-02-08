@@ -24,6 +24,7 @@ resource "aws_lb" "this" {
   internal           = false
   load_balancer_type = "application"
   security_groups    = [aws_security_group.allow_http.id]
+  subnets            = aws_subnets.public_subnets.ids
 }
 
 resource "aws_lb_listener" "listener_http" {
@@ -40,6 +41,7 @@ resource "aws_lb_listener" "listener_http" {
 resource "aws_lb_target_group" "this" {
   port     = 80
   protocol = "HTTP"
+  vpc_id   = aws_default_vpc.this.id
 
   health_check {
     path = "/actuator/health"
