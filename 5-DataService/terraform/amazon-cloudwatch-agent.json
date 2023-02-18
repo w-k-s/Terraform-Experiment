@@ -1,0 +1,43 @@
+{
+    "agent": {
+        "run_as_user": "root"
+    },
+    "logs": {
+        "logs_collected": {
+            "files": {
+                "collect_list": [{
+                        "file_path": "/var/log/apache2/error.log",
+                        "log_group_name": "${project_name}",
+                        "log_stream_name": "error-log-{instance_id}.log"
+                    },
+                    {
+                        "file_path": "/var/log/apache2/access.log",
+                        "log_group_name": "${project_name}",
+                        "log_stream_name": "access-log-{instance_id}.log"
+                    },
+                    {
+                        "file_path": "${application_log_directory}/${application_log_file_name}",
+                        "log_group_name": "${project_name}",
+                        "log_stream_name": "application-log-{instance_id}.log"
+                    }
+                ]
+            }
+        }
+    },
+    "metrics": {
+        "metrics_collected": {
+            "disk": {
+                "resources": ["/", "/tmp"],
+                "measurement": ["disk_used_percent"],
+                "ignore_file_system_types": ["sysfs", "devtmpfs"]
+            },
+            "mem": {
+                "measurement": ["mem_available_percent"]
+            }
+        },
+        "aggregation_dimensions": [
+            ["InstanceId", "InstanceType"],
+            ["InstanceId"]
+        ]
+    }
+}
