@@ -5,6 +5,7 @@ resource "aws_apigatewayv2_api" "this" {
   disable_execute_api_endpoint = true
 }
 
+# A private integration that uses a VPC link to encapsulate connections between API Gateway and Application Load Balancers
 resource "aws_apigatewayv2_integration" "this" {
   api_id              = aws_apigatewayv2_api.this.id
   description         = "Notice Board REST API"

@@ -1,0 +1,64 @@
+name: "5. Data Service - Deploy"
+on:
+  workflow_dispatch:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./5-DataService/notice-board-backend
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "adopt"
+          cache: maven
+      - name: Run tests
+        run: mvn clean install
+      - name: Find jar
+        id: find_jar
+        run: echo "EXECUTABLE_JAR_PATH=$(find `pwd -P`/target -maxdepth 1 -name '*.jar')" >> $GITHUB_OUTPUT
+      - name: Upload executable jar
+        uses: actions/upload-artifact@v3
+        with:
+          name: app.jar
+          path: ${{ steps.find_jar.outputs.EXECUTABLE_JAR_PATH }}
+          retention-days: 2
+
+  terraform:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      HOSTED_ZONE_NAME: ${{ secrets.HOSTED_ZONE_NAME }}
+      DATA_SERVICE_HOST: ${{ secrets.DATA_SERVICE_HOST }}
+      RDS_PSQL_INSTANCE_IDENTIFIER: ${{ secrets.RDS_PSQL_INSTANCE_IDENTIFIER }}
+    defaults:
+      run:
+        working-directory: ./5-DataService/terraform
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - uses: actions/download-artifact@v3
+        with:
+          name: app.jar
+          path: ./5-DataService/terraform
+      - name: Find jar
+        id: find_jar
+        run: echo "EXECUTABLE_JAR_PATH=$(find `pwd -P` -maxdepth 1 -name '*.jar')" >> $GITHUB_OUTPUT
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.3.7"
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Deploy
+        run: terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="notice_board_service_host=$DATA_SERVICE_HOST" -var="executable_jar_path=${{ steps.find_jar.outputs.EXECUTABLE_JAR_PATH }}" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER"

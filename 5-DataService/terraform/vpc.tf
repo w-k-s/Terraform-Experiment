@@ -25,3 +25,9 @@ data "aws_subnets" "private_subnets" {
     values = ["0"]
   }
 }
+
+# TODO: Add this to private route table
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id       = aws_default_vpc.this.id
+  service_name = format("com.amazonaws.%s.s3", var.aws_region)
+}

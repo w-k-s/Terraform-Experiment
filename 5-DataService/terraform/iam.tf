@@ -45,6 +45,8 @@ resource "aws_iam_role_policy_attachment" "download_app_policy_attachment" {
 
 
 # Using session manager to access ec2 instance (rather than using key-pairs and ssh)
+# An AWS ISM policy that grants Session Manager the permission to perform actions on your Amazon EC2 managed instances
+# https://docs.aws.amazon.com/systems-manager/latest/userguide/getting-started-create-iam-instance-profile.html
 data "aws_iam_policy_document" "session_management_policy_document" {
   statement {
     actions = [
@@ -82,6 +84,7 @@ resource "aws_iam_role_policy_attachment" "session_management_policy_attachment"
   policy_arn = aws_iam_policy.session_management_policy.arn
 }
 
+# Policy that enables EC2 instance to act as a CloudWatch Agent Server
 data "aws_iam_policy" "cloudwatch_policy" {
   arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
 }
@@ -91,6 +94,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_policy_attachment" {
   policy_arn = data.aws_iam_policy.cloudwatch_policy.arn
 }
 
+# Policy that enables EC2 instance to get parameters from SSM
 data "aws_iam_policy" "ssm_access_policy" {
   arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }

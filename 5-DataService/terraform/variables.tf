@@ -25,6 +25,11 @@ variable "executable_jar_path" {
   description = "The absolute path to the compiled, executable jar. The jar at this path will be uploaded to S3" # Can this be relative? 
 }
 
+variable "rds_psql_instance_identifier" {
+    type = string
+    description = "Existing RDS PSQL instance identifier"
+}
+
 variable "application_log_directory" {
   type        = string
   description = "The absolute path to where the log files will be saved"
@@ -41,4 +46,10 @@ variable "log_group_name" {
   type        = string
   description = "CloudWatch log group name"
   default     = "NoticeBoardService"
+}
+
+variable "user_pool_name"{
+  type = "string"
+  description = "AWS Cognito User Pool Name"
+  default = "NoticeBoard-Pool"
 }

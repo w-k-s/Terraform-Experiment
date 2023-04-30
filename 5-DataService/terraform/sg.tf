@@ -23,7 +23,7 @@ resource "aws_security_group" "vpc_link" {
 
 resource "aws_security_group" "load_balancer" {
   name        = "load_balancer_sg"
-  description = "Allow HTTP inbound traffic"
+  description = "Application Load Balance Security Group"
 
   ingress {
     description      = "TLS from Default VPC"
@@ -45,7 +45,7 @@ resource "aws_security_group" "load_balancer" {
 
 resource "aws_security_group" "instance" {
   name        = "instance_sg"
-  description = "Allow Load balancer inbound traffic"
+  description = "Application instance security group"
 
   ingress {
     description     = "TLS from Default VPC"
@@ -55,10 +55,27 @@ resource "aws_security_group" "instance" {
     security_groups = ["${aws_security_group.load_balancer.id}"]
   }
 
+  ingress {
+    description     = "From RDS instance"
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.rds.id}"]
+  }
+
   egress {
     from_port   = 0
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
   }
+}
+
+# The existing RDS instance is in the default VPC.
+# Here, we load a security group that is attached to the RDS instance.
+# This security group allows all egress traffic on port 5432.
+# It allows all ingress traffic from within the default VPC.
+# We load this security group to attach it to the Application instance.
+data "aws_security_group" "rds" {
+  name = "DefaultVPC-PostgresqlDB-SecurityGroup"
 }
