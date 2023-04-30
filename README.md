@@ -29,6 +29,8 @@ This project requires the following [Repository Secrets](https://docs.github.com
 | LOAD_BALANCED_SERVICE_HOST| For `4-LoadBalancedService`, this is the host name at which the API will be hosted                                                                                                                          | `measurements.example.io`      |
 | DATA_SERVICE_HOST| For `5-DataService`, this is the host name at which the API will be hosted                                                                                                                          | `noticeboard.example.io`      |
 | RDS_PSQL_INSTANCE_IDENTIFIER| The DB identifier of a RDS PostgreSQL instance                                                                                                                          | `my-postgresqldb-on-aws`      |
+| RDS_PSQL_MASTER_USERNAME| The username to connect to the RDS PSQL instance. This role should eb able to create a database, create roles, and grant permissions                                                                                                                          | N/A      |
+| RDS_PSQL_MASTER_PASSWORD| The password for the RDS master username provided earlier                                                                                                                         | N/A     |
 
 
 ## Required IAM Permissions:

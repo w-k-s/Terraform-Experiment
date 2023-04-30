@@ -1,23 +1,23 @@
 resource "aws_apigatewayv2_api" "this" {
-  name          = "Notice Board REST API"
-  description = "Post notices for anyone to read"
-  protocol_type = "HTTP"
+  name                         = "Notice Board REST API"
+  description                  = "Post notices for anyone to read"
+  protocol_type                = "HTTP"
   disable_execute_api_endpoint = true
 }
 
 # A private integration that uses a VPC link to encapsulate connections between API Gateway and Application Load Balancers
 resource "aws_apigatewayv2_integration" "this" {
-  api_id              = aws_apigatewayv2_api.this.id
-  description         = "Notice Board REST API"
-  connection_id       = aws_apigatewayv2_vpc_link.this.id
-  connection_type     = "VPC_LINK"
-  integration_type    = "HTTP_PROXY"
-  integration_method  = "ANY"
-  integration_uri = aws_lb_listener.listener_http.arn
+  api_id             = aws_apigatewayv2_api.this.id
+  description        = "Notice Board REST API"
+  connection_id      = aws_apigatewayv2_vpc_link.this.id
+  connection_type    = "VPC_LINK"
+  integration_type   = "HTTP_PROXY"
+  integration_method = "ANY"
+  integration_uri    = aws_lb_listener.listener_http.arn
 }
 
 resource "aws_apigatewayv2_vpc_link" "this" {
-  name        = format("%s-Gateway-VPCLink", var.log_group_name)
+  name               = format("%s-Gateway-VPCLink", var.log_group_name)
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
   subnet_ids         = data.aws_subnets.public_subnets.ids
 }
@@ -25,12 +25,12 @@ resource "aws_apigatewayv2_vpc_link" "this" {
 resource "aws_apigatewayv2_route" "this" {
   api_id    = aws_apigatewayv2_api.this.id
   route_key = "$default"
-  target = "integrations/${aws_apigatewayv2_integration.this.id}"
+  target    = "integrations/${aws_apigatewayv2_integration.this.id}"
 }
 
 resource "aws_apigatewayv2_stage" "dev" {
-  api_id = aws_apigatewayv2_api.this.id
-  name    = "dev"
+  api_id        = aws_apigatewayv2_api.this.id
+  name          = "dev"
   deployment_id = aws_apigatewayv2_deployment.this.id
 }
 

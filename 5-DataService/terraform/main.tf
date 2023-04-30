@@ -4,6 +4,11 @@ terraform {
       source  = "hashicorp/aws"
       version = "~> 4.16"
     }
+
+    postgresql = {
+      source  = "cyrilgdn/postgresql"
+      version = "~> 1.19.0"
+    }
   }
 
   backend "s3" {

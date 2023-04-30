@@ -26,8 +26,42 @@ variable "executable_jar_path" {
 }
 
 variable "rds_psql_instance_identifier" {
-    type = string
-    description = "Existing RDS PSQL instance identifier"
+  type        = string
+  description = "Existing RDS PSQL instance identifier"
+}
+
+variable "rds_psql_master_username" {
+  type        = string
+  description = "Master usename for PSQL dabatabase. This role must be able to create databases"
+}
+
+variable "rds_psql_master_password" {
+  type        = string
+  description = "Master password for PSQL dabatabase"
+}
+
+variable "rds_psql_application_db_name" {
+  type        = string
+  description = "The name of the database to create on the RDS PSQL instance for this application"
+  default     = "noticeboard"
+}
+
+variable "rds_psql_application_schema" {
+  type        = string
+  description = "The name of the postgres schema used by the application"
+  default     = "public"
+}
+
+variable "rds_psql_application_role" {
+  type        = string
+  description = "The name of the role used by the application to connect to the application db"
+  default     = "noticeboardApp"
+}
+
+variable "rds_psql_application_password" {
+  type        = string
+  description = "The password of the role used by the application to connect to the application db"
+  default     = ""
 }
 
 variable "application_log_directory" {
@@ -42,14 +76,15 @@ variable "application_log_file_name" {
   default     = "application.log"
 }
 
+# TODO: This name is used for other things besides log_group name. Rename to project_id
 variable "log_group_name" {
   type        = string
   description = "CloudWatch log group name"
   default     = "NoticeBoardService"
 }
 
-variable "user_pool_name"{
-  type = "string"
+variable "user_pool_name" {
+  type        = string
   description = "AWS Cognito User Pool Name"
-  default = "NoticeBoard-Pool"
+  default     = "NoticeBoard-Pool"
 }

@@ -14,6 +14,8 @@ jobs:
       HOSTED_ZONE_NAME: ${{ secrets.HOSTED_ZONE_NAME }}
       DATA_SERVICE_HOST: ${{ secrets.DATA_SERVICE_HOST }}
       RDS_PSQL_INSTANCE_IDENTIFIER: ${{ secrets.RDS_PSQL_INSTANCE_IDENTIFIER }}
+      RDS_PSQL_MASTER_USERNAME: ${{ secrets.RDS_PSQL_MASTER_USERNAME }}
+      RDS_PSQL_MASTER_PASSWORD: ${{ secrets.RDS_PSQL_MASTER_PASSWORD }}
     defaults:
       run:
         working-directory: ./5-DataService/terraform
@@ -30,4 +32,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Destroy
-        run: terraform apply -auto-approve -destroy -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="notice_board_service_host=$DATA_SERVICE_HOST" -var="executable_jar_path=" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER"
+        run: terraform apply -auto-approve -destroy -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="notice_board_service_host=$DATA_SERVICE_HOST" -var="executable_jar_path=" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_passport=$RDS_PSQL_MASTER_PASSWORD"

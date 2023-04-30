@@ -18,9 +18,9 @@ resource "aws_lb_listener" "listener_http" {
 }
 
 resource "aws_lb_target_group" "this" {
-  port     = 80
-  protocol = "HTTP"
-  vpc_id   = aws_default_vpc.this.id
+  port        = 80
+  protocol    = "HTTP"
+  vpc_id      = aws_default_vpc.this.id
   target_type = "instance"
 
   health_check {
