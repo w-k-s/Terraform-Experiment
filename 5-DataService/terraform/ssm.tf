@@ -51,7 +51,7 @@ resource "aws_ssm_parameter" "application_db_port" {
   value       = aws_db_instance.database.port
 }
 
-resource "aws_ssm_parameter" "application_db_port" {
+resource "aws_ssm_parameter" "application_db_schema" {
   description = "The schema of the DB that the application connects to"
   name        = format("/%s/db/schema", var.log_group_name)
   type        = "String"
