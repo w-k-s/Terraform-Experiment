@@ -4,6 +4,12 @@ variable "project_name" {
   default     = "Notice Board Service"
 }
 
+variable "project_id" {
+  type        = string
+  description = "6-character project id e.g. food, shop, health, fin"
+  default     = "nboard"
+}
+
 variable "aws_region" {
   type        = string
   description = "The AWS region where the AWS resources will be deployed."
@@ -74,13 +80,6 @@ variable "application_log_file_name" {
   type        = string
   description = "The name of the log file (file extension must be provided) e.g. 'myapp.log'"
   default     = "application.log"
-}
-
-# TODO: This name is used for other things besides log_group name. Rename to project_id
-variable "log_group_name" {
-  type        = string
-  description = "CloudWatch log group name"
-  default     = "NoticeBoardService"
 }
 
 variable "user_pool_name" {

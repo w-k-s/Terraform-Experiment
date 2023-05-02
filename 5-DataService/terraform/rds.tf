@@ -5,9 +5,9 @@ data "aws_db_instance" "database" {
 
 provider "postgresql" {
   scheme    = "awspostgres"
-  host      = aws_db_instance.database.address
+  host      = data.aws_db_instance.database.address
   username  = var.rds_psql_master_username
-  port      = aws_db_instance.database.port
+  port      = data.aws_db_instance.database.port
   password  = var.rds_psql_master_password
   superuser = false
 }

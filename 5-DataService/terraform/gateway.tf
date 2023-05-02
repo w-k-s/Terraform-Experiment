@@ -17,7 +17,7 @@ resource "aws_apigatewayv2_integration" "this" {
 }
 
 resource "aws_apigatewayv2_vpc_link" "this" {
-  name               = format("%s-Gateway-VPCLink", var.log_group_name)
+  name               = format("%s-Gateway-VPCLink", var.project_id)
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
   subnet_ids         = data.aws_subnets.public_subnets.ids
 }
@@ -58,7 +58,7 @@ resource "aws_apigatewayv2_deployment" "this" {
 }
 
 resource "aws_apigatewayv2_domain_name" "this" {
-  domain_name = var.load_balanced_service_host
+  domain_name = var.notice_board_service_host
 
   domain_name_configuration {
     certificate_arn = aws_acm_certificate.cert.arn
