@@ -21,7 +21,7 @@ resource "random_password" "db_default" {
 resource "postgresql_role" "application_role" {
   name     = var.rds_psql_application_role
   login    = true
-  password = var.rds_psql_application_password == "" ? random_password.db_default : var.rds_psql_application_password
+  password = var.rds_psql_application_password == "" ? random_password.db_default.result : var.rds_psql_application_password
 }
 
 resource "postgresql_database" "application_db" {

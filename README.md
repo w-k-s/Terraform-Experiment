@@ -63,200 +63,57 @@ The IAM policy used by the terraform user (that runs these experiments):
     "Version": "2012-10-17",
     "Statement": [
         {
+            "Sid": "VisualEditor0",
             "Effect": "Allow",
             "Action": [
-                "autoscaling:*",
-                "appmesh:*",
-                "application-autoscaling:*",
-                "route53:*",
-                "acm:*",
-                "route53domains:*",
-                "cloudfront:*",
-                "cloudformation:*",
-                "elasticloadbalancing:*",
-                "ec2:*",
-                "ecr:*",
-                "ecs:*",
-                "events:*",
-                "elasticfilesystem:*",
-                "codedeploy:*",
-                "logs:*",
-                "cloudwatch:*",
-                "cloudtrail:*",
-                "cloudfront:*",
-                "lambda:*",
-                "route53:*",
-                "servicediscovery:*",
-                "sns:ListTopics",
+                "cognito-identity:*",
+                "cognito-idp:*"
+            ],
+            "Resource": [
+                "arn:aws:cognito-identity:ap-south-1:838107339577:identitypool/*",
+                "arn:aws:wafv2:ap-south-1:838107339577:*/webacl/*/*",
+                "arn:aws:cognito-idp:ap-south-1:838107339577:userpool/*"
+            ]
+        },
+        {
+            "Sid": "VisualEditor1",
+            "Effect": "Allow",
+            "Action": [
                 "waf:ListWebACLs",
+                "rds:*",
+                "wafv2:GetWebACL",
+                "kinesis:ListStreams",
+                "route53domains:*",
                 "waf:GetWebACL",
+                "apigateway:*",
+                "cloudwatch:*",
+                "ecs:*",
+                "ec2:*",
                 "wafv2:ListWebACLs",
-                "wafv2:GetWebACL"
+                "sns:ListTopics",
+                "elasticfilesystem:*",
+                "s3:*",
+                "kinesis:DescribeStream",
+                "ssm:*",
+                "ecr:*",
+                "acm:*",
+                "application-autoscaling:*",
+                "logs:*",
+                "autoscaling:*",
+                "servicediscovery:*",
+                "cloudfront:*",
+                "events:*",
+                "cloudformation:*",
+                "iam:*",
+                "cognito-idp:*",
+                "cognito-identity:*",
+                "codedeploy:*",
+                "elasticloadbalancing:*",
+                "route53:*",
+                "lambda:*",
+                "cognito-idp:ConfirmDevice"
             ],
             "Resource": "*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "apigateway:*"
-            ],
-            "Resource": "arn:aws:apigateway:*::/*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:CreateServiceLinkedRole"
-            ],
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "replication.ecr.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Action": [
-                "s3:*"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:s3:::*"
-        },
-        {
-            "Action": [
-                "kinesis:ListStreams",
-                "kinesis:DescribeStream"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:kinesis:*:*:*"
-        },
-        {
-            "Action": [
-                "iam:*"
-            ],
-            "Effect": "Allow",
-            "Resource": "arn:aws:iam::*:*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": "iam:CreateServiceLinkedRole",
-            "Resource": "*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": [
-                        "autoscaling.amazonaws.com",
-                        "ec2scheduled.amazonaws.com",
-                        "elasticloadbalancing.amazonaws.com",
-                        "spot.amazonaws.com",
-                        "spotfleet.amazonaws.com",
-                        "transitgateway.amazonaws.com"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": "iam:CreateServiceLinkedRole",
-            "Resource": "arn:aws:iam::*:role/aws-service-role/acm.amazonaws.com/AWSServiceRoleForCertificateManager*",
-            "Condition": {
-                "StringEquals": {
-                    "iam:AWSServiceName": "acm.amazonaws.com"
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "iam:DeleteServiceLinkedRole",
-                "iam:GetServiceLinkedRoleDeletionStatus",
-                "iam:GetRole"
-            ],
-            "Resource": "arn:aws:iam::*:role/aws-service-role/acm.amazonaws.com/AWSServiceRoleForCertificateManager*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ssm:GetParameter",
-                "ssm:GetParameters",
-                "ssm:GetParametersByPath"
-            ],
-            "Resource": "arn:aws:ssm:*:*:parameter/aws/service/ecs*"
-        },
-        {
-            "Effect": "Allow",
-            "Action": [
-                "ec2:DeleteInternetGateway",
-                "ec2:DeleteRoute",
-                "ec2:DeleteRouteTable",
-                "ec2:DeleteSecurityGroup"
-            ],
-            "Resource": [
-                "*"
-            ],
-            "Condition": {
-                "StringLike": {
-                    "ec2:ResourceTag/aws:cloudformation:stack-name": "EC2ContainerService-*"
-                }
-            }
-        },
-        {
-            "Action": "iam:PassRole",
-            "Effect": "Allow",
-            "Resource": [
-                "*"
-            ],
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": "ecs-tasks.amazonaws.com"
-                }
-            }
-        },
-        {
-            "Action": "iam:PassRole",
-            "Effect": "Allow",
-            "Resource": [
-                "arn:aws:iam::*:role/ecsInstanceRole*"
-            ],
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "ec2.amazonaws.com",
-                        "ec2.amazonaws.com.cn"
-                    ]
-                }
-            }
-        },
-        {
-            "Action": "iam:PassRole",
-            "Effect": "Allow",
-            "Resource": [
-                "arn:aws:iam::*:role/ecsAutoscaleRole*"
-            ],
-            "Condition": {
-                "StringLike": {
-                    "iam:PassedToService": [
-                        "application-autoscaling.amazonaws.com",
-                        "application-autoscaling.amazonaws.com.cn"
-                    ]
-                }
-            }
-        },
-        {
-            "Effect": "Allow",
-            "Action": "iam:CreateServiceLinkedRole",
-            "Resource": "*",
-            "Condition": {
-                "StringLike": {
-                    "iam:AWSServiceName": [
-                        "autoscaling.amazonaws.com",
-                        "ecs.amazonaws.com",
-                        "ecs.application-autoscaling.amazonaws.com",
-                        "spot.amazonaws.com",
-                        "spotfleet.amazonaws.com"
-                    ]
-                }
-            }
         }
     ]
 }
