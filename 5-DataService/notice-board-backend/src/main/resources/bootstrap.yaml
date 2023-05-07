@@ -1,0 +1,6 @@
+aws:
+  paramstore:
+    prefix: "/config"
+    name: "nboard"
+    enabled: true
+    profileSeparator: "_"

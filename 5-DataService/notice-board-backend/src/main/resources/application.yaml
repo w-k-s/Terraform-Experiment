@@ -2,11 +2,25 @@ server:
   port: 8080
 
 spring:
+  datasource:
+    url: ""
+    username: ""
+    password: ""
+    driver-class-name: org.postgresql.Driver
   security:
     oauth2:
-      resource-server:
-        jwt:
-          issuer-uri: https://cognito-idp.ap-south-1.amazonaws.com/ap-south-1_Ibo11dqIq
+      client:
+        registration:
+          cognito:
+            clientId: ""
+            clientSecret: ""
+            scope: openid
+            redirect-uri: ""
+            clientName: ""
+        provider:
+          cognito:
+            issuerUri: ""
+            user-name-attribute: "cognito:username"
 
 logging:
   level:
