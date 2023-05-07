@@ -4,13 +4,13 @@
 
 ####### VARIABLES
 
-WORKING_DIRECTORY=/opt/unit_conversion
+WORKING_DIRECTORY=/opt/noticeboard
 AWS_REGION=${aws_region}
 JAR_NAME=${jar_name}
 S3_APP_BUCKET=${s3_app_bucket}
 S3_EXECUTABLE_PATH="s3://$S3_APP_BUCKET/$JAR_NAME"
 LOCAL_EXECUTABLE_PATH="$WORKING_DIRECTORY/$JAR_NAME"
-SERVICE_NAME=unit_conversion
+SERVICE_NAME=noticeboard
 
 LOG_DIRECTORY=${application_log_directory}
 LOG_FILE_NAME=${application_log_file_name}
@@ -45,38 +45,38 @@ mkdir "$WORKING_DIRECTORY"
 sudo aws s3 cp "$S3_EXECUTABLE_PATH" "$WORKING_DIRECTORY" --region="$AWS_REGION"
 
 
-# create a user, unit-conversion-user, to run the app as a service
-sudo useradd unit-conversion-user
+# create a user, noticeboarduser, to run the app as a service
+sudo useradd noticeboarduser
 
-# Add unit-conversion-user to the admin group
-sudo usermod -aG admin unit-conversion-user
+# Add noticeboarduser to the admin group
+sudo usermod -aG admin noticeboarduser
 
-# unit-conversion-user login shell disabled
-sudo chsh -s /sbin/nologin unit-conversion-user
+# noticeboarduser login shell disabled
+sudo chsh -s /sbin/nologin noticeboarduser
 
-# set unit-conversion-user as the owner of executable
-sudo chown unit-conversion-user:unit-conversion-user "$LOCAL_EXECUTABLE_PATH"
+# set noticeboarduser as the owner of executable
+sudo chown noticeboarduser:noticeboarduser "$LOCAL_EXECUTABLE_PATH"
 
 # Add executable permission to jar
 sudo chmod u+x "$LOCAL_EXECUTABLE_PATH"
 
 # Set up log directory
 sudo mkdir -p "$LOG_DIRECTORY"
-sudo chown unit-conversion-user:unit-conversion-user "$LOG_DIRECTORY"
+sudo chown noticeboarduser:noticeboarduser "$LOG_DIRECTORY"
 
 # Create unit-conversion service daemon
 sudo mkdir -p /etc/systemd/system/
-sudo touch /etc/systemd/system/unit_conversion.service
+sudo touch /etc/systemd/system/noticeboard.service
 
 sudo echo "[Unit]
-Description=Unit Conversion Spring Boot application service
+Description=Notice Board Spring Boot application service
 
 [Socket]
 ListenStream=8080
 NoDelay=true
 
 [Service]
-User=unit-conversion-user
+User=noticeboarduser
 Group=admin
 Type=simple
 Restart=on-failure
@@ -87,11 +87,11 @@ WorkingDirectory=$WORKING_DIRECTORY
 ExitStatus=143
 
 [Install]
-WantedBy=multi-user.target" | sudo tee /etc/systemd/system/unit_conversion.service
+WantedBy=multi-user.target" | sudo tee /etc/systemd/system/noticeboard.service
 
 # start the unit_conversion service
-sudo systemctl enable unit_conversion
-sudo service  unit_conversion start
+sudo systemctl enable noticeboard
+sudo service  noticeboard start
 
 ####### APACHE CONFIGURATION
 
@@ -105,7 +105,7 @@ sudo ufw allow 'Apache'
 
 # Set up port-forwarding with apache
 sudo mkdir -p /etc/apache2/sites-available
-sudo touch /etc/apache2/sites-available/unit-conversion.conf
+sudo touch /etc/apache2/sites-available/noticeboard.conf
 sudo echo "<VirtualHost *:80>
 ProxyPreserveHost on
 RequestHeader set X-Forwarded-Proto https
@@ -114,12 +114,12 @@ ProxyPass / http://127.0.0.1:8080/
 ProxyPassReverse / http://127.0.0.1:8080/
 ErrorLog $${APACHE_LOG_DIR}/error.log
 CustomLog $${APACHE_LOG_DIR}/access.log combined
-</VirtualHost>" | sudo tee /etc/apache2/sites-available/unit-conversion.conf
+</VirtualHost>" | sudo tee /etc/apache2/sites-available/noticeboard.conf
 
 # Disable the default site
 sudo a2dissite 000-default.conf
 # Enable the unit-conversion site
-sudo a2ensite unit-conversion
+sudo a2ensite noticeboard
 
 # start the apache2 service
 sudo systemctl reload apache2

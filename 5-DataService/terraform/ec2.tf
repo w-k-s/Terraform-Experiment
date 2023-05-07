@@ -14,6 +14,7 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"] # Canonical
 }
 
+# TODO: Replace with launch template
 resource "aws_launch_configuration" "this" {
   name_prefix     = var.project_name
   image_id        = data.aws_ami.ubuntu.id
@@ -36,4 +37,17 @@ resource "aws_launch_configuration" "this" {
     volume_type           = "gp2"
     delete_on_termination = true
   }
+}
+
+# Bastion Instance to create the required database and roles, if they don't already exist.
+resource "aws_instance" "bastion_instance" {
+  ami                    = data.aws_ami.ubuntu.id
+  instance_type          = "t3.micro"
+  vpc_security_group_ids = ["${aws_security_group.instance.id}"]
+  subnet_id              = element(data.aws_subnets.private_subnets.ids, 1)
+  user_data = base64encode(templatefile("bastion_instance_user_data.sh", {
+    db_init_script_ssm_param_name = aws_ssm_parameter.db_init_script.name
+  }))
+  associate_public_ip_address = false
+  iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
 }

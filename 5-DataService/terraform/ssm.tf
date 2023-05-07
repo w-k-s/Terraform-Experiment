@@ -9,6 +9,18 @@ resource "aws_ssm_parameter" "cloudwatch_agent_config" {
   })
 }
 
+resource "aws_ssm_parameter" "db_init_script" {
+  description = "Script to setup the DB and role"
+  name        = format("/config/%s/db-init-script", var.project_id)
+  type        = "String"
+  value = templatefile("db-init.sql", {
+    db_name     = var.rds_psql_application_db_name
+    db_role     = var.rds_psql_application_role
+    db_password = var.rds_psql_application_password
+    db_schema   = var.rds_psql_application_schema
+  })
+}
+
 resource "aws_ssm_parameter" "cognito_client_id" {
   description = "Cognito Client ID"
   name        = format("/config/%s/spring.security.oauth2.client.registration.cognito.clientId", var.project_id)
@@ -41,7 +53,7 @@ resource "aws_ssm_parameter" "cognito_client_issuer_uri" {
   description = "Cognito Client Scope"
   name        = format("/config/%s/spring.security.oauth2.client.provider.issuerUri", "openid")
   type        = "String"
-  value       = format("https://cognito-idp.%s.amazonaws.com/%s", var.aws_region, aws_cognito_user_pool.this.id)
+  value       = format("https://%s", var.aws_cognito_user_pool.this.endpoint)
 }
 
 resource "aws_ssm_parameter" "application_jdbc_url" {
