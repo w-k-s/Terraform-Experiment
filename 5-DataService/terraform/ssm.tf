@@ -25,7 +25,7 @@ resource "aws_ssm_parameter" "application_jdbc_url" {
   description = "The username that the application uses to connect to the DB"
   name        = format("/config/%s/spring.datasource.url", var.project_id)
   type        = "SecureString"
-  value       = format("jdbc:postgresql://%s:%s/%s?currentSchema=%s", data.aws_db_instance.database.host, data.aws_db_instance.database.port, var.rds_psql_application_db_name, var.rds_psql_application_schema)
+  value       = format("jdbc:postgresql://%s/%s?currentSchema=%s", data.aws_db_instance.database.endpoint, var.rds_psql_application_db_name, var.rds_psql_application_schema)
 }
 
 resource "aws_ssm_parameter" "application_db_username" {
