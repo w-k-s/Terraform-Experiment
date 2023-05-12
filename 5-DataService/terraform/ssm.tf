@@ -13,7 +13,7 @@ resource "aws_ssm_parameter" "db_init_script" {
   description = "Script to setup the DB and role"
   name        = format("/config/%s/db-init-script", var.project_id)
   type        = "String"
-  value = templatefile("db-init.sql", {
+  value = templatefile("db_init.sql", {
     db_name     = var.rds_psql_application_db_name
     db_role     = var.rds_psql_application_role
     db_password = var.rds_psql_application_password

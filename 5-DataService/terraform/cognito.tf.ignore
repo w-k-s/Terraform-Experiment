@@ -33,7 +33,6 @@ resource "aws_cognito_user_pool" "this" {
   }
 }
 
-# TODO
 resource "aws_cognito_resource_server" "resource" {
   identifier = format("https://%s", aws_cognito_user_pool_domain.main.domain)
   name       = format("%s - Resource Server", var.project_name)
@@ -97,4 +96,16 @@ resource "aws_ssm_parameter" "cognito_client_issuer_uri" {
   name        = format("/config/%s/spring.security.oauth2.client.provider.issuerUri", "openid")
   type        = "String"
   value       = format("https://%s", var.aws_cognito_user_pool.this.endpoint)
+}
+
+resource "aws_route53_record" "auth-cognito-A" {
+  zone_id = data.aws_route53_zone.api_zone.zone_id
+  name    = aws_cognito_user_pool_domain.main.domain
+  type    = "A"
+
+  alias {
+    evaluate_target_health = false
+    name                   = aws_cognito_user_pool_domain.main.cloudfront_distribution
+    zone_id                = aws_cognito_user_pool_domain.main.cloudfront_distribution_zone_id
+  }
 }

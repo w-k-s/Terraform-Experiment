@@ -15,14 +15,3 @@ resource "aws_route53_record" "root-a" {
   }
 }
 
-resource "aws_route53_record" "auth-cognito-A" {
-  zone_id = data.aws_route53_zone.api_zone.zone_id
-  name    = aws_cognito_user_pool_domain.main.domain
-  type    = "A"
-
-  alias {
-    evaluate_target_health = false
-    name                   = aws_cognito_user_pool_domain.main.cloudfront_distribution
-    zone_id                = aws_cognito_user_pool_domain.main.cloudfront_distribution_zone_id
-  }
-}
