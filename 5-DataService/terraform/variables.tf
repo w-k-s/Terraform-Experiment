@@ -82,8 +82,4 @@ variable "application_log_file_name" {
   default     = "application.log"
 }
 
-variable "user_pool_name" {
-  type        = string
-  description = "AWS Cognito User Pool Name"
-  default     = "NoticeBoard-Pool"
-}
+

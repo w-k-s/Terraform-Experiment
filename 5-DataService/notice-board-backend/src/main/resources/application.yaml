@@ -7,20 +7,6 @@ spring:
     username: ""
     password: ""
     driver-class-name: org.postgresql.Driver
-  security:
-    oauth2:
-      client:
-        registration:
-          cognito:
-            clientId: ""
-            clientSecret: ""
-            scope: openid
-            redirect-uri: ""
-            clientName: ""
-        provider:
-          cognito:
-            issuerUri: ""
-            user-name-attribute: "cognito:username"
 
 logging:
   level:

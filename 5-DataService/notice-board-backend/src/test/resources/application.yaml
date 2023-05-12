@@ -8,16 +8,3 @@ spring:
     properties:
       hibernate:
         dialect: "org.hibernate.dialect.PostgreSQLDialect"
-  security:
-    oauth2:
-      client:
-        registration:
-          cognito:
-            redirect-uri: "http://localhost:8080/login/oauth2/code/cognito"
-cloud:
-  aws:
-    region:
-      auto: false
-      static: ap-south-1
-    stack:
-      auto: false

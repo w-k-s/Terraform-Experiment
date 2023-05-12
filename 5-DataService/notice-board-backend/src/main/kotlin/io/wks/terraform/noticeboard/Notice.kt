@@ -18,5 +18,6 @@ class Notice(
 
     @CreatedBy
     var createdBy: String?,
-
-)
+) {
+    constructor() : this(0, "", null)
+}

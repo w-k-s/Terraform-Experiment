@@ -21,41 +21,6 @@ resource "aws_ssm_parameter" "db_init_script" {
   })
 }
 
-resource "aws_ssm_parameter" "cognito_client_id" {
-  description = "Cognito Client ID"
-  name        = format("/config/%s/spring.security.oauth2.client.registration.cognito.clientId", var.project_id)
-  type        = "String"
-  value       = aws_cognito_user_pool_client.this.id
-}
-
-resource "aws_ssm_parameter" "cognito_client_secret" {
-  description = "Cognito Client Secret"
-  name        = format("/config/%s/spring.security.oauth2.client.registration.cognito.clientSecret", var.project_id)
-  type        = "SecureString"
-  value       = aws_cognito_user_pool_client.this.client_secret
-}
-
-resource "aws_ssm_parameter" "cognito_client_redirect_uri" {
-  description = "Cognito Client Scope"
-  name        = format("/config/%s/spring.security.oauth2.client.registration.cognito.redirect-uri", "openid")
-  type        = "String"
-  value       = "http://localhost:8080/login/oauth2/code/cognito"
-}
-
-resource "aws_ssm_parameter" "cognito_client_name" {
-  description = "Cognito Client Scope"
-  name        = format("/config/%s/spring.security.oauth2.client.registration.cognito.clientName", "openid")
-  type        = "String"
-  value       = aws_cognito_user_pool_client.this.name
-}
-
-resource "aws_ssm_parameter" "cognito_client_issuer_uri" {
-  description = "Cognito Client Scope"
-  name        = format("/config/%s/spring.security.oauth2.client.provider.issuerUri", "openid")
-  type        = "String"
-  value       = format("https://%s", var.aws_cognito_user_pool.this.endpoint)
-}
-
 resource "aws_ssm_parameter" "application_jdbc_url" {
   description = "The username that the application uses to connect to the DB"
   name        = format("/config/%s/spring.datasource.url", var.project_id)
