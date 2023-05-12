@@ -58,11 +58,7 @@ resource "aws_apigatewayv2_deployment" "this" {
 }
 
 resource "aws_apigatewayv2_domain_name" "this" {
+  certificate_arn = aws_acm_certificate.cert.arn
   domain_name = var.notice_board_service_host
-
-  domain_name_configuration {
-    certificate_arn = aws_acm_certificate.cert.arn
-    endpoint_type   = "REGIONAL"
-    security_policy = "TLS_1_2"
-  }
+  security_policy = "TLS_1_2"
 }
