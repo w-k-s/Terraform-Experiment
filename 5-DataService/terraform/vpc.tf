@@ -55,6 +55,7 @@ resource "aws_vpc_endpoint" "s3" {
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.ssm", var.aws_region)
+  vpc_endpoint_type = "Interface"
 
   tags = {
     Name = format("%s-vpclink-ssm",var.project_id)
@@ -65,6 +66,7 @@ resource "aws_vpc_endpoint" "ssm" {
 resource "aws_vpc_endpoint" "ec2messages" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.ec2messages", var.aws_region)
+  vpc_endpoint_type = "Interface"
 
   tags = {
     Name = format("%s-vpclink-ec2messages",var.project_id)
@@ -75,6 +77,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
 resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.ssmmessages", var.aws_region)
+  vpc_endpoint_type = "Interface"
 
   tags = {
     Name = format("%s-vpclink-ssmmessages",var.project_id)
