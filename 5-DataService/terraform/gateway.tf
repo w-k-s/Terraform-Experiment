@@ -61,7 +61,7 @@ resource "aws_apigatewayv2_domain_name" "this" {
   domain_name = var.notice_board_service_host
 
   domain_name_configuration {
-    certificate_arn = aws_acm_certificate.cert.arn
+    certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn
     endpoint_type   = "REGIONAL"
     security_policy = "TLS_1_2"
   }
