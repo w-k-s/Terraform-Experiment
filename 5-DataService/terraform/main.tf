@@ -33,5 +33,5 @@ provider "aws" {
 provider "aws" {
   # We need the ACM certificate to be created in us-east-1 for Cloudfront to be able to use it
   alias  = "acm_provider"
-  region = "us-east-1"
+  region = "ap-south-1"
 }
