@@ -32,7 +32,7 @@ data "aws_iam_policy_document" "download_app_policy_document" {
 }
 
 resource "aws_iam_policy" "download_app_policy" {
-  name   = "download_app_policy"
+  name = format("%s-download-app-policy", var.project_id)
   path   = "/"
   policy = data.aws_iam_policy_document.download_app_policy_document.json
 }
@@ -74,7 +74,7 @@ data "aws_iam_policy_document" "session_management_policy_document" {
 }
 
 resource "aws_iam_policy" "session_management_policy" {
-  name   = "session_management_policy"
+  name = format("%s-session-management-policy", var.project_id)
   path   = "/"
   policy = data.aws_iam_policy_document.session_management_policy_document.json
 }
@@ -107,5 +107,6 @@ resource "aws_iam_role_policy_attachment" "ssm_access_policy_attachment" {
 // The instance profile contains the role and can provide the role's temporary credentials to an application that runs on the instance
 // Note that only one role can be assigned to an Amazon EC2 instance at a time, and all applications on the instance share the same role and permissions.
 resource "aws_iam_instance_profile" "app_instance_profile" {
+  name = format("%s-app-instance-profile", var.project_id)
   role = aws_iam_role.app_instance_role.name
 }

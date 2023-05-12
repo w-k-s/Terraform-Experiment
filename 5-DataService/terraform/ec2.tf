@@ -50,4 +50,8 @@ resource "aws_instance" "bastion_instance" {
   }))
   associate_public_ip_address = false
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
+
+  tags = {
+    Name = format("%s-bastion-instance", var.project_id)
+  }
 }
