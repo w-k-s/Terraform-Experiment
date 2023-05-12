@@ -62,6 +62,7 @@ resource "aws_apigatewayv2_domain_name" "this" {
 
   domain_name_configuration {
     certificate_arn = aws_acm_certificate.cert.arn
+    endpoint_type   = "EDGE"
     security_policy = "TLS_1_2"
   }
 }
