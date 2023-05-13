@@ -1,5 +1,5 @@
 -- Create the noticeboard database if it doesn't exist
-CREATE DATABASE IF NOT EXISTS ${db_name};
+CREATE DATABASE ${db_name};
 
 -- Connect to the noticeboard database
 \c ${db_name};
@@ -8,7 +8,7 @@ CREATE DATABASE IF NOT EXISTS ${db_name};
 CREATE SCHEMA IF NOT EXISTS ${db_schema};
 
 -- Create the noticeboarduser role if it doesn't exist
-CREATE ROLE IF NOT EXISTS ${db_role};
+CREATE ROLE ${db_role};
 
 -- Set the password for the noticeboarduser role
 ALTER ROLE ${db_role} WITH PASSWORD '${db_password}';
