@@ -51,13 +51,15 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
-# Add a VPC endpoint for SSM so that the EC2 instance can talk to the session manager
+# Add a VPC endpoint for SSM so that the EC2 instance can talk to the session manager (also to get parameters)
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.ssm", var.aws_region)
   vpc_endpoint_type = "Interface"
   subnet_ids = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
+  private_dns_enabled = true
 
   tags = {
     Name = format("%s-vpclink-ssm",var.project_id)
@@ -71,6 +73,8 @@ resource "aws_vpc_endpoint" "ec2messages" {
   vpc_endpoint_type = "Interface"
   subnet_ids = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
+  private_dns_enabled = true
 
   tags = {
     Name = format("%s-vpclink-ec2messages",var.project_id)
@@ -84,6 +88,8 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_endpoint_type = "Interface"
   subnet_ids = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
+  private_dns_enabled = true
 
   tags = {
     Name = format("%s-vpclink-ssmmessages",var.project_id)
@@ -97,6 +103,8 @@ resource "aws_vpc_endpoint" "logs" {
   vpc_endpoint_type = "Interface"
   subnet_ids = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
+  private_dns_enabled = true
 
   tags = {
     Name = format("%s-vpclink-logs",var.project_id)
