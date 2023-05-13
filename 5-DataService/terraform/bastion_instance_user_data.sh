@@ -10,6 +10,7 @@ sudo apt-get install postgresql -y
 # Download the psql script from Parameter Store
 aws ssm get-parameter --name ${db_init_script_ssm_param_name} --query "Parameter.Value" --output text --region ${aws_region} > /home/ubuntu/psql_script.sql
 
+# To be honest. I think this is overzealous. I think it would be better to just create the db manually, connecting through a bastion.
 export PGPASSWORD=${rds_psql_master_password};
 if pg_isready -d {db_name} -h ${db_address} -p ${db_port} -U ${rds_psql_master_username} >/dev/null 2>&1; then
   echo "PostgreSQL server is up and running"

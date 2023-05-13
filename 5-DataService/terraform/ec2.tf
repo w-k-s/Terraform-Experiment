@@ -28,8 +28,11 @@ resource "aws_launch_configuration" "this" {
     application_log_file_name = var.application_log_file_name
     ssm_cloudwatch_config     = aws_ssm_parameter.cloudwatch_agent_config.name
   }))
-  associate_public_ip_address = true
+  
+  # TODO: Get Session manager to work!
   key_name                    = data.aws_key_pair.this.key_name
+  associate_public_ip_address = true
+
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
 
   ebs_block_device {
@@ -49,9 +52,18 @@ resource "aws_instance" "bastion_instance" {
   
   user_data = base64encode(templatefile("bastion_instance_user_data.sh", {
     db_init_script_ssm_param_name = aws_ssm_parameter.db_init_script.name
+    aws_region = var.aws_region
+    rds_psql_master_password = var.rds_psql_master_username
+    rds_psql_master_username = var.rds_psql_master_password
+    db_address = data.aws_db_instance.database.address
+    db_name = var.rds_psql_application_db_name
+    db_port = data.aws_db_instance.database.port
   }))
+
+  # TODO: Get Session manager to work!
   key_name                    = data.aws_key_pair.this.key_name
   associate_public_ip_address = true
+
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
 
   tags = {
