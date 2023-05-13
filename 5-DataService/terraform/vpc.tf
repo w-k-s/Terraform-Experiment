@@ -56,6 +56,8 @@ resource "aws_vpc_endpoint" "ssm" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.ssm", var.aws_region)
   vpc_endpoint_type = "Interface"
+  subnet_ids = data.aws_subnets.private_subnets.ids
+  security_group_ids = ["${aws_security_group.vpc_link.id}"]
 
   tags = {
     Name = format("%s-vpclink-ssm",var.project_id)
@@ -67,6 +69,8 @@ resource "aws_vpc_endpoint" "ec2messages" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.ec2messages", var.aws_region)
   vpc_endpoint_type = "Interface"
+  subnet_ids = data.aws_subnets.private_subnets.ids
+  security_group_ids = ["${aws_security_group.vpc_link.id}"]
 
   tags = {
     Name = format("%s-vpclink-ec2messages",var.project_id)
@@ -78,6 +82,8 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.ssmmessages", var.aws_region)
   vpc_endpoint_type = "Interface"
+  subnet_ids = data.aws_subnets.private_subnets.ids
+  security_group_ids = ["${aws_security_group.vpc_link.id}"]
 
   tags = {
     Name = format("%s-vpclink-ssmmessages",var.project_id)
@@ -89,8 +95,28 @@ resource "aws_vpc_endpoint" "logs" {
   vpc_id       = aws_default_vpc.this.id
   service_name = format("com.amazonaws.%s.logs", var.aws_region)
   vpc_endpoint_type = "Interface"
+  subnet_ids = data.aws_subnets.private_subnets.ids
+  security_group_ids = ["${aws_security_group.vpc_link.id}"]
 
   tags = {
     Name = format("%s-vpclink-logs",var.project_id)
+  }
+}
+
+# The EC2 instances download Java19 from oracle (could download from s3), so a nat gateway is needed.
+resource "aws_nat_gateway" "this" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = element(data.aws_subnets.private_subnets.ids, 1)
+
+  tags = {
+    Name = format("%s-nat-gateway",var.project_id)
+  }
+}
+
+resource "aws_eip" "nat_eip" {
+  vpc = true
+
+  tags = {
+    Name = format("%s-nat-eip",var.project_id)
   }
 }
