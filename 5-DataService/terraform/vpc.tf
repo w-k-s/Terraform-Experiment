@@ -83,3 +83,14 @@ resource "aws_vpc_endpoint" "ssmmessages" {
     Name = format("%s-vpclink-ssmmessages",var.project_id)
   }
 }
+
+# Add a VPC endpoint for SSM so that the EC2 instance can send out logs
+resource "aws_vpc_endpoint" "logs" {
+  vpc_id       = aws_default_vpc.this.id
+  service_name = format("com.amazonaws.%s.logs", var.aws_region)
+  vpc_endpoint_type = "Interface"
+
+  tags = {
+    Name = format("%s-vpclink-logs",var.project_id)
+  }
+}
