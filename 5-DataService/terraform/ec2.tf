@@ -29,9 +29,8 @@ resource "aws_launch_configuration" "this" {
     ssm_cloudwatch_config     = aws_ssm_parameter.cloudwatch_agent_config.name
   }))
   
-  # TODO: Get Session manager to work!
   key_name                    = data.aws_key_pair.this.key_name
-  associate_public_ip_address = true
+  associate_public_ip_address = false
 
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
 
@@ -47,8 +46,8 @@ resource "aws_launch_configuration" "this" {
 resource "aws_instance" "bastion_instance" {
   ami                    = data.aws_ami.ubuntu.id
   instance_type          = "t3.micro"
-  vpc_security_group_ids = ["${aws_security_group.instance.id}"]
-  subnet_id              = element(data.aws_subnets.private_subnets.ids, 1)
+  vpc_security_group_ids = ["${aws_security_group.bastion.id}"]
+  subnet_id              = element(data.aws_subnets.public_subnets.ids, 1)
   
   user_data = base64encode(templatefile("bastion_instance_user_data.sh", {
     db_init_script_ssm_param_name = aws_ssm_parameter.db_init_script.name

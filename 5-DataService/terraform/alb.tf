@@ -30,9 +30,16 @@ resource "aws_lb_target_group" "this" {
 }
 
 resource "aws_autoscaling_group" "this" {
+  name                 = format("%s-autoscaling-group", var.project_id)
   launch_configuration = aws_launch_configuration.this.id
   min_size             = 2
   max_size             = 3
   target_group_arns    = ["${aws_lb_target_group.this.arn}"]
   vpc_zone_identifier  = data.aws_subnets.private_subnets.ids
+
+  tag {
+    key                 = "Name"
+    value               = format("%s-app-instance", var.project_id)
+    propagate_at_launch = true
+  }
 }
