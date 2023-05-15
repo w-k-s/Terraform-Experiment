@@ -31,10 +31,8 @@ sudo apt-get install awscli -y
 # # Install Apache
 sudo apt-get install apache2 -y
 
-# Install java 19
-sudo wget https://download.oracle.com/java/19/latest/jdk-19_linux-x64_bin.deb
-sudo apt-get -qqy install ./jdk-19_linux-x64_bin.deb
-sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-19/bin/java 1919
+# Install java 17
+sudo apt install openjdk-17-jre-headless
 
 ####### APPLICATION CONFIGURATION
 
