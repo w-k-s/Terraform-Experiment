@@ -7,8 +7,6 @@ spring:
     username: ""
     password: ""
     driver-class-name: org.postgresql.Driver
-  application:
-    name: nboard
 
 logging:
   level:

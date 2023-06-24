@@ -1,6 +1,10 @@
+spring:
+  application:
+    name: nboard
 aws:
   paramstore:
     prefix: "/config"
     name: "nboard"
     enabled: true
     profileSeparator: "_"
+    fail-fast: true
