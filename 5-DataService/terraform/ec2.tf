@@ -40,6 +40,13 @@ resource "aws_launch_configuration" "this" {
     volume_type           = "gp2"
     delete_on_termination = true
   }
+
+  # We want the nat gateway to be setup before any EC2 instances are created.
+  # If we allow the Ec2 instances to be launched first, then there's a chance that
+  # the user data scripts will run while a nat gateway route to the internet isn't available.
+  depends_on = [
+    aws_route.nat_gateway_ipv4
+  ]
 }
 
 # Bastion Instance to create the required database and roles, if they don't already exist.
