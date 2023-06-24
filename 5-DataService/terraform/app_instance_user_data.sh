@@ -32,7 +32,7 @@ sudo apt-get install awscli -y
 sudo apt-get install apache2 -y
 
 # Install java 17
-sudo apt install openjdk-17-jre-headless
+sudo apt install openjdk-17-jre-headless -y
 
 ####### APPLICATION CONFIGURATION
 
