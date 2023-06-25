@@ -131,7 +131,7 @@ resource "aws_iam_policy" "get_parameter_by_path_policy" {
 
 resource "aws_iam_role_policy_attachment" "get_parameter_by_path_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
-  policy_arn = data.aws_iam_policy.get_parameter_by_path_policy.arn
+  policy_arn = aws_iam_policy.get_parameter_by_path_policy.arn
 }
 
 // The instance profile contains the role and can provide the role's temporary credentials to an application that runs on the instance
