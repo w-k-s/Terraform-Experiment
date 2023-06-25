@@ -28,7 +28,6 @@ data "aws_iam_policy_document" "download_app_policy_document" {
       "arn:aws:s3:::${aws_s3_bucket.app_bucket.id}/*",
     ]
   }
-
 }
 
 resource "aws_iam_policy" "download_app_policy" {
@@ -94,7 +93,7 @@ resource "aws_iam_role_policy_attachment" "cloudwatch_policy_attachment" {
   policy_arn = data.aws_iam_policy.cloudwatch_policy.arn
 }
 
-# Policy that enables EC2 instance to get parameters from SSM
+# Policy that enables AWS Systems Manager service core functionality
 data "aws_iam_policy" "ssm_access_policy" {
   arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
 }
@@ -102,6 +101,37 @@ data "aws_iam_policy" "ssm_access_policy" {
 resource "aws_iam_role_policy_attachment" "ssm_access_policy_attachment" {
   role       = aws_iam_role.app_instance_role.name
   policy_arn = data.aws_iam_policy.ssm_access_policy.arn
+}
+
+# This particular action is required in order for the Spring Application running in EC2
+# to be able to fetch the configs from parameter store.
+# For Spring Config Import, The coniguration keys in parameter store have the format /config/appName_profile/configName.
+# As the keys use a path structure. the `GetParametersByPath` action is required.
+# This action is not included in the AmazonSSMManagedInstanceCore policy so it needs to be added explicitly.
+data "aws_iam_policy_document" "get_parameter_by_path_policy_document" {
+  statement {
+    sid = "1"
+
+    actions = [
+      "ssm:GetParametersByPath"
+    ]
+
+    resources = [
+      "*",
+    ]
+  }
+}
+
+resource "aws_iam_policy" "get_parameter_by_path_policy" {
+  name = format("%s-get-parameter-by-path-policy", var.project_id)
+  path   = "/"
+  policy = data.aws_iam_policy_document.get_parameter_by_path_policy_document.json
+}
+
+
+resource "aws_iam_role_policy_attachment" "get_parameter_by_path_policy_attachment" {
+  role       = aws_iam_role.app_instance_role.name
+  policy_arn = data.aws_iam_policy.get_parameter_by_path_policy.arn
 }
 
 // The instance profile contains the role and can provide the role's temporary credentials to an application that runs on the instance

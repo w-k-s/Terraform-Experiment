@@ -41,9 +41,10 @@ resource "aws_launch_configuration" "this" {
     delete_on_termination = true
   }
 
-  # We want the nat gateway to be setup before any EC2 instances are created.
-  # If we allow the Ec2 instances to be launched first, then there's a chance that
-  # the user data scripts will run while a nat gateway route to the internet isn't available.
+  # Set up the NAT gateway before any EC2 instances are created.
+  # If we allow the EC2 instances to be launched before NAT Gateway routes are created, then there's a chance that
+  # the user data scripts will run in the EC2 instance while there is no route to the internet via the NAT gateway.
+  # Therefore, the EC2 instance will not be able to download packages e.g. java, apache.
   depends_on = [
     aws_route.nat_gateway_ipv4
   ]
@@ -66,10 +67,7 @@ resource "aws_instance" "bastion_instance" {
     db_port = data.aws_db_instance.database.port
   }))
 
-  # TODO: Get Session manager to work!
-  key_name                    = data.aws_key_pair.this.key_name
-  associate_public_ip_address = true
-
+  associate_public_ip_address = false
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
 
   tags = {
