@@ -29,7 +29,6 @@ resource "aws_launch_configuration" "this" {
     ssm_cloudwatch_config     = aws_ssm_parameter.cloudwatch_agent_config.name
   }))
   
-  key_name                    = data.aws_key_pair.this.key_name
   associate_public_ip_address = false
 
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
@@ -67,8 +66,9 @@ resource "aws_instance" "bastion_instance" {
     db_port = data.aws_db_instance.database.port
   }))
 
-  associate_public_ip_address = false
+  associate_public_ip_address = true
   iam_instance_profile        = aws_iam_instance_profile.app_instance_profile.name
+  key_name                    = data.aws_key_pair.this.key_name
 
   tags = {
     Name = format("%s-bastion-instance", var.project_id)

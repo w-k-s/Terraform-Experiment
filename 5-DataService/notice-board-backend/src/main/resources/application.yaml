@@ -5,7 +5,7 @@ spring:
   datasource:
     url: ""
     username: ""
-    password: ""
+    password: "unused" # org.postgresql.Driver expects the password to be a non-empty string. This will be replaced with value from AWS SSM.
     driver-class-name: org.postgresql.Driver
 
 logging:
