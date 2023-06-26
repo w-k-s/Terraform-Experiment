@@ -15,5 +15,5 @@ ALTER ROLE ${db_role} WITH PASSWORD '${db_password}';
 
 -- Grant all privileges on all tables in the noticeboard schema to the noticeboarduser role
 GRANT CONNECT ON DATABASE ${db_name} TO ${db_role};
-GRANT USAGE, SELECT, INSERT, UPDATE, DELETE ON ALL TABLES IN SCHEMA ${db_schema} TO ${db_role};
+GRANT ALL PRIVILEGES ALL TABLES IN SCHEMA ${db_schema} TO ${db_role};
 GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA ${db_schema} TO ${db_role};

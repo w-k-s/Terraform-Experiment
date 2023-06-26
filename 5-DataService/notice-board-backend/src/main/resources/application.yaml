@@ -7,9 +7,14 @@ spring:
     username: ""
     password: "unused" # org.postgresql.Driver expects the password to be a non-empty string. This will be replaced with value from AWS SSM.
     driver-class-name: org.postgresql.Driver
+  jpa:
+    hibernate:
+      ddl-auto: update
+    database-platform: org.hibernate.dialect.PostgreSQLDialect
+    show-sql: true
 
 logging:
   level:
-    org.springframework: INFO
+    ROOT: INFO
   pattern:
     console: "%d{yyyy-MM-dd HH:mm:ss} - %msg%n"

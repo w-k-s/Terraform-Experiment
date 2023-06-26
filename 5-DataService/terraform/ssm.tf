@@ -30,14 +30,14 @@ resource "aws_ssm_parameter" "application_jdbc_url" {
 
 resource "aws_ssm_parameter" "application_db_username" {
   description = "The password that the application uses to connect to the DB"
-  name        = format("/%s/db/spring.datasource.username", var.project_id)
+  name        = format("/config/%s/spring.datasource.username", var.project_id)
   type        = "SecureString"
   value       = var.rds_psql_application_role
 }
 
 resource "aws_ssm_parameter" "application_db_password" {
   description = "The host of the DB that the application connects to"
-  name        = format("/%s/db/spring.datasource.password", var.project_id)
+  name        = format("/config/%s/spring.datasource.password", var.project_id)
   type        = "SecureString"
   value       = var.rds_psql_application_password
 }

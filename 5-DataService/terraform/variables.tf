@@ -67,7 +67,7 @@ variable "rds_psql_application_role" {
 variable "rds_psql_application_password" {
   type        = string
   description = "The password of the role used by the application to connect to the application db"
-  default     = "noticeboardpassword"
+  default     = "password"
 }
 
 variable "application_log_directory" {
