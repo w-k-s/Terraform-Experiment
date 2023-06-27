@@ -1,7 +1,7 @@
+# VPC Link (between gateway and load balancer) requires a network load balancer.
 resource "aws_lb" "this" {
   internal           = false
   load_balancer_type = "network"
-  security_groups    = [aws_security_group.load_balancer.id]
   subnets            = data.aws_subnets.private_subnets.ids
 }
 
