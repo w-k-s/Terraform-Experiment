@@ -1,55 +1,43 @@
-resource "aws_api_gateway_rest_api" "this" {
-
+resource "aws_apigatewayv2_api" "this" {
   name                         = "Notice Board REST API"
   description                  = "Post notices for anyone to read"
+  protocol_type                = "HTTP"
   disable_execute_api_endpoint = true
-
-  endpoint_configuration {
-    types = ["EDGE"] # Automatically creates Cloudfront distribution
-  }
 }
 
-resource "aws_api_gateway_resource" "this" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
-  parent_id   = aws_api_gateway_rest_api.this.root_resource_id
-  path_part   = "{proxy+}"
+# A private integration that uses a VPC link to encapsulate connections between API Gateway and Application Load Balancers
+resource "aws_apigatewayv2_integration" "this" {
+  api_id             = aws_apigatewayv2_api.this.id
+  description        = "Notice Board REST API"
+  connection_id      = aws_apigatewayv2_vpc_link.this.id
+  connection_type    = "VPC_LINK"
+  integration_type   = "HTTP_PROXY"
+  integration_method = "ANY"
+  integration_uri    = aws_lb_listener.listener_http.arn
 }
 
-resource "aws_api_gateway_method" "this" {
-  rest_api_id   = aws_api_gateway_rest_api.this.id
-  resource_id   = aws_api_gateway_resource.this.id
-  http_method   = "ANY"
-  authorization = "NONE"
-  request_parameters = {
-    "method.request.path.proxy" = true
-  }
+resource "aws_apigatewayv2_vpc_link" "this" {
+  name               = format("%s-Gateway-VPCLink", var.project_id)
+  security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  subnet_ids         = data.aws_subnets.public_subnets.ids
 }
 
-resource "aws_api_gateway_integration" "backend_integration" {
-  rest_api_id             = aws_api_gateway_rest_api.this.id
-  resource_id             = aws_api_gateway_resource.this.id
-  http_method             = "ANY"
-  type                    = "HTTP_PROXY"
-  connection_id           = aws_api_gateway_vpc_link.this.id
-  connection_type         = "VPC_LINK"
-  uri                     = format("http://%s/{proxy}", aws_lb.this.dns_name)
-  integration_http_method = "ANY"
-
-  cache_key_parameters = ["method.request.path.proxy"]
-
-  request_parameters = {
-    "integration.request.path.proxy" = "method.request.path.proxy"
-  }
-
+resource "aws_apigatewayv2_route" "this" {
+  api_id    = aws_apigatewayv2_api.this.id
+  route_key = "ANY /{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.this.id}"
 }
 
-resource "aws_api_gateway_vpc_link" "this" {
-  name        = format("%s-vpc-link", var.project_id)
-  target_arns = [aws_lb.this.arn]
+resource "aws_apigatewayv2_stage" "dev" {
+  api_id        = aws_apigatewayv2_api.this.id
+  name          = "dev"
+  deployment_id = aws_apigatewayv2_deployment.this.id
+  auto_deploy = true
 }
 
-resource "aws_api_gateway_deployment" "this" {
-  rest_api_id = aws_api_gateway_rest_api.this.id
+resource "aws_apigatewayv2_deployment" "this" {
+  api_id      = aws_apigatewayv2_api.this.id
+  description = "Deployment"
 
   triggers = {
     # NOTE: The configuration below will satisfy ordering considerations,
@@ -59,11 +47,10 @@ resource "aws_api_gateway_deployment" "this" {
     #       calculate a hash against whole resources. Be aware that using whole
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
-    redeployment = sha1(jsonencode([
-      aws_api_gateway_resource.this.id,
-      aws_api_gateway_method.this.id,
-      aws_api_gateway_integration.backend_integration.id,
-    ]))
+    redeployment = sha1(join(",", tolist([
+      jsonencode(aws_apigatewayv2_integration.this),
+      jsonencode(aws_apigatewayv2_route.this),
+    ])))
   }
 
   lifecycle {
@@ -71,20 +58,18 @@ resource "aws_api_gateway_deployment" "this" {
   }
 }
 
-resource "aws_api_gateway_stage" "dev" {
-  deployment_id = aws_api_gateway_deployment.this.id
-  rest_api_id   = aws_api_gateway_rest_api.this.id
-  stage_name    = "dev"
+resource "aws_apigatewayv2_domain_name" "this" {
+  domain_name = var.notice_board_service_host
+
+  domain_name_configuration {
+    certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn
+    endpoint_type   = "REGIONAL"
+    security_policy = "TLS_1_2"
+  }
 }
 
-resource "aws_api_gateway_domain_name" "api_domain" {
-  domain_name     = var.notice_board_service_host
-  certificate_arn = aws_acm_certificate.cert.arn
-}
-
-# connects the domain name to the api
-resource "aws_api_gateway_base_path_mapping" "example" {
-  api_id      = aws_api_gateway_rest_api.this.id
-  stage_name  = aws_api_gateway_stage.dev.stage_name
-  domain_name = aws_api_gateway_domain_name.api_domain.domain_name
+resource "aws_apigatewayv2_api_mapping" "example" {
+  api_id      = aws_apigatewayv2_api.this.id
+  domain_name = aws_apigatewayv2_domain_name.this.id
+  stage       = aws_apigatewayv2_stage.dev.id
 }
