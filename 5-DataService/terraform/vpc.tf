@@ -57,7 +57,7 @@ resource "aws_vpc_endpoint" "ssm" {
   service_name       = format("com.amazonaws.%s.ssm", var.aws_region)
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
-  security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 
@@ -72,7 +72,7 @@ resource "aws_vpc_endpoint" "ec2messages" {
   service_name       = format("com.amazonaws.%s.ec2messages", var.aws_region)
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
-  security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 
@@ -87,7 +87,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
   service_name       = format("com.amazonaws.%s.ssmmessages", var.aws_region)
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
-  security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 
@@ -102,7 +102,7 @@ resource "aws_vpc_endpoint" "logs" {
   service_name       = format("com.amazonaws.%s.logs", var.aws_region)
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
-  security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 

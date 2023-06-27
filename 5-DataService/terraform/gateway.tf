@@ -78,7 +78,7 @@ resource "aws_api_gateway_stage" "dev" {
 }
 
 resource "aws_api_gateway_domain_name" "api_domain" {
-  domain_name     = var.load_balanced_service_host
+  domain_name     = var.notice_board_service_host
   certificate_arn = aws_acm_certificate.cert.arn
 }
 

@@ -18,7 +18,7 @@
         <kotlin.version>1.7.22</kotlin.version>
         <postgresql.version>42.2.20</postgresql.version>
         <aws.param-store.version>2.2.6.RELEASE</aws.param-store.version>
-        <logstash-logback-encoder.version>6.6</logstash-logback-encoder.version>
+        <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
     </properties>
     <dependencies>
         <dependency>

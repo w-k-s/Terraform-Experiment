@@ -34,6 +34,41 @@ resource "aws_security_group" "load_balancer" {
   }
 }
 
+resource "aws_security_group" "vpc_endpoint" {
+  name_prefix = "vpcendp_sg_"
+  description = "VPC Endpoint Security Group"
+
+
+  ingress {
+    description     = "Allow http traffic from application"
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.instance.id}"]
+  }
+
+  ingress {
+    description     = "Allow https traffic from application"
+    from_port       = 443
+    to_port         = 443
+    protocol        = "tcp"
+    security_groups = ["${aws_security_group.instance.id}"]
+  }
+
+  egress {
+    description      = "Allow all"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = format("%s-sg-vpcendp", var.project_id)
+  }
+}
+
 resource "aws_security_group" "instance" {
   name_prefix = "app_sg_"
   description = "Application instance security group"
