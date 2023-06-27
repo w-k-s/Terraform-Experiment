@@ -2,7 +2,7 @@ resource "aws_apigatewayv2_api" "this" {
   name                         = "Notice Board REST API"
   description                  = "Post notices for anyone to read"
   protocol_type                = "HTTP"
-  disable_execute_api_endpoint = true
+  disable_execute_api_endpoint = false # Set to true for "production"
 }
 
 # A private integration that uses a VPC link to encapsulate connections between API Gateway and Application Load Balancers
