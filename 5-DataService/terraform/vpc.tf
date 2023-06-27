@@ -47,67 +47,67 @@ resource "aws_vpc_endpoint" "s3" {
   route_table_ids   = [data.aws_route_table.private_route_table.id]
 
   tags = {
-    Name = format("%s-vpclink-s3",var.project_id)
+    Name = format("%s-vpcendp-s3", var.project_id)
   }
 }
 
 # Add a VPC endpoint for SSM so that the EC2 instance can talk to the session manager (also to get parameters)
 resource "aws_vpc_endpoint" "ssm" {
-  vpc_id       = aws_default_vpc.this.id
-  service_name = format("com.amazonaws.%s.ssm", var.aws_region)
-  vpc_endpoint_type = "Interface"
-  subnet_ids = data.aws_subnets.private_subnets.ids
+  vpc_id             = aws_default_vpc.this.id
+  service_name       = format("com.amazonaws.%s.ssm", var.aws_region)
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 
   tags = {
-    Name = format("%s-vpclink-ssm",var.project_id)
+    Name = format("%s-vpcendp-ssm", var.project_id)
   }
 }
 
 # Add a VPC endpoint for SSM so that the EC2 instance can talk to the session manager
 resource "aws_vpc_endpoint" "ec2messages" {
-  vpc_id       = aws_default_vpc.this.id
-  service_name = format("com.amazonaws.%s.ec2messages", var.aws_region)
-  vpc_endpoint_type = "Interface"
-  subnet_ids = data.aws_subnets.private_subnets.ids
+  vpc_id             = aws_default_vpc.this.id
+  service_name       = format("com.amazonaws.%s.ec2messages", var.aws_region)
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 
   tags = {
-    Name = format("%s-vpclink-ec2messages",var.project_id)
+    Name = format("%s-vpcendp-ec2messages", var.project_id)
   }
 }
 
 # Add a VPC endpoint for SSM so that the EC2 instance can talk to the session manager
 resource "aws_vpc_endpoint" "ssmmessages" {
-  vpc_id       = aws_default_vpc.this.id
-  service_name = format("com.amazonaws.%s.ssmmessages", var.aws_region)
-  vpc_endpoint_type = "Interface"
-  subnet_ids = data.aws_subnets.private_subnets.ids
+  vpc_id             = aws_default_vpc.this.id
+  service_name       = format("com.amazonaws.%s.ssmmessages", var.aws_region)
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 
   tags = {
-    Name = format("%s-vpclink-ssmmessages",var.project_id)
+    Name = format("%s-vpcendp-ssmmessages", var.project_id)
   }
 }
 
 # Add a VPC endpoint for SSM so that the EC2 instance can send out logs
 resource "aws_vpc_endpoint" "logs" {
-  vpc_id       = aws_default_vpc.this.id
-  service_name = format("com.amazonaws.%s.logs", var.aws_region)
-  vpc_endpoint_type = "Interface"
-  subnet_ids = data.aws_subnets.private_subnets.ids
+  vpc_id             = aws_default_vpc.this.id
+  service_name       = format("com.amazonaws.%s.logs", var.aws_region)
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_link.id}"]
   # Requests to cloudwatch will resolve to vpc endpoint, rather than public url
   private_dns_enabled = true
 
   tags = {
-    Name = format("%s-vpclink-logs",var.project_id)
+    Name = format("%s-vpcendp-logs", var.project_id)
   }
 }
 
@@ -115,7 +115,7 @@ resource "aws_eip" "nat_eip" {
   vpc = true
 
   tags = {
-    Name = format("%s-nat-eip",var.project_id)
+    Name = format("%s-nat-eip", var.project_id)
   }
 }
 
@@ -125,7 +125,7 @@ resource "aws_nat_gateway" "this" {
   subnet_id     = element(data.aws_subnets.public_subnets.ids, 1)
 
   tags = {
-    Name = format("%s-nat-gateway",var.project_id)
+    Name = format("%s-nat-gateway", var.project_id)
   }
 }
 

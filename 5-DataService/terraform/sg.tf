@@ -1,6 +1,6 @@
-resource "aws_security_group" "vpc_link" {
-  name_prefix = "vpclink_sg_"
-  description = "Allow HTTP inbound traffic"
+resource "aws_security_group" "load_balancer" {
+  name_prefix = "lb_sg_"
+  description = "Load Balance Security Group"
 
   ingress {
     description      = "Allow http traffic from anywhere"
@@ -22,49 +22,10 @@ resource "aws_security_group" "vpc_link" {
 
   egress {
     description      = "Allow all"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = format("%s-sg-vpclink", var.project_id)
-  }
-}
-
-
-resource "aws_security_group" "load_balancer" {
-  name_prefix = "lb_sg_"
-  description = "Application Load Balance Security Group"
-
-  ingress {
-    description      = "Allow http traffic from vpc link"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    cidr_blocks     = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    security_groups = ["${aws_security_group.vpc_link.id}"]
-  }
-
-  ingress {
-    description      = "Allow https traffic from vpc link"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    cidr_blocks     = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    security_groups = ["${aws_security_group.vpc_link.id}"]
-  }
-
-  egress {
-    description      = "Allow all"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
 
@@ -88,18 +49,18 @@ resource "aws_security_group" "instance" {
   # The load balancer must be in in the VPC
   # Allow http traffic from within vpc so that the ec2 instance can download jdk via nat gateway
   ingress {
-    description     = "Allow HTTP from within VPC"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
+    description = "Allow HTTP from within VPC"
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
     cidr_blocks = [aws_default_vpc.this.cidr_block]
   }
 
   ingress {
-    description     = "Allow TLS from within VPC"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
+    description = "Allow TLS from within VPC"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
     cidr_blocks = [aws_default_vpc.this.cidr_block]
   }
 
@@ -113,10 +74,10 @@ resource "aws_security_group" "instance" {
 
   egress {
     description      = "Allow all"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
 
@@ -130,21 +91,21 @@ resource "aws_security_group" "bastion" {
   description = "Bastion instance security group"
 
   ingress {
-    description     = "SSH from Bastion instance"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # I don't have a static ip.
+    description      = "SSH from Bastion instance"
+    from_port        = 22
+    to_port          = 22
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"] # I don't have a static ip.
     ipv6_cidr_blocks = ["::/0"]
   }
 
 
   egress {
     description      = "Allow all"
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
   }
 

@@ -31,7 +31,7 @@ data "aws_iam_policy_document" "download_app_policy_document" {
 }
 
 resource "aws_iam_policy" "download_app_policy" {
-  name = format("%s-download-app-policy", var.project_id)
+  name   = format("%s-download-app-policy", var.project_id)
   path   = "/"
   policy = data.aws_iam_policy_document.download_app_policy_document.json
 }
@@ -73,7 +73,7 @@ data "aws_iam_policy_document" "session_management_policy_document" {
 }
 
 resource "aws_iam_policy" "session_management_policy" {
-  name = format("%s-session-management-policy", var.project_id)
+  name   = format("%s-session-management-policy", var.project_id)
   path   = "/"
   policy = data.aws_iam_policy_document.session_management_policy_document.json
 }
@@ -123,7 +123,7 @@ data "aws_iam_policy_document" "get_parameter_by_path_policy_document" {
 }
 
 resource "aws_iam_policy" "get_parameter_by_path_policy" {
-  name = format("%s-get-parameter-by-path-policy", var.project_id)
+  name   = format("%s-get-parameter-by-path-policy", var.project_id)
   path   = "/"
   policy = data.aws_iam_policy_document.get_parameter_by_path_policy_document.json
 }
