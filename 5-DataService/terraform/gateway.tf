@@ -32,7 +32,7 @@ resource "aws_apigatewayv2_stage" "dev" {
   api_id        = aws_apigatewayv2_api.this.id
   name          = "dev"
   deployment_id = aws_apigatewayv2_deployment.this.id
-  auto_deploy = true
+  auto_deploy   = true
 }
 
 resource "aws_apigatewayv2_deployment" "this" {

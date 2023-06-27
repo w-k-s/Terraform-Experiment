@@ -1,6 +1,6 @@
-resource "aws_security_group" "load_balancer" {
-  name_prefix = "lb_sg_"
-  description = "Load Balance Security Group"
+resource "aws_security_group" "vpc_link" {
+  name_prefix = "vpclink_sg_"
+  description = "Allow HTTP inbound traffic"
 
   ingress {
     description      = "Allow http traffic from anywhere"
@@ -18,6 +18,45 @@ resource "aws_security_group" "load_balancer" {
     protocol         = "tcp"
     cidr_blocks      = ["0.0.0.0/0"]
     ipv6_cidr_blocks = ["::/0"]
+  }
+
+  egress {
+    description      = "Allow all"
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+  }
+
+  tags = {
+    Name = format("%s-sg-vpclink", var.project_id)
+  }
+}
+
+
+resource "aws_security_group" "load_balancer" {
+  name_prefix = "lb_sg_"
+  description = "Application Load Balance Security Group"
+
+  ingress {
+    description      = "Allow http traffic from vpc link"
+    from_port        = 80
+    to_port          = 80
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+    security_groups  = ["${aws_security_group.vpc_link.id}"]
+  }
+
+  ingress {
+    description      = "Allow https traffic from vpc link"
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+    security_groups  = ["${aws_security_group.vpc_link.id}"]
   }
 
   egress {
