@@ -6,9 +6,9 @@
 - [x] 2. [**API Gateway**](2-ApiGateway) Route 53 -> Api Gateway (Edge) -> Existing API
 - [x] 3. [**Simple Service**](/3-SimpleService) Route 53 -> Api Gateway (Edge) -> EC2
 - [x] 4. [**LoadBalanced Service**](/4-LoadBalancedService) Route 53 -> Api Gateway (Edge) -> ELB -> EC2 
-- [x] 5. [**LoadBalanced Data Service**](/5-DataService) Route 53 -> VPC -> Api Gateway (Edge) -> ELB -> EC2 -> RDS
-- [ ] 6. **ECS Cluster** Route 53 -> VPC -> Api Gateway (Edge) -> ELB -> ECS -> RDS
-- [ ] 7. **EKS Cluster** Route 53 -> VPC -> Api Gateway (Edge) -> ELB -> EKS -> RDS
+- [x] 5. [**LoadBalanced Data Service**](/5-DataService) Route 53 -> Api Gateway (Edge) -> VPC Link -> ELB -> EC2 -> RDS
+- [ ] 6. **ECS Cluster** Route 53 -> Api Gateway (Edge) -> VPC Link -> ELB -> ECS -> RDS
+- [ ] 7. **EKS Cluster** Route 53 -> Api Gateway (Edge) -> VPC Link -> ELB -> EKS -> RDS
 
 ## Required Environment Variables
 
