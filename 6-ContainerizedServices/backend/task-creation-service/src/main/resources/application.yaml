@@ -11,3 +11,7 @@ spring:
     clean-disabled: false
 snowflake:
   epoch: 1577822400000
+messaging:
+  queue:
+    tasks:
+      name: ""
