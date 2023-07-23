@@ -1,4 +1,4 @@
-package io.wks.terraform.taskcreationservice.dto
+package io.wks.terraform.taskcreationservice.service
 
 data class TaskRequest(
     val customerId: String,

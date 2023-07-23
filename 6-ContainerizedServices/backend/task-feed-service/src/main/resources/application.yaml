@@ -1,0 +1,17 @@
+spring:
+  datasource:
+    driver-class-name: org.postgresql.Driver
+    url: jdbc:postgresql://localhost:5432/taskmonkey
+    username: taskuser
+    password: taskpassword
+  jpa:
+    database-platform: org.hibernate.dialect.PostgreSQL94Dialect
+  flyway:
+    clean-on-validation-error: true
+    clean-disabled: false
+snowflake:
+  epoch: 1577822400000
+messaging:
+  queue:
+    tasks:
+      name: ""

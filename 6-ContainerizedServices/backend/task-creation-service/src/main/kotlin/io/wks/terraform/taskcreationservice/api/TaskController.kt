@@ -1,6 +1,6 @@
 package io.wks.terraform.taskcreationservice.api
 
-import io.wks.terraform.taskcreationservice.dto.TaskRequest
+import io.wks.terraform.taskcreationservice.service.TaskRequest
 import io.wks.terraform.taskcreationservice.service.TaskCreationService
 import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.PostMapping
