@@ -6,6 +6,6 @@ data class NewTaskMessage(
     val id: Long,
     val description: String,
     val category: String,
-    val created: OffsetDateTime,
+    val createdAt: OffsetDateTime,
     val version: Int
 )

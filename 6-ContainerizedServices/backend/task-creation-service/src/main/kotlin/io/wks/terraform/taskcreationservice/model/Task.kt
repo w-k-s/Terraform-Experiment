@@ -1,5 +1,7 @@
 package io.wks.terraform.taskcreationservice.model
 
+import com.fasterxml.jackson.annotation.JsonCreator
+import com.fasterxml.jackson.annotation.JsonValue
 import org.springframework.data.annotation.Version
 import org.springframework.data.relational.core.mapping.Table
 import java.time.OffsetDateTime
@@ -24,6 +26,6 @@ class Task(
      * Could be a value class once spring-data-jdbc supports it.
      * https://github.com/spring-projects/spring-data-relational/issues/1093
      */
-    class Id(val value: Long)
+    class Id @JsonCreator constructor(@JsonValue val value: Long)
 }
 

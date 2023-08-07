@@ -9,6 +9,7 @@ import org.springframework.boot.runApplication
         "io.wks.terraform.taskfeedservice.config",
         "io.wks.terraform.taskfeedservice.core.feed",
         "io.wks.terraform.taskfeedservice.core.tasker",
+        "io.wks.terraform.taskfeedservice.core.messaging",
     ]
 )
 class TaskFeedServiceApplication

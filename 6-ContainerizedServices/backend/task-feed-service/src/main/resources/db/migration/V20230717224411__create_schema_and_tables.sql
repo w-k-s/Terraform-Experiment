@@ -13,14 +13,16 @@ CREATE TABLE task_feed.tasker_category
     tasker_id BIGINT       NOT NULL,
     category  VARCHAR(100) NOT NULL,
     CONSTRAINT fk_tasker_category_id FOREIGN KEY (tasker_id) REFERENCES task_feed.tasker (id),
-    CONSTRAINT uk_tasker_category_id_category UNIQUE (id, category)
+    CONSTRAINT uk_tasker_category_id_category UNIQUE (tasker_id, category)
 );
 
 CREATE TABLE task_feed.task_feed
 (
-    tasker_id        BIGINt                   NOT NULL,
-    task_id          BIGINT                   NOT NULL,
-    task_description VARCHAR(200)             NOT NULL,
-    created          TIMESTAMP WITH TIME ZONE NOT NULL,
+    id          BIGINT                   NOT NULL,
+    tasker_id   BIGINT                   NOT NULL,
+    task_id     BIGINT                   NOT NULL,
+    description VARCHAR(200)             NOT NULL,
+    created_at  TIMESTAMP WITH TIME ZONE NOT NULL,
+    CONSTRAINT pk_task_feed_id PRIMARY KEY (id),
     CONSTRAINT fk_task_feed_tasker_id FOREIGN KEY (tasker_id) REFERENCES task_feed.tasker (id)
 );
