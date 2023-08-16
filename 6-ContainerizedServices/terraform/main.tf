@@ -49,4 +49,7 @@ module "task_creation_service" {
   vpc_id                              = aws_default_vpc.this.id
   project_id                          = var.project_id
   api_gateway_id                      = aws_apigatewayv2_api.this.id
+  sg_vpc_link                         = aws_security_group.vpc_link.id
+  sg_load_balancer                    = aws_security_group.load_balancer.id
+  sg_app                              = aws_security_group.app.id
 }

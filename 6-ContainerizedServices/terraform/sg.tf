@@ -108,17 +108,10 @@ resource "aws_security_group" "vpc_endpoint" {
   }
 }
 
-resource "aws_security_group" "instance" {
+resource "aws_security_group" "app" {
   name_prefix = "app_sg_"
   description = "Application instance security group"
 
-  ingress {
-    description     = "Allow SSH from Bastion instance"
-    from_port       = 22
-    to_port         = 22
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.bastion.id}"]
-  }
 
   # The load balancer must be in in the VPC
   # Allow http traffic from within vpc so that the ec2 instance can download jdk via nat gateway

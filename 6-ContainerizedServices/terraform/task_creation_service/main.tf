@@ -49,12 +49,9 @@ resource "aws_ecs_service" "task_creation" {
     container_port   = var.task_creation_service_conainer_port
   }
 
-  # TODO
   network_configuration {
-    subnets = var.private_subnets
-    # In: PSQL, Load Balancer SG
-    # Out: Everywhere
-    security_groups  = ["${var.rds_security_group}"]
+    subnets          = var.private_subnets
+    security_groups  = ["${var.sg_app}"]
     assign_public_ip = true
   }
 

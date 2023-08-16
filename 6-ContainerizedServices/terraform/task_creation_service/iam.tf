@@ -16,7 +16,36 @@ resource "aws_iam_role" "task_role" {
   })
 }
 
-# TODO: add ssm get parameter policy attachment
+data "aws_iam_policy_document" "ssm_parameter_read_policy" {
+  source_json = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Action   = "ssm:GetParametersByPath",
+        Effect   = "Allow",
+        Resource = "*"
+      },
+      {
+        Action   = "ssm:GetParameters",
+        Effect   = "Allow",
+        Resource = "*"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_policy" "ssm_parameter_read" {
+  name        = "SSMParameterReadPolicy"
+  description = "Policy to allow reading SSM parameters"
+  policy      = data.aws_iam_policy_document.ssm_parameter_read_policy.json
+}
+
+resource "aws_iam_role_policy_attachment" "fargate_task_ssm_attachment" {
+  policy_arn = aws_iam_policy.ssm_parameter_read.arn
+  role       = aws_iam_role.task_role.name
+}
+
+# A role that ECS can assume in order to pull container images, store logs.
 resource "aws_iam_role" "execution_role" {
   name = "${var.project_id}-ExecutionRole"
 

@@ -11,7 +11,7 @@ resource "aws_apigatewayv2_integration" "this" {
 
 resource "aws_apigatewayv2_vpc_link" "this" {
   name               = format("%s-Gateway-VPCLink", var.project_id)
-  security_group_ids = ["${aws_security_group.vpc_link.id}"]
+  security_group_ids = ["${var.sg_vpc_link}"]
   subnet_ids         = var.public_subnets
 }
 

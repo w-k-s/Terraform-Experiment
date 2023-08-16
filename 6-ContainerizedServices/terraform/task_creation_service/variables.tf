@@ -52,3 +52,18 @@ variable "api_gateway_id" {
   type        = string
   description = "The ID of the API Gateway through which this microservice will be exposed"
 }
+
+variable "sg_vpc_link" {
+  type        = string
+  description = "Security Group of the VPC Link between API Gateway and Internal Load Balancers"
+}
+
+variable "sg_load_balancer" {
+  type        = string
+  description = "Security Group of the Internal Load Balancers"
+}
+
+variable "sg_app" {
+  type        = string
+  description = "Security group of the application instance"
+}

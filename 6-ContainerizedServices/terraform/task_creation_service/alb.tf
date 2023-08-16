@@ -3,7 +3,7 @@ resource "aws_lb" "task_creation" {
   # In our case, this is required since EC2 are in private subnets without any public IP addresses.
   internal           = true
   load_balancer_type = "application"
-  security_groups    = [aws_security_group.load_balancer.id]
+  security_groups    = [var.sg_load_balancer]
   subnets            = data.aws_subnets.private_subnets.ids
 }
 
