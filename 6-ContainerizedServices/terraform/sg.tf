@@ -160,34 +160,6 @@ resource "aws_security_group" "instance" {
   }
 }
 
-resource "aws_security_group" "bastion" {
-  name_prefix = "jump_sg_"
-  description = "Bastion instance security group"
-
-  ingress {
-    description      = "SSH from Bastion instance"
-    from_port        = 22
-    to_port          = 22
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"] # I don't have a static ip.
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-
-  egress {
-    description      = "Allow all"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = format("%s-sg-bastion", var.project_id)
-  }
-}
-
 # The existing RDS instance is in the default VPC.
 # Here, we load a security group that is attached to the RDS instance.
 # This security group allows all egress traffic on port 5432.

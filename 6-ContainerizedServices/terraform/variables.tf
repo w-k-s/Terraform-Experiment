@@ -21,9 +21,9 @@ variable "hosted_zone_name" {
   description = "The hosted zone domain name. For example, the hosted_zone_name for 'http://api.example.org' is 'example.org'"
 }
 
-variable "notice_board_service_host" {
+variable "containerized_app_host" {
   type        = string
-  description = "The host part of the api url. For example, the notice_board_service_host for 'http://api.example.org' is 'api.example.org'"
+  description = "The host part of the api url. For example, the containerized_app_host for 'http://api.example.org' is 'api.example.org'"
 }
 
 variable "task_creation_service_image" {
@@ -71,4 +71,9 @@ variable "rds_psql_application_password" {
   default     = "app_password"
 }
 
+variable "rds_psql_application_schema" {
+  type        = string
+  description = "The name of the schema to connect to within the application db"
+  default     = "task_creation"
+}
 

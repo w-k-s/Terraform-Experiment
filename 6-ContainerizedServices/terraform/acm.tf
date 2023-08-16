@@ -1,6 +1,6 @@
 resource "aws_acm_certificate" "cert" {
   provider          = aws.acm_provider
-  domain_name       = var.notice_board_service_host
+  domain_name       = var.containerized_app_host
   validation_method = "DNS"
 
   lifecycle {
