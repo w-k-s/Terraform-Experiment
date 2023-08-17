@@ -1,0 +1,118 @@
+name: "6. Containerized Service - Deploy"
+on:
+  workflow_dispatch:
+    branches:
+      - master
+
+jobs:
+  create-registry:
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    outputs:
+      ecr_repository_url: ${{ steps.terraform1.outputs.ecr_repository_url }}
+    defaults:
+      run:
+        working-directory: ./6-ContainerizedService/terraform
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.3.7"
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Deploy
+        run: terraform apply -auto-approve -target=aws_ecr_repository.this
+      - name: Terraform Output 1
+        id: terraform1
+        run: echo "ecr_repository_url=$(terraform output ecr_repository_url)" >> $GITHUB_OUTPUT
+
+  task-creation-service:
+    needs: 
+      - create-registry
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      IMAGE_NAME: "task-creation"
+    defaults:
+      run:
+        working-directory: ./6-ContainerizedService/task-creation-service
+    outputs:
+      image: ${{ steps.push.outputs.image }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "adopt"
+          cache: maven
+      - name: Run tests
+        run: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
+      - name: Build Docker image
+        run: docker build -t $IMAGE_NAME .
+
+      - name: Log in to Amazon ECR
+        run: aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${{needs.create-registry.outputs.ecr_repository_url}}
+
+      - name: Tag Docker image for ECR
+        run: docker tag $IMAGE_NAME:${{ github.run_number }} ${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}
+
+      - name: Push Docker image to ECR
+        run: docker push ${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}
+
+      - id: push
+        run: echo "image=${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}" >> $GITHUB_OUTPUT
+
+
+  task-feed-service:
+    needs: 
+      - create-registry
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./6-ContainerizedService/task-feed-service
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Set up JDK 17
+        uses: actions/setup-java@v3
+        with:
+          java-version: "17"
+          distribution: "adopt"
+          cache: maven
+      - name: Run tests
+        run: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
+
+
+  # Run rest of terraform
+  terraform:
+    needs: 
+      - create-registry
+      - task-creation-service
+      - task-feed-service
+    runs-on: ubuntu-latest
+    env:
+      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+      HOSTED_ZONE_NAME: ${{ secrets.HOSTED_ZONE_NAME }}
+      CONTAINERIZED_APP_HOST: ${{ secrets.CONTAINERIZED_APP_HOST }}
+      RDS_PSQL_INSTANCE_IDENTIFIER: ${{ secrets.RDS_PSQL_INSTANCE_IDENTIFIER }}
+      RDS_PSQL_MASTER_USERNAME: ${{ secrets.RDS_PSQL_MASTER_USERNAME }}
+      RDS_PSQL_MASTER_PASSWORD: ${{ secrets.RDS_PSQL_MASTER_PASSWORD }}
+    defaults:
+      run:
+        working-directory: ./6-ContainerizedService/terraform
+    steps:
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.3.7"
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Deploy
+        run: terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=${{ needs.task-creation-service.outputs.image }}" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD"
