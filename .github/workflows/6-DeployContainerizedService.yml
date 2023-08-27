@@ -15,7 +15,7 @@ jobs:
       ecr_repository_url: ${{ steps.terraform1.outputs.ecr_repository_url }}
     defaults:
       run:
-        working-directory: ./6-ContainerizedServices/terraform
+        working-directory: 6-ContainerizedServices/terraform
     steps:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2

@@ -37,7 +37,7 @@ provider "aws" {
 }
 
 module "task_creation_service" {
-  source                              = "task_creation_service"
+  source                              = "./task_creation_service"
   aws_region                          = var.aws_region
   cluster_arn                         = aws_ecs_cluster.this.arn
   private_subnets                     = data.aws_subnets.private_subnets
