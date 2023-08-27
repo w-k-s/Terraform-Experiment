@@ -1,4 +1,4 @@
-name: "5. Data Service - Destroy"
+name: "6. Containerized Service - Destroy"
 on:
   workflow_dispatch:
     branches:
@@ -18,7 +18,7 @@ jobs:
       RDS_PSQL_MASTER_PASSWORD: ${{ secrets.RDS_PSQL_MASTER_PASSWORD }}
     defaults:
       run:
-        working-directory: ./5-DataService/terraform
+        working-directory: ./6-ContainerizedServices/terraform
     steps:
       - name: Checkout
         uses: actions/checkout@v2

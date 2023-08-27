@@ -15,7 +15,7 @@ jobs:
       ecr_repository_url: ${{ steps.terraform1.outputs.ecr_repository_url }}
     defaults:
       run:
-        working-directory: ./6-ContainerizedService/terraform
+        working-directory: ./6-ContainerizedServices/terraform
     steps:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
@@ -38,7 +38,7 @@ jobs:
       IMAGE_NAME: "task-creation"
     defaults:
       run:
-        working-directory: ./6-ContainerizedService/task-creation-service
+        working-directory: ./6-ContainerizedServices/task-creation-service
     outputs:
       image: ${{ steps.push.outputs.image }}
     steps:
@@ -74,7 +74,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./6-ContainerizedService/task-feed-service
+        working-directory: ./6-ContainerizedServices/task-feed-service
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -106,7 +106,7 @@ jobs:
       RDS_PSQL_MASTER_PASSWORD: ${{ secrets.RDS_PSQL_MASTER_PASSWORD }}
     defaults:
       run:
-        working-directory: ./6-ContainerizedService/terraform
+        working-directory: ./6-ContainerizedServices/terraform
     steps:
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
