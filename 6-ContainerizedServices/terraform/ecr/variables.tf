@@ -4,6 +4,12 @@ variable "aws_region" {
   default     = "ap-south-1"
 }
 
+variable "repository_name" {
+  type        = string
+  description = "the name of the project"
+  default     = "terraform-task-monkey"
+}
+
 variable "project_name" {
   type        = string
   description = "the name of the project"

@@ -18,6 +18,7 @@ terraform {
 
 provider "aws" {
   region = var.aws_region
+
   default_tags {
     tags = {
       Project = var.project_name
@@ -26,7 +27,7 @@ provider "aws" {
 }
 
 resource "aws_ecr_repository" "this" {
-  name                 = format("w-k-s/%s", replace(var.project_name, " ", ""))
+  name                 = format("w-k-s/%s", var.repository_name)
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true # destroys repo even if it's not empty (not a good idea for production)
 

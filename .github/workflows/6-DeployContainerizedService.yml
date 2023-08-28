@@ -29,7 +29,7 @@ jobs:
         run: terraform apply -auto-approve
       - name: Terraform Output 1
         id: terraform1
-        run: echo "ecr_repository_url=$(terraform output ecr_repository_url)" >> $GITHUB_OUTPUT
+        run: echo "::set-output name=ecr_repository_url::$(terraform output -raw ecr_repository_url)"
 
   task-creation-service:
     needs: 
