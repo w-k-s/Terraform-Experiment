@@ -27,7 +27,7 @@ provider "aws" {
 }
 
 resource "aws_ecr_repository" "this" {
-  name                 = format("w-k-s/%s", var.repository_name)
+  name                 = var.repository_name
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true # destroys repo even if it's not empty (not a good idea for production)
 

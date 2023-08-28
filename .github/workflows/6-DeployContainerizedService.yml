@@ -4,11 +4,20 @@ on:
     branches:
       - master
 
+env:
+  # If this is made a secret, then its value will be masked when piped to GITHUB_OUTPUT.
+  # Apparently, if the value of a secret appears in any job output then it that the value is masked in the output.
+  # For example:
+  # - Let's say there's a secret `AWS_DEFAULT_REGION=ap-south-1`
+  # - Now let's say the command `terraform output -raw ecr_repository_url` outputs `something.ap-south-1.something`.
+  # - If we pipe the output of  `terraform output -raw ecr_repository_url` to `$GITHUB_OUTPUT`, Actions will check if the output contains any secret value, that value will be masked in the ouput.
+  # - So $GITHUB_OUTPUT will contain `something.**********.something` rather than `something.ap-south-1.something`,
+  AWS_DEFAULT_REGION: "ap-south-1"
+
 jobs:
   create-registry:
     runs-on: ubuntu-latest
     env:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
     outputs:
@@ -28,8 +37,6 @@ jobs:
         run: terraform init
       - name: Terraform Deploy
         run: terraform apply -auto-approve
-      - name: Display ECR Repository URL
-        run: echo "$(terraform output -raw ecr_repository_url)"
       - name: Terraform Output 1
         id: terraform1
         run: echo "ecr_repository_url=$(terraform output -raw ecr_repository_url)" >> "$GITHUB_OUTPUT"
@@ -43,9 +50,8 @@ jobs:
       - create-registry
     runs-on: ubuntu-latest
     env:
-      IMAGE_NAME: "task-creation"
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      IMAGE_TAG: "${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}"
+      IMAGE_TAG: "${{ needs.create-registry.outputs.ecr_repository_url }}:${{ github.run_number }}"
     defaults:
       run:
         working-directory: ./6-ContainerizedServices/backend/task-creation-service
@@ -68,13 +74,15 @@ jobs:
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ secrets.AWS_REGION }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          mask-aws-account-id: 'no'
 
       - name: Login to Amazon ECR
         uses: aws-actions/amazon-ecr-login@v1
 
       - name: Build, tag, and push image to Amazon ECR
         run: |
+          echo "Image Tag: $IMAGE_TAG"
           docker build -t $IMAGE_TAG .
           docker push $IMAGE_TAG
       - name: Summary
@@ -85,9 +93,6 @@ jobs:
       - create-registry
     runs-on: ubuntu-latest
     env:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
@@ -113,7 +118,6 @@ jobs:
       - task-feed-service
     runs-on: ubuntu-latest
     env:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
       AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       HOSTED_ZONE_NAME: ${{ secrets.HOSTED_ZONE_NAME }}
@@ -125,6 +129,8 @@ jobs:
       run:
         working-directory: ./6-ContainerizedServices/terraform
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v2
         with:

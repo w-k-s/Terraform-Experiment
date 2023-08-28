@@ -7,7 +7,7 @@ variable "aws_region" {
 variable "repository_name" {
   type        = string
   description = "the name of the project"
-  default     = "terraform-task-monkey"
+  default     = "w-k-s/terraform-task-monkey/task-creation"
 }
 
 variable "project_name" {
