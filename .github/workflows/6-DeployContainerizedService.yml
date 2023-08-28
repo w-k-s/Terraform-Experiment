@@ -40,7 +40,7 @@ jobs:
       IMAGE_NAME: "task-creation"
     defaults:
       run:
-        working-directory: ./6-ContainerizedServices/task-creation-service
+        working-directory: ./6-ContainerizedServices/backend/task-creation-service
     outputs:
       image: ${{ steps.push.outputs.image }}
     steps:
@@ -76,7 +76,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./6-ContainerizedServices/task-feed-service
+        working-directory: ./6-ContainerizedServices/backend/task-feed-service
     steps:
       - name: Checkout
         uses: actions/checkout@v3
