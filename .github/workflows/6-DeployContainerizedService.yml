@@ -38,6 +38,7 @@ jobs:
     env:
       AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
       IMAGE_NAME: "task-creation"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
         working-directory: ./6-ContainerizedServices/backend/task-creation-service
@@ -75,6 +76,8 @@ jobs:
     needs: 
       - create-registry
     runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
     defaults:
       run:
         working-directory: ./6-ContainerizedServices/backend/task-feed-service
