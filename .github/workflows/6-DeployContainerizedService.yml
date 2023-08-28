@@ -28,20 +28,24 @@ jobs:
         run: terraform init
       - name: Terraform Deploy
         run: terraform apply -auto-approve
+      - name: Display ECR Repository URL
+        run: echo "$(terraform output -raw ecr_repository_url)"
       - name: Terraform Output 1
         id: terraform1
-        run: printf "ecr_repository_url=%s\n" $(terraform output -raw ecr_repository_url) >> "$GITHUB_OUTPUT"
+        run: echo "ecr_repository_url=$(terraform output -raw ecr_repository_url)" >> "$GITHUB_OUTPUT"
+      - name: Summary
+        env: 
+          REPOSITORY_URL: ${{ steps.terraform1.outputs.ecr_repository_url }}
+        run: echo "$REPOSITORY_URL" >> "$GITHUB_STEP_SUMMARY"
 
   task-creation-service:
     needs: 
       - create-registry
     runs-on: ubuntu-latest
     env:
-      AWS_DEFAULT_REGION: ${{ secrets.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       IMAGE_NAME: "task-creation"
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      IMAGE_TAG: "${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}"
     defaults:
       run:
         working-directory: ./6-ContainerizedServices/backend/task-creation-service
@@ -59,21 +63,22 @@ jobs:
       - name: Run tests
         run: mvn -s ./../../../.github/settings.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
       
-      - name: Build Docker image
-        run: docker build -t $IMAGE_NAME .
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ secrets.AWS_REGION }}
 
-      - name: Log in to Amazon ECR
-        run: aws ecr get-login-password --region $AWS_DEFAULT_REGION | docker login --username AWS --password-stdin ${{needs.create-registry.outputs.ecr_repository_url}}
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
 
-      - name: Tag Docker image for ECR
-        run: docker tag $IMAGE_NAME:${{ github.run_number }} ${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}
-
-      - name: Push Docker image to ECR
-        run: docker push ${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}
-
-      - id: push
-        run: echo "image=${{needs.create-registry.outputs.ecr_repository_url}}/$IMAGE_NAME:${{ github.run_number }}" >> $GITHUB_OUTPUT
-
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+      - name: Summary
+        run: echo "$IMAGE_TAG" >> $GITHUB_STEP_SUMMARY
 
   task-feed-service:
     needs: 
