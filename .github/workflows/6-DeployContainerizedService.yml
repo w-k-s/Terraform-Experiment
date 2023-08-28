@@ -53,7 +53,8 @@ jobs:
           distribution: "adopt"
           cache: maven
       - name: Run tests
-        run: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
+        run: mvn -s ./../../../.github/settings.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
+      
       - name: Build Docker image
         run: docker build -t $IMAGE_NAME .
 
@@ -87,7 +88,7 @@ jobs:
           distribution: "adopt"
           cache: maven
       - name: Run tests
-        run: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
+        run: mvn -s ./../../../.github/settings.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
 
 
   # Run rest of terraform
