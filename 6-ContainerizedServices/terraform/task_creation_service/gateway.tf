@@ -16,7 +16,8 @@ resource "aws_apigatewayv2_vpc_link" "this" {
 }
 
 resource "aws_apigatewayv2_route" "this" {
-  api_id    = aws_apigatewayv2_api.this.id
+  api_id    = var.api_gateway_id
   route_key = "ANY /api/v1/tasks{proxy+}"
   target    = "integrations/${aws_apigatewayv2_integration.this.id}"
 }
+

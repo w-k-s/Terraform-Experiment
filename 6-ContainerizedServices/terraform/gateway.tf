@@ -12,6 +12,16 @@ resource "aws_apigatewayv2_stage" "dev" {
   auto_deploy   = true
 }
 
+resource "aws_apigatewayv2_domain_name" "this" {
+  domain_name = var.containerized_app_host
+
+  domain_name_configuration {
+    certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn
+    endpoint_type   = "REGIONAL"
+    security_policy = "TLS_1_2"
+  }
+}
+
 resource "aws_apigatewayv2_deployment" "this" {
   api_id      = aws_apigatewayv2_api.this.id
   description = "Deployment"
@@ -25,8 +35,8 @@ resource "aws_apigatewayv2_deployment" "this" {
     #       resources will show a difference after the initial implementation.
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(join(",", tolist([
-      jsonencode(aws_apigatewayv2_integration.this),
-      jsonencode(aws_apigatewayv2_route.this),
+      jsonencode(module.task_creation_service.api_gateway_integration),
+      jsonencode(module.task_creation_service.api_gateway_route),
     ])))
   }
 
@@ -35,15 +45,6 @@ resource "aws_apigatewayv2_deployment" "this" {
   }
 }
 
-resource "aws_apigatewayv2_domain_name" "this" {
-  domain_name = var.containerized_app_host
-
-  domain_name_configuration {
-    certificate_arn = aws_acm_certificate_validation.cert_validation.certificate_arn
-    endpoint_type   = "REGIONAL"
-    security_policy = "TLS_1_2"
-  }
-}
 
 resource "aws_apigatewayv2_api_mapping" "example" {
   api_id      = aws_apigatewayv2_api.this.id

@@ -55,7 +55,4 @@ resource "aws_ecs_service" "task_creation" {
     assign_public_ip = true
   }
 
-  log_configuration {
-    log_driver = "awslogs"
-  }
 }

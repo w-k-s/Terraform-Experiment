@@ -17,21 +17,14 @@ resource "aws_iam_role" "task_role" {
 }
 
 data "aws_iam_policy_document" "ssm_parameter_read_policy" {
-  source_json = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Action   = "ssm:GetParametersByPath",
-        Effect   = "Allow",
-        Resource = "*"
-      },
-      {
-        Action   = "ssm:GetParameters",
-        Effect   = "Allow",
-        Resource = "*"
-      }
+  statement {
+    sid = "1"
+
+    actions = [
+      "ssm:GetParametersByPath",
+      "ssm:GetParameters"
     ]
-  })
+  }
 }
 
 resource "aws_iam_policy" "ssm_parameter_read" {

@@ -4,7 +4,7 @@ resource "aws_lb" "task_creation" {
   internal           = true
   load_balancer_type = "application"
   security_groups    = [var.sg_load_balancer]
-  subnets            = data.aws_subnets.private_subnets.ids
+  subnets            = var.private_subnets
 }
 
 # We will be terminating SSL on the APIG, so we don’t need a secure listener
