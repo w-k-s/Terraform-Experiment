@@ -40,9 +40,8 @@ module "task_creation_service" {
   source                              = "./task_creation_service"
   aws_region                          = var.aws_region
   cluster_arn                         = aws_ecs_cluster.this.arn
-  private_subnets                     = data.aws_subnets.private_subnets
-  public_subnets                      = data.aws_subnets.public_subnets
-  rds_security_group                  = data.aws_security_group.rds
+  private_subnets                     = data.aws_subnets.private_subnets.ids
+  public_subnets                      = data.aws_subnets.public_subnets.ids
   task_creation_service_image         = var.task_creation_service_image
   task_creation_service_conainer_port = var.task_creation_service_conainer_port
   cloudwatch_log_group                = aws_cloudwatch_log_group.this.name
