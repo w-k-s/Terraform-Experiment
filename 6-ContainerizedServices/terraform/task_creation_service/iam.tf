@@ -24,6 +24,10 @@ data "aws_iam_policy_document" "ssm_parameter_read_policy" {
       "ssm:GetParametersByPath",
       "ssm:GetParameters"
     ]
+
+    resources = [
+      "*",
+    ]
   }
 }
 
