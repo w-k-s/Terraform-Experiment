@@ -18,11 +18,6 @@ variable "public_subnets" {
   description = "Public Subnet Ids"
 }
 
-variable "rds_security_group" {
-  type        = string
-  description = "The security group that enables a service to communicate to the RDS instance"
-}
-
 variable "task_creation_service_conainer_port" {
   type        = number
   description = "Port on which application inside container is listening e.g. 8080"
