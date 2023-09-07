@@ -1,4 +1,5 @@
 locals {
+  cpu = 1024 # 1 vCPU
   container_definition_name = "task_creation"
 }
 
@@ -6,13 +7,14 @@ resource "aws_ecs_task_definition" "task_creation" {
   family                   = "task_creation"
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
+  cpu                      = local.cpu
   execution_role_arn       = aws_iam_role.execution_role.arn
   task_role_arn            = aws_iam_role.task_role.arn
   container_definitions = jsonencode([
     {
       name      = local.container_definition_name
       image     = var.task_creation_service_image
-      cpu       = 1024 # 1 vCPU
+      cpu       = local.cpu 
       memory    = 512
       essential = true
       portMappings = [
