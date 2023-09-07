@@ -1,5 +1,6 @@
 locals {
-  cpu = 1024 # 1 vCPU
+  cpu = 1024 # 1 vCPU 
+  memory = 2048 # See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
   container_definition_name = "task_creation"
 }
 
@@ -8,14 +9,21 @@ resource "aws_ecs_task_definition" "task_creation" {
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
   cpu                      = local.cpu
+  memory                   = local.memory
   execution_role_arn       = aws_iam_role.execution_role.arn
   task_role_arn            = aws_iam_role.task_role.arn
+
+  runtime_platform {
+    operating_system_family = "LINUX"
+    cpu_architecture        = "X86_64"
+  }
+
   container_definitions = jsonencode([
     {
       name      = local.container_definition_name
       image     = var.task_creation_service_image
       cpu       = local.cpu 
-      memory    = 512
+      memory    = local.memory
       essential = true
       portMappings = [
         {
@@ -52,7 +60,7 @@ resource "aws_ecs_service" "task_creation" {
   }
 
   network_configuration {
-    subnets          = var.private_subnets
+    subnets          = var.public_subnets
     security_groups  = ["${var.sg_app}"]
     assign_public_ip = true
   }
