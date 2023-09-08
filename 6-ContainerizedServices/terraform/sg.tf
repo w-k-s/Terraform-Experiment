@@ -86,12 +86,14 @@ resource "aws_security_group" "vpc_endpoint" {
     security_groups = ["${aws_security_group.app.id}"]
   }
 
+  # For Fargate, The security group attached to the VPC endpoint must allow incoming connections on TCP port 443 from the private subnet of the VPC.
+  # Reference: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/vpc-endpoints.html
   ingress {
-    description     = "Allow https traffic from application"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.app.id}"]
+    description = "Allow https traffic from application"
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = [aws_default_vpc.this.cidr_block]
   }
 
   egress {
