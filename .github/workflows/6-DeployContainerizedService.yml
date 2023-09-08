@@ -141,6 +141,4 @@ jobs:
       - name: Terraform Init
         run: terraform init
       - name: Terraform Deploy
-        run: | # Apply aws_acm_certificate.cert first to resolve this known issue: https://github.com/hashicorp/terraform-provider-aws/issues/27299
-          terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=${{ needs.task-creation-service.outputs.image }}" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD" -target=aws_acm_certificate.cert
-          terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=${{ needs.task-creation-service.outputs.image }}" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD"
+        run: terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=${{ needs.task-creation-service.outputs.image }}" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD"
