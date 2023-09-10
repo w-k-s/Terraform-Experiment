@@ -1,10 +1,10 @@
 spring:
   application:
-    name: tskmnk
+    name: taskfeed
 aws:
   paramstore:
     prefix: "/config"
-    name: "tskmnk"
+    name: "taskfeed"
     enabled: true
     profileSeparator: "_"
     fail-fast: true

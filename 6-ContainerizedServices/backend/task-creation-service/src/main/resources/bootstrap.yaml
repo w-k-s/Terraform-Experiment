@@ -1,10 +1,10 @@
 spring:
   application:
-    name: tskmnk
+    name: taskcreation
 aws:
   paramstore:
     prefix: "/config"
-    name: "tskmnk"
+    name: "taskcreation"
     enabled: true
     profileSeparator: "_"
     fail-fast: true

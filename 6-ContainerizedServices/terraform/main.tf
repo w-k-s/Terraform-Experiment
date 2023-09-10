@@ -37,18 +37,37 @@ provider "aws" {
 }
 
 module "task_creation_service" {
-  source                              = "./task_creation_service"
-  aws_region                          = var.aws_region
+  source     = "./task_creation_service"
+  project_id = var.project_id
+
+  # API Gateway
+  api_gateway_id = aws_apigatewayv2_api.this.id
+
+  # DB
+  db_endpoint = data.aws_db_instance.database.endpoint
+  db_name     = var.rds_psql_application_db_name
+  db_username = var.rds_psql_application_role
+  db_password = var.rds_psql_application_password
+
+  # VPC
+  aws_region      = var.aws_region
+  vpc_id          = aws_default_vpc.this.id
+  private_subnets = data.aws_subnets.private_subnets.ids
+  public_subnets  = data.aws_subnets.public_subnets.ids
+
+  # ECS
   cluster_arn                         = aws_ecs_cluster.this.arn
-  private_subnets                     = data.aws_subnets.private_subnets.ids
-  public_subnets                      = data.aws_subnets.public_subnets.ids
   task_creation_service_image         = var.task_creation_service_image
   task_creation_service_conainer_port = var.task_creation_service_conainer_port
-  cloudwatch_log_group                = aws_cloudwatch_log_group.this.name
-  vpc_id                              = aws_default_vpc.this.id
-  project_id                          = var.project_id
-  api_gateway_id                      = aws_apigatewayv2_api.this.id
-  sg_vpc_link                         = aws_security_group.vpc_link.id
-  sg_load_balancer                    = aws_security_group.load_balancer.id
-  sg_app                              = aws_security_group.app.id
+
+  # SQS
+  task_queue_name = aws_sqs_queue.tasks.name
+
+  # Cloud Watch
+  cloudwatch_log_group = aws_cloudwatch_log_group.this.name
+
+  # Security Groups
+  sg_vpc_link      = aws_security_group.vpc_link.id
+  sg_load_balancer = aws_security_group.load_balancer.id
+  sg_app           = aws_security_group.app.id
 }
