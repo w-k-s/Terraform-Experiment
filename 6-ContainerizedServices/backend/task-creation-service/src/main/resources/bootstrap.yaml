@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: tskmnk
+aws:
+  paramstore:
+    prefix: "/config"
+    name: "tskmnk"
+    enabled: true
+    profileSeparator: "_"
+    fail-fast: true

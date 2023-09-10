@@ -16,6 +16,8 @@
     <properties>
         <java.version>17</java.version>
         <kotlin.version>1.8.22</kotlin.version>
+         <aws.param-store.version>2.2.6.RELEASE</aws.param-store.version>
+        <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
     </properties>
     <repositories>
         <repository>
@@ -35,6 +37,15 @@
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-bootstrap</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>net.logstash.logback</groupId>
+            <artifactId>logstash-logback-encoder</artifactId>
+            <version>${logstash-logback-encoder.version}</version>
         </dependency>
         <dependency>
             <groupId>io.wks.snowflake4j</groupId>
@@ -57,7 +68,11 @@
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
         </dependency>
-
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-aws-parameter-store-config</artifactId>
+            <version>${aws.param-store.version}</version>
+        </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-docker-compose</artifactId>

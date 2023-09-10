@@ -1,9 +1,9 @@
 spring:
   datasource:
     driver-class-name: org.postgresql.Driver
-    url: ""
-    username: ""
-    password: "unused"
+    url: jdbc:postgresql://localhost:5432/taskmonkey
+    username: taskuser
+    password: taskpassword
   jpa:
     database-platform: org.hibernate.dialect.PostgreSQL94Dialect
   flyway:
