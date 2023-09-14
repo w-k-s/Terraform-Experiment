@@ -15,9 +15,15 @@ resource "aws_apigatewayv2_vpc_link" "this" {
   subnet_ids         = var.public_subnets
 }
 
-resource "aws_apigatewayv2_route" "this" {
+resource "aws_apigatewayv2_route" "tasks_subresource_route" {
   api_id    = var.api_gateway_id
   route_key = "ANY /api/v1/tasks/{proxy+}"
+  target    = "integrations/${aws_apigatewayv2_integration.this.id}"
+}
+
+resource "aws_apigatewayv2_route" "tasks_resource_route" {
+  api_id    = var.api_gateway_id
+  route_key = "ANY /api/v1/tasks"
   target    = "integrations/${aws_apigatewayv2_integration.this.id}"
 }
 
