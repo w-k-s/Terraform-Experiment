@@ -28,7 +28,6 @@ resource "aws_ecs_task_definition" "task_creation" {
       portMappings = [
         {
           containerPort = var.task_creation_service_conainer_port # port on which application inside container is listening
-          hostPort      = var.task_creation_service_conainer_port # Port on the machine where the container port will be exposed.
         }
       ],
       logConfiguration = {

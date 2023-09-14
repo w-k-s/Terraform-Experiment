@@ -58,7 +58,7 @@ module "task_creation_service" {
   # ECS
   cluster_arn                         = aws_ecs_cluster.this.arn
   task_creation_service_image         = var.task_creation_service_image
-  task_creation_service_conainer_port = var.task_creation_service_conainer_port
+  task_creation_service_conainer_port = var.application_listen_port
 
   # SQS
   task_queue_name = aws_sqs_queue.tasks.name
