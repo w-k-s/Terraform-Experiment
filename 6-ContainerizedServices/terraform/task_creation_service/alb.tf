@@ -1,6 +1,7 @@
 resource "aws_lb" "task_creation" {
-  # An internal load balancer routes requests to targets using private IP addresses
-  # In our case, this is required since EC2 are in private subnets without any public IP addresses.
+  # An internet-facing load balancer routes requests from clients to targets over the internet. 
+  # An internal load balancer routes requests to targets using private IP addresses.
+  # In our case, this is required since our ecs service has a private ip.
   internal           = true
   load_balancer_type = "application"
   security_groups    = [var.sg_load_balancer]

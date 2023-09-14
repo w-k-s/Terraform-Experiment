@@ -1,6 +1,6 @@
 locals {
-  cpu = 1024 # 1 vCPU 
-  memory = 2048 # See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
+  cpu                       = 1024 # 1 vCPU 
+  memory                    = 2048 # See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
   container_definition_name = "task_creation"
 }
 
@@ -22,7 +22,7 @@ resource "aws_ecs_task_definition" "task_creation" {
     {
       name      = local.container_definition_name
       image     = var.task_creation_service_image
-      cpu       = local.cpu 
+      cpu       = local.cpu
       memory    = local.memory
       essential = true
       portMappings = [
@@ -60,9 +60,9 @@ resource "aws_ecs_service" "task_creation" {
   }
 
   network_configuration {
-    subnets          = var.public_subnets
+    subnets          = var.private_subnets
     security_groups  = ["${var.sg_app}"]
-    assign_public_ip = true
+    assign_public_ip = false
   }
 
 }
