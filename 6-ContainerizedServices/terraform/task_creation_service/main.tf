@@ -47,8 +47,8 @@ resource "aws_ecs_service" "task_creation" {
   name                               = "task_creation_service"
   cluster                            = var.cluster_arn
   task_definition                    = aws_ecs_task_definition.task_creation.arn
-  desired_count                      = 2
-  deployment_minimum_healthy_percent = 50
+  desired_count                      = 1 # Update to 2
+  deployment_minimum_healthy_percent = 0 # Update to 50
   health_check_grace_period_seconds  = 60
   launch_type                        = "FARGATE"
   propagate_tags                     = "SERVICE"
