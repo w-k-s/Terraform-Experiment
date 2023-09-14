@@ -11,16 +11,9 @@ CREATE SCHEMA IF NOT EXISTS ${db_schema};
 CREATE ROLE ${db_role};
 
 -- Set the password for the noticeboarduser role
-ALTER ROLE ${db_role} WITH PASSWORD '${db_password}';
+ALTER ROLE ${db_role} WITH LOGIN PASSWORD '${db_password}';
 
 -- Grant all privileges on all tables in the noticeboard schema to the noticeboarduser role
 -- The terraform script works but these terraform scrips are a no go.
 GRANT CONNECT ON DATABASE ${db_name} TO ${db_role};
-grant usage on schema ${db_schema} to ${db_role};
-GRANT ALL ON ALL TABLES IN SCHEMA ${db_schema} TO ${db_role};
-GRANT EXECUTE ON ALL FUNCTIONS IN SCHEMA ${db_schema} TO ${db_role};
-
--- GRANT SELECT, INSERT, UPDATE, DELETE ON noticeboard.notice TO ${db_role};
--- GRANT USAGE, SELECT, UPDATE ON SEQUENCE noticeboard.notice_id_seq TO ${db_role};
-
-
+GRANT ALL PRIVILEGES ON SCHEMA ${db_schema} TO ${db_role};

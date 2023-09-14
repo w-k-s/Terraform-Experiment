@@ -26,8 +26,8 @@ resource "aws_lb_target_group" "task_creation" {
   vpc_id      = var.vpc_id
   target_type = "ip"
 
-  health_check {
-    path = "/actuator/health"
-    port = var.task_creation_service_conainer_port
-  }
+  # health_check {
+  #   path = "/actuator/health"
+  #   port = var.task_creation_service_conainer_port
+  # }
 }

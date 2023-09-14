@@ -97,3 +97,17 @@ resource "aws_vpc_endpoint" "ecr" {
     Name = format("%s-vpcendp-ecr", var.project_id)
   }
 }
+
+resource "aws_vpc_endpoint" "sqs" {
+  vpc_id             = aws_default_vpc.this.id
+  service_name       = format("com.amazonaws.%s.sqs", var.aws_region)
+  vpc_endpoint_type  = "Interface"
+  subnet_ids         = data.aws_subnets.private_subnets.ids
+  security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
+  # Requests to ecr will resolve to vpc endpoint, rather than public url
+  private_dns_enabled = true
+
+  tags = {
+    Name = format("%s-vpcendp-sqs", var.project_id)
+  }
+}

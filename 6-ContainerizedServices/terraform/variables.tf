@@ -62,18 +62,13 @@ variable "rds_psql_application_db_name" {
 variable "rds_psql_application_role" {
   type        = string
   description = "The name of the role used by the application to connect to the application db"
-  default     = "app_user"
+  default     = "taskmonkey_user"
 }
 
 variable "rds_psql_application_password" {
   type        = string
   description = "The password of the role used by the application to connect to the application db"
-  default     = "app_password"
+  default     = "taskmonkey_password"
 }
 
-variable "rds_psql_application_schema" {
-  type        = string
-  description = "The name of the schema to connect to within the application db"
-  default     = "task_creation"
-}
 
