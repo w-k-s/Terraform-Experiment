@@ -2,84 +2,165 @@ resource "aws_security_group" "vpc_link" {
   name_prefix = "vpclink_sg_"
   description = "Allow HTTP inbound traffic"
 
-  ingress {
-    description      = "Allow http traffic from anywhere"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  ingress {
-    description      = "Allow https traffic from anywhere"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  egress {
-    description      = "Allow all"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   tags = {
     Name = format("%s-sg-vpclink", var.project_id)
   }
 }
 
+resource "aws_security_group_rule" "vpc_link_http_ingress" {
+  security_group_id = aws_security_group.vpc_link.id
+  type              = "ingress"
+  description       = "Allow http traffic from anywhere"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+}
+
+resource "aws_security_group_rule" "vpc_link_https_ingress" {
+  security_group_id = aws_security_group.vpc_link.id
+  type              = "ingress"
+  description       = "Allow https traffic from anywhere"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+}
+
+resource "aws_security_group_rule" "vpc_link_egress" {
+  security_group_id = aws_security_group.vpc_link.id
+  type              = "egress"
+  description       = "Allow all"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
+}
+
+# Load Balancer
+
 resource "aws_security_group" "load_balancer" {
   name_prefix = "lb_sg_"
   description = "Application Load Balance Security Group"
 
-  ingress {
-    description      = "Allow http traffic from vpc link"
-    from_port        = 80
-    to_port          = 80
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    security_groups  = ["${aws_security_group.vpc_link.id}"]
-  }
-
-  ingress {
-    description      = "Allow https traffic from vpc link"
-    from_port        = 443
-    to_port          = 443
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    security_groups  = ["${aws_security_group.vpc_link.id}"]
-  }
-
-  ingress {
-    description      = "Allow http traffic from application"
-    from_port        = var.application_listen_port
-    to_port          = var.application_listen_port
-    protocol         = "tcp"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-    security_groups  = ["${aws_security_group.app.id}"]
-  }
-
-  egress {
-    description      = "Allow all"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   tags = {
     Name = format("%s-sg-lb", var.project_id)
   }
+}
+
+
+resource "aws_security_group_rule" "load_balancer_vpc_link_http_ingress" {
+  security_group_id        = aws_security_group.load_balancer.id
+  type                     = "ingress"
+  description              = "Allow http traffic from vpc link"
+  from_port                = 80
+  to_port                  = 80
+  protocol                 = "tcp"
+  cidr_blocks              = ["0.0.0.0/0"]
+  ipv6_cidr_blocks         = ["::/0"]
+  source_security_group_id = aws_security_group.vpc_link.id
+}
+
+resource "aws_security_group_rule" "load_balancer_vpc_link_https_ingress" {
+  security_group_id        = aws_security_group.load_balancer.id
+  type                     = "ingress"
+  description              = "Allow https traffic from vpc link"
+  from_port                = 443
+  to_port                  = 443
+  protocol                 = "tcp"
+  cidr_blocks              = ["0.0.0.0/0"]
+  ipv6_cidr_blocks         = ["::/0"]
+  source_security_group_id = aws_security_group.vpc_link.id
+}
+
+resource "aws_security_group_rule" "load_balancer_app_ingress" {
+  security_group_id        = aws_security_group.load_balancer.id
+  type                     = "ingress"
+  description              = "Allow http traffic from application"
+  from_port                = var.application_listen_port
+  to_port                  = var.application_listen_port
+  protocol                 = "tcp"
+  cidr_blocks              = ["0.0.0.0/0"]
+  ipv6_cidr_blocks         = ["::/0"]
+  source_security_group_id = aws_security_group.app.id
+}
+
+resource "aws_security_group_rule" "load_balancer_egress" {
+  security_group_id = aws_security_group.load_balancer.id
+  type              = "egress"
+
+  description      = "Allow all"
+  from_port        = 0
+  to_port          = 0
+  protocol         = "-1"
+  cidr_blocks      = ["0.0.0.0/0"]
+  ipv6_cidr_blocks = ["::/0"]
+}
+
+# Application
+
+resource "aws_security_group" "app" {
+  name_prefix = "app_sg_"
+  description = "Application instance security group"
+
+  tags = {
+    Name = format("%s-sg-app", var.project_id)
+  }
+
+}
+
+resource "aws_security_group_rule" "app_http_ingress" {
+  security_group_id = aws_security_group.app.id
+  type              = "ingress"
+  description       = "Allow HTTP from within VPC"
+  from_port         = 80
+  to_port           = 80
+  protocol          = "tcp"
+  cidr_blocks       = [aws_default_vpc.this.cidr_block]
+}
+
+resource "aws_security_group_rule" "app_https_ingress" {
+  security_group_id = aws_security_group.app.id
+  type              = "ingress"
+  description       = "Allow HTTP from within VPC"
+  from_port         = 443
+  to_port           = 443
+  protocol          = "tcp"
+  cidr_blocks       = [aws_default_vpc.this.cidr_block]
+}
+
+resource "aws_security_group_rule" "app_lb_ingress" {
+  security_group_id        = aws_security_group.app.id
+  type                     = "ingress"
+  description              = "Allow HTTP from Load Balancer"
+  from_port                = var.application_listen_port
+  to_port                  = var.application_listen_port
+  protocol                 = "tcp"
+  source_security_group_id = aws_security_group.load_balancer.id
+}
+
+resource "aws_security_group_rule" "app_db_ingress" {
+  security_group_id        = aws_security_group.app.id
+  type                     = "ingress"
+  description              = "Allow Postgres From RDS instance"
+  from_port                = 5432
+  to_port                  = 5432
+  protocol                 = "tcp"
+  source_security_group_id = data.aws_security_group.rds.id
+}
+
+resource "aws_security_group_rule" "app_egress" {
+  security_group_id = aws_security_group.app.id
+  type              = "egress"
+  description       = "Allow all"
+  from_port         = 0
+  to_port           = 0
+  protocol          = "-1"
+  cidr_blocks       = ["0.0.0.0/0"]
+  ipv6_cidr_blocks  = ["::/0"]
 }
 
 resource "aws_security_group" "vpc_endpoint" {
@@ -116,59 +197,6 @@ resource "aws_security_group" "vpc_endpoint" {
 
   tags = {
     Name = format("%s-sg-vpcendp", var.project_id)
-  }
-}
-
-resource "aws_security_group" "app" {
-  name_prefix = "app_sg_"
-  description = "Application instance security group"
-
-
-  # The load balancer must be in in the VPC
-  # Allow http traffic from within vpc so that the ec2 instance can download jdk via nat gateway
-  ingress {
-    description = "Allow HTTP from within VPC"
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = [aws_default_vpc.this.cidr_block]
-  }
-
-  ingress {
-    description = "Allow HTTP from within VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_default_vpc.this.cidr_block]
-  }
-
-  ingress {
-    description     = "Allow HTTP from Load Balancer"
-    from_port       = var.application_listen_port
-    to_port         = var.application_listen_port
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.load_balancer.id}"]
-  }
-
-  ingress {
-    description     = "Allow Postgres From RDS instance"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = ["${data.aws_security_group.rds.id}"]
-  }
-
-  egress {
-    description      = "Allow all"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
-  tags = {
-    Name = format("%s-sg-instance", var.project_id)
   }
 }
 
