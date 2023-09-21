@@ -46,37 +46,10 @@ resource "aws_security_group" "load_balancer" {
   name_prefix = "lb_sg_"
   description = "Application Load Balance Security Group"
 
-<<<<<<< HEAD
-  ingress {
-    description     = "Allow http traffic from vpc link"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.vpc_link.id}"]
-=======
   tags = {
     Name = format("%s-sg-lb", var.project_id)
->>>>>>> a8d2d4d13a1c30cdb918bfb8535e27410a4cad66
   }
 }
-
-<<<<<<< HEAD
-  ingress {
-    description     = "Allow https traffic from vpc link"
-    from_port       = 443
-    to_port         = 443
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.vpc_link.id}"]
-  }
-
-  ingress {
-    description     = "Allow http traffic from application"
-    from_port       = var.application_listen_port
-    to_port         = var.application_listen_port
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.app.id}"]
-  }
-=======
 
 resource "aws_security_group_rule" "load_balancer_vpc_link_http_ingress" {
   security_group_id        = aws_security_group.load_balancer.id
@@ -89,7 +62,6 @@ resource "aws_security_group_rule" "load_balancer_vpc_link_http_ingress" {
   ipv6_cidr_blocks         = ["::/0"]
   source_security_group_id = aws_security_group.vpc_link.id
 }
->>>>>>> a8d2d4d13a1c30cdb918bfb8535e27410a4cad66
 
 resource "aws_security_group_rule" "load_balancer_vpc_link_https_ingress" {
   security_group_id        = aws_security_group.load_balancer.id
