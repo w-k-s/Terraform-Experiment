@@ -28,6 +28,8 @@ resource "aws_lb_target_group" "task_creation" {
 
   health_check {
     path = "/actuator/health"
-    port = var.task_creation_service_conainer_port
+    unhealthy_threshold = 10 # TODO: Remove after debugging
+    timeout = 120 # TODO: Remove after debugging
+    interval = 300 # TODO: Remove after debugging
   }
 }

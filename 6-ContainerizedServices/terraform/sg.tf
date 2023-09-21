@@ -54,7 +54,7 @@ resource "aws_security_group" "load_balancer" {
 resource "aws_security_group_rule" "load_balancer_vpc_link_http_ingress" {
   security_group_id        = aws_security_group.load_balancer.id
   type                     = "ingress"
-  description              = "Allow http traffic from vpc link"
+  description              = "Allow any traffic from vpc link"
   from_port                = 80
   to_port                  = 80
   protocol                 = "tcp"
