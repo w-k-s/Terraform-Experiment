@@ -61,7 +61,7 @@ resource "aws_ecs_service" "task_creation" {
   network_configuration {
     subnets          = var.private_subnets
     security_groups  = ["${var.sg_app}"]
-    assign_public_ip = false
+    assign_public_ip = true
   }
 
 }
