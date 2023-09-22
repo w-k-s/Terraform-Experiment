@@ -1,6 +1,7 @@
 resource "aws_security_group" "vpc_link" {
   name_prefix = "vpclink_sg_"
   description = "Allow HTTP inbound traffic"
+  vpc_id = aws_default_vpc.this.id
 
   ingress {
     description      = "Allow http traffic from anywhere"
@@ -37,6 +38,7 @@ resource "aws_security_group" "vpc_link" {
 resource "aws_security_group" "load_balancer" {
   name_prefix = "lb_sg_"
   description = "Application Load Balance Security Group"
+  vpc_id = aws_default_vpc.this.id
 
   ingress {
     description      = "Allow http traffic from vpc link"
@@ -82,89 +84,45 @@ resource "aws_security_group" "load_balancer" {
   }
 }
 
+
+
+# For Fargate, The security group attached to the VPC endpoint must allow incoming connections on TCP port 443 from the private subnet of the VPC.
+# References: 
+# - https://docs.aws.amazon.com/AmazonECS/latest/developerguide/vpc-endpoints.html
+# - https://hands-on.cloud/aws-fargate-private-vpc-terraform-example/
 resource "aws_security_group" "vpc_endpoint" {
-  name_prefix = "vpcendp_sg_"
-  description = "VPC Endpoint Security Group"
-
+  name   = "vpce_sg_"
+  vpc_id = aws_default_vpc.this.id
 
   ingress {
-    description     = "Allow http traffic from application"
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.app.id}"]
-  }
-
-  # For Fargate, The security group attached to the VPC endpoint must allow incoming connections on TCP port 443 from the private subnet of the VPC.
-  # Reference: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/vpc-endpoints.html
-  ingress {
-    description = "Allow https traffic from application"
     from_port   = 443
     to_port     = 443
     protocol    = "tcp"
     cidr_blocks = [aws_default_vpc.this.cidr_block]
   }
 
-  egress {
-    description      = "Allow all"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
-  }
-
   tags = {
-    Name = format("%s-sg-vpcendp", var.project_id)
+    Name = format("%s-sg-vpce", var.project_id)
   }
 }
 
 resource "aws_security_group" "app" {
   name_prefix = "app_sg_"
   description = "Application instance security group"
+  vpc_id = aws_default_vpc.this.id
 
-
-  # The load balancer must be in in the VPC
-  # Allow http traffic from within vpc so that the ec2 instance can download jdk via nat gateway
   ingress {
-    description = "Allow HTTP from within VPC"
-    from_port   = 80
-    to_port     = 80
+    from_port   = var.application_listen_port
+    to_port     = var.application_listen_port
     protocol    = "tcp"
     cidr_blocks = [aws_default_vpc.this.cidr_block]
-  }
-
-  ingress {
-    description = "Allow HTTP from within VPC"
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = [aws_default_vpc.this.cidr_block]
-  }
-
-  ingress {
-    description     = "Allow HTTP from Load Balancer"
-    from_port       = var.application_listen_port
-    to_port         = var.application_listen_port
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.load_balancer.id}"]
-  }
-
-  ingress {
-    description     = "Allow Postgres From RDS instance"
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = ["${data.aws_security_group.rds.id}"]
   }
 
   egress {
-    description      = "Allow all"
-    from_port        = 0
-    to_port          = 0
-    protocol         = "-1"
-    cidr_blocks      = ["0.0.0.0/0"]
-    ipv6_cidr_blocks = ["::/0"]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   tags = {

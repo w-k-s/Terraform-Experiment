@@ -98,6 +98,20 @@ resource "aws_vpc_endpoint" "ecr" {
   }
 }
 
+resource "aws_vpc_endpoint" "dkr_api" {
+  vpc_id              = aws_default_vpc.this.id
+  private_dns_enabled = true
+  service_name        = "com.amazonaws.${var.aws_region}.ecr.api"
+  vpc_endpoint_type   = "Interface"
+  security_group_ids = [
+    aws_security_group.vpc_endpoint.id,
+  ]
+  subnet_ids = data.aws_subnets.private_subnets.ids
+  tags = {
+    Name = format("%s-vpcendp-dkr-api", var.project_id)
+  }
+}
+
 resource "aws_vpc_endpoint" "sqs" {
   vpc_id             = aws_default_vpc.this.id
   service_name       = format("com.amazonaws.%s.sqs", var.aws_region)
