@@ -41,7 +41,7 @@ data "aws_route_table" "private_route_table" {
 # Add a VPC endpoint for SSM so that the EC2 instance can talk to the session manager (also to get parameters)
 resource "aws_vpc_endpoint" "ssm" {
   vpc_id             = aws_default_vpc.this.id
-  service_name       = format("com.amazonaws.%s.ssm", var.aws_region)
+  service_name       = "com.amazonaws.${var.aws_region}.ssm"
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
@@ -57,7 +57,7 @@ resource "aws_vpc_endpoint" "ssm" {
 # Add a VPC endpoint for SSM so that the EC2 instance can talk to the session manager
 resource "aws_vpc_endpoint" "ssmmessages" {
   vpc_id             = aws_default_vpc.this.id
-  service_name       = format("com.amazonaws.%s.ssmmessages", var.aws_region)
+  service_name       = "com.amazonaws.${var.aws_region}.ssmmessages"
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
@@ -72,7 +72,7 @@ resource "aws_vpc_endpoint" "ssmmessages" {
 # Add a VPC endpoint for SSM so that the EC2 instance can send out logs
 resource "aws_vpc_endpoint" "logs" {
   vpc_id             = aws_default_vpc.this.id
-  service_name       = format("com.amazonaws.%s.logs", var.aws_region)
+  service_name       = "com.amazonaws.${var.aws_region}.logs"
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
@@ -84,9 +84,10 @@ resource "aws_vpc_endpoint" "logs" {
   }
 }
 
+# Required by Fargate v1.4.1+
 resource "aws_vpc_endpoint" "ecr" {
   vpc_id             = aws_default_vpc.this.id
-  service_name       = format("com.amazonaws.%s.ecr.dkr", var.aws_region)
+  service_name       = "com.amazonaws.${var.aws_region}.ecr.dkr"
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
@@ -98,6 +99,7 @@ resource "aws_vpc_endpoint" "ecr" {
   }
 }
 
+# Required by Fargate v1.4.1+
 resource "aws_vpc_endpoint" "dkr_api" {
   vpc_id              = aws_default_vpc.this.id
   private_dns_enabled = true
@@ -112,9 +114,21 @@ resource "aws_vpc_endpoint" "dkr_api" {
   }
 }
 
+# Required by Fargate v1.4.1+
+resource "aws_vpc_endpoint" "s3" {
+  vpc_id            = aws_default_vpc.this.id
+  service_name      = "com.amazonaws.${var.aws_region}.s3"
+  vpc_endpoint_type = "Gateway"
+  route_table_ids   = [data.aws_route_table.private_route_table.id]
+
+  tags = {
+    Name = format("%s-vpcendp-s3", var.project_id)
+  }
+}
+
 resource "aws_vpc_endpoint" "sqs" {
   vpc_id             = aws_default_vpc.this.id
-  service_name       = format("com.amazonaws.%s.sqs", var.aws_region)
+  service_name       = "com.amazonaws.${var.aws_region}.sqs"
   vpc_endpoint_type  = "Interface"
   subnet_ids         = data.aws_subnets.private_subnets.ids
   security_group_ids = ["${aws_security_group.vpc_endpoint.id}"]
