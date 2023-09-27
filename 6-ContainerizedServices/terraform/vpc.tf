@@ -84,7 +84,7 @@ resource "aws_vpc_endpoint" "logs" {
   }
 }
 
-# Required by Fargate v1.4.1+
+# Required by Fargate v1.3.0+
 resource "aws_vpc_endpoint" "ecr" {
   vpc_id             = aws_default_vpc.this.id
   service_name       = "com.amazonaws.${var.aws_region}.ecr.dkr"
@@ -99,7 +99,7 @@ resource "aws_vpc_endpoint" "ecr" {
   }
 }
 
-# Required by Fargate v1.4.1+
+# Required by Fargate v1.4.1+ 
 resource "aws_vpc_endpoint" "dkr_api" {
   vpc_id              = aws_default_vpc.this.id
   private_dns_enabled = true
@@ -114,7 +114,7 @@ resource "aws_vpc_endpoint" "dkr_api" {
   }
 }
 
-# Required by Fargate v1.4.1+
+# Required by Fargate v1.3.0+
 resource "aws_vpc_endpoint" "s3" {
   vpc_id            = aws_default_vpc.this.id
   service_name      = "com.amazonaws.${var.aws_region}.s3"

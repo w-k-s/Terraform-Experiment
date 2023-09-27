@@ -50,6 +50,11 @@ resource "aws_iam_role_policy_attachment" "fargate_task_ssm_attachment" {
   role       = aws_iam_role.task_role.name
 }
 
+resource "aws_iam_role_policy_attachment" "fargate_task_sqs_attachment" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSQSFullAccess"
+  role       = aws_iam_role.task_role.name
+}
+
 # A role that ECS can assume in order to pull container images, store logs.
 resource "aws_iam_role" "execution_role" {
   name = "${var.project_id}-ExecutionRole"
