@@ -1,6 +1,6 @@
 # A role that ECS tasks can assume in order to call authenticated AWS APIs 
 resource "aws_iam_role" "task_role" {
-  name = "${var.project_id}-task_role"
+  name = "io.wks.${var.project_id}.TaskRole"
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -57,7 +57,7 @@ resource "aws_iam_role_policy_attachment" "fargate_task_sqs_attachment" {
 
 # A role that ECS can assume in order to pull container images, store logs.
 resource "aws_iam_role" "execution_role" {
-  name = "${var.project_id}-ExecutionRole"
+  name = "io.wks.${var.project_id}.ExecutionRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17"

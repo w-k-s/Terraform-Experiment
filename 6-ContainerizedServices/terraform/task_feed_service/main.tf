@@ -1,10 +1,10 @@
 locals {
   cpu                       = 1024 # 1 vCPU 
   memory                    = 2048 # See: https://docs.aws.amazon.com/AmazonECS/latest/developerguide/task-cpu-memory-error.html
-  container_definition_name = "task_creation"
+  container_definition_name = "task_feed"
 }
 
-resource "aws_ecs_task_definition" "task_creation" {
+resource "aws_ecs_task_definition" "task_feed" {
   family                   = local.container_definition_name
   requires_compatibilities = ["FARGATE"]
   network_mode             = "awsvpc"
@@ -35,17 +35,17 @@ resource "aws_ecs_task_definition" "task_creation" {
         options = {
           "awslogs-region"        = var.aws_region
           "awslogs-group"         = var.cloudwatch_log_group
-          "awslogs-stream-prefix" = "task-creation-"
+          "awslogs-stream-prefix" = "task-feed-"
         }
       }
     }
   ])
 }
 
-resource "aws_ecs_service" "task_creation" {
-  name                               = "task_creation_service"
+resource "aws_ecs_service" "task_feed" {
+  name                               = "task_feed_service"
   cluster                            = var.cluster_arn
-  task_definition                    = aws_ecs_task_definition.task_creation.arn
+  task_definition                    = aws_ecs_task_definition.task_feed.arn
   desired_count                      = 2
   deployment_minimum_healthy_percent = 50
   health_check_grace_period_seconds  = 60
@@ -53,7 +53,7 @@ resource "aws_ecs_service" "task_creation" {
   propagate_tags                     = "SERVICE"
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.task_creation.arn
+    target_group_arn = aws_lb_target_group.task_feed.arn
     container_name   = local.container_definition_name
     container_port   = var.application_port
   }

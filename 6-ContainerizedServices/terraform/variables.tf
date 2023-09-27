@@ -31,6 +31,11 @@ variable "task_creation_service_image" {
   description = "Image for the task creation service."
 }
 
+variable "task_feed_service_image" {
+  type        = string
+  description = "Image for the task feed service."
+}
+
 variable "application_listen_port" {
   type        = number
   description = "Port on which the task creation service application inside container is listening"

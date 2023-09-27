@@ -9,7 +9,7 @@ terraform {
   backend "s3" {
     # This assumes we have a bucket created called io.wks.terraform
     bucket = "io.wks.terraform"
-    key    = "taskmonkey.ecr.state.json"
+    key    = "taskmonkey.taskfeed.ecr.state.json"
     region = "ap-south-1"
   }
 
@@ -26,7 +26,7 @@ provider "aws" {
   }
 }
 
-resource "aws_ecr_repository" "this" {
+resource "aws_ecr_repository" "task_feed" {
   name                 = var.repository_name
   image_tag_mutability = "IMMUTABLE"
   force_delete         = true # destroys repo even if it's not empty (not a good idea for production)

@@ -1,5 +1,5 @@
 output "api_gateway_integration" {
-  value = aws_apigatewayv2_integration.this
+  value = aws_apigatewayv2_integration.task_creation
 }
 
 output "api_gateway_route" {

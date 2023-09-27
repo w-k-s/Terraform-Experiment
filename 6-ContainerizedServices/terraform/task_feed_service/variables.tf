@@ -40,7 +40,7 @@ variable "db_password" {
 variable "db_schema" {
   type        = string
   description = "the schema used by the task creation service"
-  default     = "task_creation"
+  default     = "task_feed"
 }
 
 # VPC
@@ -120,11 +120,10 @@ variable "iam_execution_role" {
   description = "ARN of Execution Role for Fargate Task"
 }
 
-
 # Param Store
 
 variable "paramstore_name" {
   type        = string
   description = "Paraneter store name. e.g. For a parameter named '/config/app/some.value', the paramstore name is 'app'"
-  default     = "taskcreation"
+  default     = "taskfeed"
 }

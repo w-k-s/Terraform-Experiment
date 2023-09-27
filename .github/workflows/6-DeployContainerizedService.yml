@@ -15,7 +15,8 @@ env:
   AWS_DEFAULT_REGION: "ap-south-1"
 
 jobs:
-  create-registry:
+  # Task Creation Service
+  create-task-creation-registry:
     runs-on: ubuntu-latest
     env:
       AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
@@ -24,7 +25,7 @@ jobs:
       ecr_repository_url: ${{ steps.terraform1.outputs.ecr_repository_url }}
     defaults:
       run:
-        working-directory: ./6-ContainerizedServices/terraform/ecr
+        working-directory: ./6-ContainerizedServices/terraform/task-creation-service/ecr
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -47,11 +48,11 @@ jobs:
 
   task-creation-service:
     needs: 
-      - create-registry
+      - create-task-creation-registry
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      IMAGE_TAG: "${{ needs.create-registry.outputs.ecr_repository_url }}:${{ github.run_number }}"
+      IMAGE_TAG: "${{ needs.create-task-creation-registry.outputs.ecr_repository_url }}:${{ github.run_number }}"
     defaults:
       run:
         working-directory: ./6-ContainerizedServices/backend/task-creation-service
@@ -91,15 +92,49 @@ jobs:
           echo "image=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
           echo "$IMAGE_TAG" >> $GITHUB_STEP_SUMMARY
 
+  # Task Feed Service
+  create-task-feed-registry:
+    runs-on: ubuntu-latest
+    env:
+      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+    outputs:
+      ecr_repository_url: ${{ steps.terraform1.outputs.ecr_repository_url }}
+    defaults:
+      run:
+        working-directory: ./6-ContainerizedServices/terraform/task-feed-service/ecr
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: "1.3.7"
+          terraform_wrapper: false
+      - name: Terraform Init
+        run: terraform init
+      - name: Terraform Deploy
+        run: terraform apply -auto-approve
+      - name: Terraform Output 1
+        id: terraform1
+        run: echo "ecr_repository_url=$(terraform output -raw ecr_repository_url)" >> "$GITHUB_OUTPUT"
+      - name: Summary
+        env: 
+          REPOSITORY_URL: ${{ steps.terraform1.outputs.ecr_repository_url }}
+        run: echo "$REPOSITORY_URL" >> "$GITHUB_STEP_SUMMARY"
+
   task-feed-service:
     needs: 
-      - create-registry
+      - create-task-feed-registry
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      IMAGE_TAG: "${{ needs.create-task-feed-registry.outputs.ecr_repository_url }}:${{ github.run_number }}"
     defaults:
       run:
         working-directory: ./6-ContainerizedServices/backend/task-feed-service
+    outputs:
+      image: ${{ steps.push.outputs.image }}
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -111,12 +146,31 @@ jobs:
           cache: maven
       - name: Run tests
         run: mvn -s ./../../../.github/settings.xml -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install -DskipTests
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_DEFAULT_REGION }}
+          mask-aws-account-id: 'no'
 
+      - name: Login to Amazon ECR
+        uses: aws-actions/amazon-ecr-login@v1
+
+      - name: Build, tag, and push image to Amazon ECR
+        run: |
+          echo "Image Tag: $IMAGE_TAG"
+          docker build -t $IMAGE_TAG .
+          docker push $IMAGE_TAG
+      - name: Summary
+        id: push
+        run: |
+          echo "image=$IMAGE_TAG" >> "$GITHUB_OUTPUT"
+          echo "$IMAGE_TAG" >> $GITHUB_STEP_SUMMARY
 
   # Run rest of terraform
   terraform:
     needs: 
-      - create-registry
       - task-creation-service
       - task-feed-service
     runs-on: ubuntu-latest
@@ -141,4 +195,4 @@ jobs:
       - name: Terraform Init
         run: terraform init
       - name: Terraform Deploy
-        run: terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=${{ needs.task-creation-service.outputs.image }}" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD"
+        run: terraform apply -auto-approve -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=${{ needs.task-creation-service.outputs.image }}" -var="task_feed_service_image=${{ needs.task-feed-service.outputs.image }}" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD"
