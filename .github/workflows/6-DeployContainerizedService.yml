@@ -25,7 +25,7 @@ jobs:
       ecr_repository_url: ${{ steps.terraform1.outputs.ecr_repository_url }}
     defaults:
       run:
-        working-directory: ./6-ContainerizedServices/terraform/task-creation-service/ecr
+        working-directory: ./6-ContainerizedServices/terraform/task_creation_service/ecr
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -102,7 +102,7 @@ jobs:
       ecr_repository_url: ${{ steps.terraform1.outputs.ecr_repository_url }}
     defaults:
       run:
-        working-directory: ./6-ContainerizedServices/terraform/task-feed-service/ecr
+        working-directory: ./6-ContainerizedServices/terraform/task_feed_service/ecr
     steps:
       - name: Checkout
         uses: actions/checkout@v3

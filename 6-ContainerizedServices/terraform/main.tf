@@ -72,8 +72,8 @@ module "task_creation_service" {
   sg_app           = aws_security_group.app.id
 
   # IAM
-  iam_execution_role = aws_iam_role.execution_role
-  iam_task_role      = aws_iam_role.task_role
+  iam_execution_role = aws_iam_role.execution_role.arn
+  iam_task_role      = aws_iam_role.task_role.arn
 }
 
 module "task_feed_service" {
@@ -112,6 +112,6 @@ module "task_feed_service" {
   sg_app           = aws_security_group.app.id
 
   # IAM
-  iam_execution_role = aws_iam_role.execution_role
-  iam_task_role      = aws_iam_role.task_role
+  iam_execution_role = aws_iam_role.execution_role.arn
+  iam_task_role      = aws_iam_role.task_role.arn
 }
