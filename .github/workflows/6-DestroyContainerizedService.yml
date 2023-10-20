@@ -32,4 +32,4 @@ jobs:
         run: terraform init
 
       - name: Terraform Destroy
-        run: terraform apply -auto-approve -destroy -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=0" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD"
+        run: terraform apply -auto-approve -destroy -var="hosted_zone_name=$HOSTED_ZONE_NAME" -var="containerized_app_host=$CONTAINERIZED_APP_HOST" -var="task_creation_service_image=0" -var="task_feed_service_image=0" -var="rds_psql_instance_identifier=$RDS_PSQL_INSTANCE_IDENTIFIER" -var="rds_psql_master_username=$RDS_PSQL_MASTER_USERNAME" -var="rds_psql_master_password=$RDS_PSQL_MASTER_PASSWORD"
