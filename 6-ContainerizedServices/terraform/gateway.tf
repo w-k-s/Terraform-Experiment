@@ -36,7 +36,7 @@ resource "aws_apigatewayv2_deployment" "this" {
     #       It will stabilize to only change when resources change afterwards.
     redeployment = sha1(join(",", tolist([
       jsonencode(module.task_creation_service.api_gateway_integration),
-      jsonencode(module.task_creation_service.api_gateway_route),
+      jsonencode(flatten(module.task_creation_service.api_gateway_route)),
     ])))
   }
 

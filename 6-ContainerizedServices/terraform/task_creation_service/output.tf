@@ -3,5 +3,5 @@ output "api_gateway_integration" {
 }
 
 output "api_gateway_route" {
-  value = aws_apigatewayv2_route.tasks_subresource_route
+  value = [aws_apigatewayv2_route.tasks_resource_route, aws_apigatewayv2_route.tasks_subresource_route]
 }

@@ -23,7 +23,7 @@ resource "aws_apigatewayv2_route" "tasks_subresource_route" {
 
 resource "aws_apigatewayv2_route" "tasks_resource_route" {
   api_id    = var.api_gateway_id
-  route_key = "GET /api/v1/tasks"
+  route_key = "POST /api/v1/tasks"
   target    = "integrations/${aws_apigatewayv2_integration.task_creation.id}"
 }
 
