@@ -15,3 +15,11 @@ messaging:
   queue:
     tasks:
       name: ""
+
+cloud:
+  aws:
+    credentials:
+      profile-name: default
+    region:
+      auto: false
+      static: ap-south-1

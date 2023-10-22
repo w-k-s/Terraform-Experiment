@@ -15,3 +15,7 @@ messaging:
   queue:
     tasks:
       name: ""
+cloud:
+    region:
+      auto: false
+      static: ap-south-1

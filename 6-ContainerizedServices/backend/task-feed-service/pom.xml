@@ -16,7 +16,7 @@
     <properties>
         <java.version>17</java.version>
         <kotlin.version>1.8.22</kotlin.version>
-         <aws.param-store.version>2.2.6.RELEASE</aws.param-store.version>
+        <aws.param-store.version>2.2.6.RELEASE</aws.param-store.version>
         <logstash-logback-encoder.version>7.3</logstash-logback-encoder.version>
     </properties>
     <repositories>
@@ -73,12 +73,12 @@
             <artifactId>spring-cloud-starter-aws-parameter-store-config</artifactId>
             <version>${aws.param-store.version}</version>
         </dependency>
-<!--        <dependency>-->
-<!--            <groupId>org.springframework.boot</groupId>-->
-<!--            <artifactId>spring-boot-docker-compose</artifactId>-->
-<!--            <scope>runtime</scope>-->
-<!--            <optional>true</optional>-->
-<!--        </dependency>-->
+        <!--        <dependency>-->
+        <!--            <groupId>org.springframework.boot</groupId>-->
+        <!--            <artifactId>spring-boot-docker-compose</artifactId>-->
+        <!--            <scope>runtime</scope>-->
+        <!--            <optional>true</optional>-->
+        <!--        </dependency>-->
         <dependency>
             <groupId>org.postgresql</groupId>
             <artifactId>postgresql</artifactId>
@@ -86,7 +86,11 @@
         </dependency>
         <dependency>
             <groupId>io.awspring.cloud</groupId>
-            <artifactId>spring-cloud-starter-aws-messaging</artifactId>
+            <artifactId>spring-cloud-aws-starter-sqs</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>io.awspring.cloud</groupId>
+            <artifactId>spring-cloud-aws-autoconfigure</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
@@ -111,18 +115,19 @@
     </dependencies>
 
     <dependencyManagement>
+        <!-- Stupidly, spring-cloud-dependencies must be declared before spring-cloud-aws-dependencies. See: https://github.com/spring-cloud/spring-cloud-release/issues/266#issuecomment-1632006812 -->
         <dependencies>
-            <dependency>
-                <groupId>io.awspring.cloud</groupId>
-                <artifactId>spring-cloud-aws-dependencies</artifactId>
-                <version>2.3.0</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
             <dependency>
                 <groupId>org.springframework.cloud</groupId>
                 <artifactId>spring-cloud-dependencies</artifactId>
                 <version>2021.0.0</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+            <dependency>
+                <groupId>io.awspring.cloud</groupId>
+                <artifactId>spring-cloud-aws-dependencies</artifactId>
+                <version>3.0.2</version>
                 <type>pom</type>
                 <scope>import</scope>
             </dependency>
