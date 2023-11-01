@@ -1,0 +1,23 @@
+syntax = "proto3";
+
+package io.wks.terraform.shippingpriceapi;
+
+option java_multiple_files = true;
+
+service ShippingPriceService {
+  rpc price (ShippingPriceRequest) returns (ShippingPriceResponse) {}
+}
+
+message ShippingPriceRequest {
+  string sourceCountry = 1;
+  string destinationCountry = 2;
+  string bookingDateTime = 3;
+  string currency = 4;
+  double weightKg = 5;
+  bool urgent = 6;
+}
+
+message ShippingPriceResponse {
+  string currency = 1;
+  uint64 priceMinorUnits = 2;
+}
