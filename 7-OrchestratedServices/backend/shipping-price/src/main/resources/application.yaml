@@ -1,0 +1,9 @@
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/shipping_price}
+    username: ${DB_USER:waqqassheikh}
+    password: ${DB_PASSWORD:7713659}
+    driver-class-name: org.postgresql.Driver
+logging:
+  level:
+    org.flyway: info
