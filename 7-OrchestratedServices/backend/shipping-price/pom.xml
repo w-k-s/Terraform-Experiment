@@ -21,6 +21,7 @@
         <nv-i18n.version>1.29</nv-i18n.version>
         <h2.version>2.1.214</h2.version>
         <jooq-codegen-maven.version>3.18.2</jooq-codegen-maven.version>
+        <moneta.version>1.4.2</moneta.version>
     </properties>
 
     <repositories>
@@ -33,27 +34,27 @@
     <dependencies>
         <dependency>
             <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
         <dependency>
             <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-validation</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-web</artifactId>
+            <artifactId>spring-boot-starter-jooq</artifactId>
         </dependency>
         <dependency>
             <groupId>com.fasterxml.jackson.module</groupId>
             <artifactId>jackson-module-kotlin</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.micrometer</groupId>
-            <artifactId>micrometer-tracing-bridge-brave</artifactId>
+            <groupId>org.flywaydb</groupId>
+            <artifactId>flyway-core</artifactId>
         </dependency>
         <dependency>
-            <groupId>io.zipkin.reporter2</groupId>
-            <artifactId>zipkin-reporter-brave</artifactId>
+            <groupId>io.micrometer</groupId>
+            <artifactId>micrometer-tracing-bridge-brave</artifactId>
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
@@ -61,15 +62,7 @@
         </dependency>
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
-            <artifactId>kotlin-stdlib</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.springframework.boot</groupId>
-            <artifactId>spring-boot-starter-jooq</artifactId>
-        </dependency>
-        <dependency>
-            <groupId>org.flywaydb</groupId>
-            <artifactId>flyway-core</artifactId>
+            <artifactId>kotlin-stdlib-jdk8</artifactId>
         </dependency>
         <dependency>
             <groupId>org.postgresql</groupId>
@@ -77,31 +70,27 @@
             <scope>runtime</scope>
         </dependency>
         <dependency>
+            <groupId>net.devh</groupId>
+            <artifactId>grpc-server-spring-boot-starter</artifactId>
+            <version>${grpc-spring.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>io.wks.terraform</groupId>
+            <artifactId>shipping-price-api</artifactId>
+            <version>${id-range-api.version}</version>
+        </dependency>
+
+
+        <dependency>
             <groupId>com.neovisionaries</groupId>
             <artifactId>nv-i18n</artifactId>
             <version>${nv-i18n.version}</version>
         </dependency>
         <dependency>
-            <groupId>io.wks.terraform</groupId>
-            <artifactId>shipping-price-api</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>net.devh</groupId>
-            <artifactId>grpc-server-spring-boot-starter</artifactId>
-            <version>${grpc-spring.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.wks.terraform</groupId>
-            <artifactId>shipping-price-api</artifactId>
-            <version>${id-range-api.version}</version>
-            <exclusions>
-                <exclusion>
-                    <groupId>io.grpc</groupId>
-                    <artifactId>grpc-core</artifactId>
-                </exclusion>
-            </exclusions>
+            <groupId>org.javamoney</groupId>
+            <artifactId>moneta</artifactId>
+            <version>${moneta.version}</version>
+            <type>pom</type>
         </dependency>
 
 
@@ -250,6 +239,27 @@
                     </generator>
                 </configuration>
             </plugin>
+            <!-- https://stackoverflow.com/a/59884856/821110 -->
+            <!-- The gRPC team recommends always using Maven Enforcer's requireUpperBoundDeps to detect when Maven is poorly choosing versions -->
+            <!-- When it detects a failure during build, it provides the versions being depended on elsewhere. Choose the largest version and add it as an explicit dependency to your project: -->
+            <!--            <plugin>-->
+            <!--                <groupId>org.apache.maven.plugins</groupId>-->
+            <!--                <artifactId>maven-enforcer-plugin</artifactId>-->
+            <!--                <version>1.4.1</version>-->
+            <!--                <executions>-->
+            <!--                    <execution>-->
+            <!--                        <id>enforce</id>-->
+            <!--                        <goals>-->
+            <!--                            <goal>enforce</goal>-->
+            <!--                        </goals>-->
+            <!--                        <configuration>-->
+            <!--                            <rules>-->
+            <!--                                <requireUpperBoundDeps/>-->
+            <!--                            </rules>-->
+            <!--                        </configuration>-->
+            <!--                    </execution>-->
+            <!--                </executions>-->
+            <!--            </plugin>-->
         </plugins>
     </build>
 

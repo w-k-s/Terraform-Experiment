@@ -1,8 +1,8 @@
 spring:
   datasource:
-    url: ${DB_URL:jdbc:postgresql://localhost:5433/shipping_price}
-    username: ${DB_USER:waqqassheikh}
-    password: ${DB_PASSWORD:7713659}
+    url: ${DB_URL:jdbc:postgresql://localhost:5432/shipping_price}
+    username: ${DB_USER:}
+    password: ${DB_PASSWORD:}
     driver-class-name: org.postgresql.Driver
 logging:
   level:

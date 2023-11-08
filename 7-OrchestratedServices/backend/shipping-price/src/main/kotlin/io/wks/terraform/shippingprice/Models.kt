@@ -1,6 +1,7 @@
 package io.wks.terraform.shippingprice
 
 import java.math.BigDecimal
+import javax.money.MonetaryAmount
 
 @JvmInline
 value class CountryCode private constructor(private val value: com.neovisionaries.i18n.CountryCode) {
@@ -30,14 +31,13 @@ data class RateCard(
     val source: CountryCode,
     val destination: CountryCode,
     val distance: Kilometer,
-    val ratePerKgPerKm: BigDecimal,
+    val ratePerKgPerKm: MonetaryAmount,
     val urgencyMultiplier: BigDecimal,
-    val currency: CurrencyCode,
 ) {
     fun calculatePrice(
         weight: Kilogram,
         isUrgent: Boolean
-    ): BigDecimal {
+    ): MonetaryAmount {
         return ratePerKgPerKm
             .multiply(weight.value)
             .multiply(distance.value)
