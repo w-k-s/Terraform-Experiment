@@ -4,6 +4,20 @@
 
 ### Using [grpcurl](https://github.com/fullstorydev/grpcurl)
 
+#### List Services
+
+**Request**
+```
+grpcurl -plaintext localhost:9090 list
+```
+
+**Response**
+```text
+grpc.health.v1.Health
+grpc.reflection.v1alpha.ServerReflection
+io.wks.terraform.shippingpriceapi.ShippingPriceService
+```
+
 #### Success Scenario
 
 **Request**
