@@ -2,7 +2,6 @@
 
 ```text
 curl -X POST \
-  http://localhost:8081/api/v1/order \
   -H 'Content-Type: application/json' \
   -d '{
   "customerId": 123456789,
@@ -21,10 +20,10 @@ curl -X POST \
   ],
   "delivery": {
     "address": {
-      "countryCode": "TR"
+      "countryCode": "UK"
     },
     "urgent": true
   }
-}'
+}' http://localhost:8081/api/v1/order
 
 ```

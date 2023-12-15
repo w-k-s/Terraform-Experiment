@@ -5,7 +5,9 @@ import org.springframework.boot.runApplication
 
 @SpringBootApplication(
     scanBasePackages = [
-        "io.wks.terraform.orderservice.orders"
+        "io.wks.terraform.orderservice.orders.api",
+        "io.wks.terraform.orderservice.config",
+        "io.wks.terraform.orderservice.orders.service"
     ]
 )
 class OrderServiceApplication
