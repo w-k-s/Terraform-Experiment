@@ -6,6 +6,10 @@ locals {
   cluster_name = "${var.project_id}-Cluster"
 }
 
+data "aws_availability_zones" "available" {
+  state = "available"
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
@@ -58,10 +62,10 @@ module "eks" {
 
   # Create a Fargate profile to specify which Pods use Fargate when launched.
   fargate_profiles = merge(
-    {
+    # We create a profile for each availability zone to evenly evenly spread pods across the AZs.
+    { for i in range(length(data.availability_zones.available)) :
       # Fargate profile for the application
-      application = {
-        name = "${var.project_id}-Application-FargateProfile"
+      "app-${element(split("-", data.availability_zones.available[i]), 2)}" = {
         selectors = [
           {
             # All pods in the app namespace will run on fargate.
@@ -74,7 +78,7 @@ module "eks" {
         # If you must have an even spread, use two Fargate profiles. 
         # Even spread is important in scenarios where you want to deploy two replicas and don't want any downtime. 
         # We recommend that each profile has only one subnet.
-        subnet_ids = [module.vpc.private_subnets[1]]
+        subnet_ids = [element(data.aws_subnets.private_subnets, i)]
 
         tags = {
           Owner = "${var.project_id}-Application-FargateProfile"
@@ -84,19 +88,15 @@ module "eks" {
           create = "20m"
           delete = "20m"
         }
-      }
-    },
-    # FPods in the "kube-system" namespace will run on Fargate in the kube-system-x fargate profile
-    # Where is the name of the availability zone e.g. kube-system-ap-south-1a
-    # We create a profile for each availability zone to evenly evenly spread pods across the AZs.
-    # We can (and probably should) have do the same for the application.
-    { for i in range(3) :
-      "kube-system-${element(split("-", local.azs[i]), 2)}" => {
+      },
+      # Pods in the "kube-system" namespace will run on Fargate in the kube-system-x fargate profile
+      # Where is the name of the availability zone e.g. kube-system-ap-south-1a
+      "kube-system-${element(split("-", data.availability_zones.available[i]), 2)}" => {
         selectors = [
           { namespace = "kube-system" }
         ]
         # We want to create a profile per AZ for high availability
-        subnet_ids = [element(module.vpc.private_subnets, i)]
+        subnet_ids = [element(data.aws_subnets.private_subnets, i)]
       }
     }
 }
