@@ -16,7 +16,7 @@ variable "aws_region" {
   default     = "ap-south-1"
 }
 
-variable "hosted_zone_name" {
-  type        = string
-  description = "The hosted zone domain name. For example, the hosted_zone_name for 'http://api.example.org' is 'example.org'"
-}
+# variable "hosted_zone_name" {
+#   type        = string
+#   description = "The hosted zone domain name. For example, the hosted_zone_name for 'http://api.example.org' is 'example.org'"
+# }
