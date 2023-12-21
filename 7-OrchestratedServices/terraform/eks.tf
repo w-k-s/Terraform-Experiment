@@ -14,7 +14,7 @@ module "eks" {
   cluster_version = "1.27"
 
   vpc_id                         = aws_default_vpc.this.id
-  subnet_ids                     = data.aws_subnets.private_subnets.*.id
+  subnet_ids                     = data.aws_subnets.private_subnets.ids
 
   # Indicates whether or not the Amazon EKS public API server endpoint is enabled
   # If set to false, API will only be accessible within this VPC.
