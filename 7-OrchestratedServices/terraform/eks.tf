@@ -1,7 +1,3 @@
-provider "aws" {
-  region = var.region
-}
-
 locals {
   cluster_name = "${var.project_id}-Cluster"
 }
@@ -18,16 +14,12 @@ module "eks" {
   cluster_version = "1.27"
 
   vpc_id                         = aws_default_vpc.this.id
-  subnet_ids                     = data.aws_subnets.private_subnets
+  subnet_ids                     = data.aws_subnets.private_subnets.*.id
 
   # Indicates whether or not the Amazon EKS public API server endpoint is enabled
   # If set to false, API will only be accessible within this VPC.
   # Specifically, kubectl commands will only work within this VPC.
   cluster_endpoint_public_access = true
-
-  eks_managed_node_group_defaults = {
-    ami_type = data.aws_ami.ubuntu.image_type
-  }
 
   # With Amazon EKS managed node groups, you don't need to separately provision or register the Amazon EC2 instances that provide compute capacity to run your Kubernetes applications
   # Every managed node is provisioned as part of an Amazon EC2 Auto Scaling group that's managed for you by Amazon EKS. 
@@ -38,7 +30,8 @@ module "eks" {
     blue = {}
     green = {
       
-      name =  "${var.project_id}-OnDemand-NodeGroup"
+      name =  "${var.project_id}-OnDemand"
+      use_name_prefix = false # Use name as-is, not as a prefix.
 
       instance_types = ["t3.small"]
 
