@@ -27,7 +27,7 @@ module "eks" {
   # Each node group runs across multiple Availability Zones that you define.
   eks_managed_node_groups = {
 
-    blue = {}
+    # blue = {}
     green = {
       
       name =  "${var.project_id}-OnDemand"
