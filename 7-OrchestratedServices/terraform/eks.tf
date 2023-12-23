@@ -2,9 +2,7 @@ locals {
   cluster_name = "${var.project_id}-Cluster"
 }
 
-data "aws_availability_zones" "available" {
-  state = "available"
-}
+data "aws_caller_identity" "current" {}
 
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
@@ -12,23 +10,10 @@ module "eks" {
 
   cluster_name    = local.cluster_name
   cluster_version = "1.27"
+  cluster_endpoint_public_access = true
 
   vpc_id                         = aws_default_vpc.this.id
   subnet_ids                     = data.aws_subnets.private_subnets.ids
-
-  # Indicates whether or not the Amazon EKS public API server endpoint is enabled
-  # If set to false, API will only be accessible within this VPC.
-  # Specifically, kubectl commands will only work within this VPC.
-  cluster_endpoint_public_access = true
-  # Controls if a KMS key for cluster encryption should be created
-  # Disabled because it was giving me trouble. Hopefully, I'll get back to this when I'm wiser.
-  create_kms_key = false
-  # If you set `create_kms_key` to false, you also neeed to set cluster_encryption_config to {}
-  # https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2321#issuecomment-1340214864
-  cluster_encryption_config = {}
-  # kms_key_administrators = [
-  #   put admin IAM ARN here. 
-  # ]
 
   cluster_addons = {
     coredns = {
@@ -41,10 +26,18 @@ module "eks" {
     }
   }
 
+  # Indicates whether or not the Amazon EKS public API server endpoint is enabled
+  # If set to false, API will only be accessible within this VPC.
+  # Specifically, kubectl commands will only work within this VPC.
+  kms_key_administrators = [
+     ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+  ]
+
   eks_managed_node_group_defaults = {
-    ami_type       = "AL2_x86_64"
-    instance_types = ["t3.small"]
     disk_size                  = 20
+    
+    instance_types = ["t3.small"]
+    ami_type       = "AL2_x86_64"
     # We are using the IRSA created below for permissions
     # However, we have to deploy with the policy attached FIRST (when creating a fresh cluster)
     # and then turn this off after the cluster/node group is created. Without this initial policy,
