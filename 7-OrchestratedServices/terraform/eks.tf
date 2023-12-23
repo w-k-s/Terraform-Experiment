@@ -30,10 +30,21 @@ module "eks" {
   #   put admin IAM ARN here. 
   # ]
 
+  cluster_addons = {
+    coredns = {
+      resolve_conflicts = "OVERWRITE"
+    }
+    kube-proxy = {}
+    vpc-cni = {
+      resolve_conflicts        = "OVERWRITE"
+      service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
+    }
+  }
+
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
-    instance_types = ["m6i.large", "m5.large", "m5n.large", "m5zn.large"]
-
+    instance_types = ["t3.small"]
+    disk_size                  = 20
     # We are using the IRSA created below for permissions
     # However, we have to deploy with the policy attached FIRST (when creating a fresh cluster)
     # and then turn this off after the cluster/node group is created. Without this initial policy,
@@ -53,12 +64,10 @@ module "eks" {
       
       name =  "${var.project_id}-OnDemand"
       use_name_prefix = false # Use name as-is, not as a prefix.
-
-      instance_types = ["t3.small"]
-
       min_size     = 1
       max_size     = 3
-      desired_size = 2
+      desired_size = 1
+      subnet_ids   = data.aws_subnets.private_subnets.ids
       # We could make another nodegroup of spot instances if we wanted.
       capacity_type  = "ON_DEMAND"
     }
@@ -71,7 +80,8 @@ module "vpc_cni_irsa" {
 
   role_name_prefix      = "VPC-CNI-IRSA"
   attach_vpc_cni_policy = true
-  vpc_cni_enable_ipv6   = true
+  # one of vpc_cni_enable_ipv6 or vpc_cni_enable_ipv4 is required (when attach_vpc_cni_policy is true)
+  vpc_cni_enable_ipv6   = true 
 
   oidc_providers = {
     main = {
