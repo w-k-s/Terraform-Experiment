@@ -4,80 +4,82 @@ locals {
 
 data "aws_caller_identity" "current" {}
 
-# Copyright (c) HashiCorp, Inc.
-# SPDX-License-Identifier: MPL-2.0
-
-# Filter out local zones, which are not currently supported 
-# with managed node groups
-data "aws_availability_zones" "available" {
-  filter {
-    name   = "opt-in-status"
-    values = ["opt-in-not-required"]
-  }
-}
-
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
 
   cluster_name    = local.cluster_name
   cluster_version = "1.27"
+  cluster_endpoint_public_access = true
 
   vpc_id                         = aws_default_vpc.this.id
   subnet_ids                     = data.aws_subnets.private_subnets.ids
-  cluster_endpoint_public_access = true
 
-  eks_managed_node_group_defaults = {
-    ami_type = "AL2_x86_64"
+  cluster_addons = {
+    coredns = {
+      resolve_conflicts = "OVERWRITE"
+    }
+    kube-proxy = {}
+    vpc-cni = {
+      resolve_conflicts        = "OVERWRITE"
+      service_account_role_arn = module.vpc_cni_irsa.iam_role_arn
+    }
   }
 
+  # Indicates whether or not the Amazon EKS public API server endpoint is enabled
+  # If set to false, API will only be accessible within this VPC.
+  # Specifically, kubectl commands will only work within this VPC.
+  kms_key_administrators = [
+     ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+  ]
+
+  eks_managed_node_group_defaults = {
+    disk_size                  = 20
+    
+    instance_types = ["t3.small"]
+    ami_type       = "AL2_x86_64"
+    # We are using the IRSA created below for permissions
+    # However, we have to deploy with the policy attached FIRST (when creating a fresh cluster)
+    # and then turn this off after the cluster/node group is created. Without this initial policy,
+    # the VPC CNI fails to assign IPs and nodes cannot join the cluster
+    # See https://github.com/aws/containers-roadmap/issues/1666 for more context
+    iam_role_attach_cni_policy = true
+  }
+
+  # With Amazon EKS managed node groups, you don't need to separately provision or register the Amazon EC2 instances that provide compute capacity to run your Kubernetes applications
+  # Every managed node is provisioned as part of an Amazon EC2 Auto Scaling group that's managed for you by Amazon EKS. 
+  # Every resource including the instances and Auto Scaling groups runs within your AWS account. 
+  # Each node group runs across multiple Availability Zones that you define.
   eks_managed_node_groups = {
-    # blue = {
-    #   name = "node-group-1"
 
-    #   instance_types = ["t3.small"]
-
-    #   min_size     = 1
-    #   max_size     = 3
-    #   desired_size = 2
-    # }
-
+    # blue = {}
     green = {
-      name = "node-group-2"
-
-      instance_types = ["t3.small"]
-
+      
+      name =  "${var.project_id}-OnDemand"
+      use_name_prefix = false # Use name as-is, not as a prefix.
       min_size     = 1
-      max_size     = 2
+      max_size     = 3
       desired_size = 1
+      subnet_ids   = data.aws_subnets.private_subnets.ids
+      # We could make another nodegroup of spot instances if we wanted.
+      capacity_type  = "ON_DEMAND"
     }
   }
 }
 
+module "vpc_cni_irsa" {
+  source  = "terraform-aws-modules/iam/aws//modules/iam-role-for-service-accounts-eks"
+  version = "~> 5.0"
 
-# https://aws.amazon.com/blogs/containers/amazon-ebs-csi-driver-is-now-generally-available-in-amazon-eks-add-ons/ 
-data "aws_iam_policy" "ebs_csi_policy" {
-  arn = "arn:aws:iam::aws:policy/service-role/AmazonEBSCSIDriverPolicy"
-}
+  role_name_prefix      = "VPC-CNI-IRSA"
+  attach_vpc_cni_policy = true
+  # one of vpc_cni_enable_ipv6 or vpc_cni_enable_ipv4 is required (when attach_vpc_cni_policy is true)
+  vpc_cni_enable_ipv6   = true 
 
-module "irsa-ebs-csi" {
-  source  = "terraform-aws-modules/iam/aws//modules/iam-assumable-role-with-oidc"
-  version = "4.7.0"
-
-  create_role                   = true
-  role_name                     = "AmazonEKSTFEBSCSIRole-${module.eks.cluster_name}"
-  provider_url                  = module.eks.oidc_provider
-  role_policy_arns              = [data.aws_iam_policy.ebs_csi_policy.arn]
-  oidc_fully_qualified_subjects = ["system:serviceaccount:kube-system:ebs-csi-controller-sa"]
-}
-
-resource "aws_eks_addon" "ebs-csi" {
-  cluster_name             = module.eks.cluster_name
-  addon_name               = "aws-ebs-csi-driver"
-  addon_version            = "v1.20.0-eksbuild.1"
-  service_account_role_arn = module.irsa-ebs-csi.iam_role_arn
-  tags = {
-    "eks_addon" = "ebs-csi"
-    "terraform" = "true"
+  oidc_providers = {
+    main = {
+      provider_arn               = module.eks.oidc_provider_arn
+      namespace_service_accounts = ["kube-system:aws-node"]
+    }
   }
 }

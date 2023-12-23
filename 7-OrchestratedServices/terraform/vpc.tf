@@ -125,3 +125,19 @@ resource "aws_vpc_endpoint" "s3" {
     Name = format("%s-vpcendp-s3", var.project_id)
   }
 }
+
+# Required in order to create the cluster.
+resource "aws_nat_gateway" "this" {
+  allocation_id = aws_eip.nat_eip.id
+  subnet_id     = element(data.aws_subnets.public_subnets.ids, 1)
+
+  tags = {
+    Name = format("%s-nat-gateway", var.project_id)
+  }
+}
+
+resource "aws_route" "nat_gateway_ipv4" {
+  route_table_id         = data.aws_route_table.private_route_table.id
+  destination_cidr_block = "0.0.0.0/0"
+  nat_gateway_id         = aws_nat_gateway.this.id
+}
