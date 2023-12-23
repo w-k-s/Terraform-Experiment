@@ -20,6 +20,15 @@ module "eks" {
   # If set to false, API will only be accessible within this VPC.
   # Specifically, kubectl commands will only work within this VPC.
   cluster_endpoint_public_access = true
+  # Controls if a KMS key for cluster encryption should be created
+  # Disabled because it was giving me trouble. Hopefully, I'll get back to this when I'm wiser.
+  create_kms_key = false
+  # If you set `create_kms_key` to false, you also neeed to set cluster_encryption_config to {}
+  # https://github.com/terraform-aws-modules/terraform-aws-eks/issues/2321#issuecomment-1340214864
+  cluster_encryption_config = {}
+  # kms_key_administrators = [
+  #   put admin IAM ARN here. 
+  # ]
 
   eks_managed_node_group_defaults = {
     ami_type       = "AL2_x86_64"
