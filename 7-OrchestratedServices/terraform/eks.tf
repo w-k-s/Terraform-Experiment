@@ -31,10 +31,8 @@ module "eks" {
     }
   }
 
-  cluster_encryption_config = {
-    provider_key_arn = data.aws_kms_key.by_key_arn
-    resources        = ["secrets"]
-  }
+  create_kms_key = false
+  cluster_encryption_config = {}
 
   eks_managed_node_group_defaults = {
     disk_size                  = 20
@@ -47,6 +45,9 @@ module "eks" {
     # the VPC CNI fails to assign IPs and nodes cannot join the cluster
     # See https://github.com/aws/containers-roadmap/issues/1666 for more context
     iam_role_attach_cni_policy = true
+    iam_role_additional_policies = {
+      additional_ecr_access = aws_iam_policy.additional_ecr_access.id
+    }
   }
 
   # With Amazon EKS managed node groups, you don't need to separately provision or register the Amazon EC2 instances that provide compute capacity to run your Kubernetes applications
@@ -85,4 +86,42 @@ module "vpc_cni_irsa" {
       namespace_service_accounts = ["kube-system:aws-node"]
     }
   }
+}
+
+resource "aws_iam_policy" "additional_ecr_access" {
+  name        = "ecr-read-access"
+  description = "Allow ECR access"
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        "Effect" : "Allow",
+        "Resource" : "*",
+        "Action" : [
+          "ecr:GetRegistryPolicy",
+          "ecr:DescribeImageScanFindings",
+          "ecr:GetLifecyclePolicyPreview",
+          "ecr:GetDownloadUrlForLayer",
+          "ecr:DescribeRegistry",
+          "ecr:DescribePullThroughCacheRules",
+          "ecr:DescribeImageReplicationStatus",
+          "ecr:GetAuthorizationToken",
+          "ecr:ListTagsForResource",
+          "ecr:ListImages",
+          "ecr:BatchGetRepositoryScanningConfiguration",
+          "ecr:GetRegistryScanningConfiguration",
+          "ecr:GetAuthorizationToken*",
+          "ecr:UntagResource",
+          "ecr:BatchGetImage",
+          "ecr:DescribeImages",
+          "ecr:TagResource",
+          "ecr:DescribeRepositories",
+          "ecr:BatchCheckLayerAvailability",
+          "ecr:GetRepositoryPolicy",
+          "ecr:GetLifecyclePolicy"
+        ]
+      }
+    ]
+  })
 }
