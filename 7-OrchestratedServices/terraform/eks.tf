@@ -4,6 +4,11 @@ locals {
 
 data "aws_caller_identity" "current" {}
 
+data "aws_kms_key" "by_key_arn" {
+  # Not ideal but okay for now.
+  key_id = "arn:aws:kms:${var.aws_region}:${data.aws_caller_identity.current.account_id}:key/c8bd1d18-0cef-47aa-bad9-365d285c84fb"
+}
+
 module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "19.15.3"
@@ -26,12 +31,10 @@ module "eks" {
     }
   }
 
-  # Indicates whether or not the Amazon EKS public API server endpoint is enabled
-  # If set to false, API will only be accessible within this VPC.
-  # Specifically, kubectl commands will only work within this VPC.
-  kms_key_administrators = [
-     "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
-  ]
+  cluster_encryption_config = {
+    provider_key_arn = data.aws_kms_key.by_key_arn
+    resources        = ["secrets"]
+  }
 
   eks_managed_node_group_defaults = {
     disk_size                  = 20
