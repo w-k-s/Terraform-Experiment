@@ -126,7 +126,17 @@ resource "aws_vpc_endpoint" "s3" {
   }
 }
 
-# Required in order to create the cluster.
+# NAT Gateway: Required in order to create the cluster.
+
+resource "aws_eip" "nat_eip" {
+  vpc = true
+
+  tags = {
+    Name = format("%s-nat-eip", var.project_id)
+  }
+}
+
+
 resource "aws_nat_gateway" "this" {
   allocation_id = aws_eip.nat_eip.id
   subnet_id     = element(data.aws_subnets.public_subnets.ids, 1)

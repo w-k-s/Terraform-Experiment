@@ -30,7 +30,7 @@ module "eks" {
   # If set to false, API will only be accessible within this VPC.
   # Specifically, kubectl commands will only work within this VPC.
   kms_key_administrators = [
-     ["arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"]
+     "arn:aws:iam::${data.aws_caller_identity.current.account_id}:root"
   ]
 
   eks_managed_node_group_defaults = {
