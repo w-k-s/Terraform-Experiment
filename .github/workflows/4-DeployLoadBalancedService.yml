@@ -16,8 +16,8 @@ jobs:
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
-          java-version: '17'
-          distribution: 'adopt'
+          java-version: "17"
+          distribution: "adopt"
           cache: maven
       - name: Run tests
         run: mvn -B -Dorg.slf4j.simpleLogger.log.org.apache.maven.cli.transfer.Slf4jMavenTransferListener=warn clean install
@@ -25,7 +25,7 @@ jobs:
         id: find_jar
         run: echo "EXECUTABLE_JAR_PATH=$(find `pwd -P`/target -maxdepth 1 -name '*.jar')" >> $GITHUB_OUTPUT
       - name: Upload executable jar
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: app.jar
           path: ${{ steps.find_jar.outputs.EXECUTABLE_JAR_PATH }}
@@ -46,7 +46,7 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - uses: actions/download-artifact@v3
+      - uses: actions/download-artifact@v4
         with:
           name: app.jar
           path: ./4-LoadBalancedService/terraform
