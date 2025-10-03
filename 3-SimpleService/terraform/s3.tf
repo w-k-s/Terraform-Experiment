@@ -3,9 +3,13 @@ resource "aws_s3_bucket" "app_bucket" {
   force_destroy = true
 }
 
-resource "aws_s3_bucket_acl" "app_bucket_acl" {
+resource "aws_s3_bucket_public_access_block" "app_bucket_acl" {
   bucket = aws_s3_bucket.app_bucket.id
-  acl    = "private"
+
+  block_public_acls       = true
+  block_public_policy     = true
+  ignore_public_acls      = true
+  restrict_public_buckets = true
 }
 
 resource "aws_s3_object" "app" {
