@@ -86,7 +86,6 @@ Group=admin
 Type=simple
 Restart=on-failure
 RestartSec=10
-ExecStart=
 ExecStart=java -jar -Dlogging.file.path=$LOG_DIRECTORY -Dlogging.file.name=$LOG_FILE_NAME $LOCAL_EXECUTABLE_PATH
 WorkingDirectory=$WORKING_DIRECTORY
 ExitStatus=143
