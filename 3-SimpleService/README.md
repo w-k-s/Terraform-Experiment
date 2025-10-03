@@ -11,12 +11,12 @@ curl -X POST "https://todo.w-k-s.net/api/v1/todos" \
 
 ### Get all Todos
 ```bash
-curl -X GET "https://$SIMPLE_SERVICE_HOST/api/v1/todos"
+curl -X GET "https://todo.w-k-s.net/api/v1/todos"
 ```
 
 ### Mark All todos as completed
 ```bash
-curl -X PATCH "https://$SIMPLE_SERVICE_HOST/api/v1/todos/<id>/complete"
+curl -X PATCH "https://todo.w-k-s.net/api/v1/todos/<id>/complete"
 ```
 
 

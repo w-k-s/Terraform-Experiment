@@ -37,9 +37,7 @@ sudo apt-get install awscli -y
 sudo apt-get install apache2 -y
 
 # Install java 19
-sudo wget https://download.oracle.com/java/19/latest/jdk-19_linux-x64_bin.deb
-sudo apt-get -qqy install ./jdk-19_linux-x64_bin.deb
-sudo update-alternatives --install /usr/bin/java java /usr/lib/jvm/jdk-19/bin/java 1919
+sudo apt-get install openjdk-17-jdk -y
 
 ####### APPLICATION CONFIGURATION
 
@@ -76,19 +74,14 @@ sudo touch /etc/systemd/system/todo.service
 sudo echo "[Unit]
 Description=Todo Spring Boot application service
 
-[Socket]
-ListenStream=8080
-NoDelay=true
-
 [Service]
 User=todo-user
 Group=admin
-Type=simple
 Restart=on-failure
 RestartSec=10
 ExecStart=java -jar -Dlogging.file.path=$LOG_DIRECTORY -Dlogging.file.name=$LOG_FILE_NAME $LOCAL_EXECUTABLE_PATH
 WorkingDirectory=$WORKING_DIRECTORY
-ExitStatus=143
+SuccessExitStatus=143
 
 [Install]
 WantedBy=multi-user.target" | sudo tee /etc/systemd/system/todo.service

@@ -5,11 +5,11 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
 	"strconv"
-	"log"
 	"time"
 )
 
@@ -76,7 +76,6 @@ func testComplete(id int64){
 	if todo.CompletedAt.IsZero() {
 		log.Fatalf("Todo.CompletedAt. Expected: Not Nil. Got: %q", todo.CompletedAt.String())
 	}
-	return
 }
 
 func createTodo(description string) (Todo, error) {
