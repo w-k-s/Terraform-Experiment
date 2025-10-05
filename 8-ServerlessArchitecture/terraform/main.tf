@@ -51,13 +51,19 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_exec" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+data "archive_file" "lambda_zip" {
+  type        = "zip"
+  source_file = "../backend/index.js"
+  output_path = "../backend/function.zip"
+}
+
 resource "aws_lambda_function" "todo_lambda" {
-  function_name = "todoLambda"
-  s3_bucket     = var.lambda_s3_bucket
-  s3_key        = var.lambda_s3_key
-  handler       = "src/handler.main"
-  runtime       = "nodejs20.x"
-  role          = aws_iam_role.lambda_exec.arn
+  function_name    = "todoLambda"
+  filename         = data.archive_file.lambda_zip.output_path
+  handler          = "index.handler"
+  runtime          = "nodejs20.x"
+  role             = aws_iam_role.lambda_exec.arn
+  source_code_hash = data.archive_file.lambda_zip.output_base64sha256
 }
 
 resource "aws_apigatewayv2_api" "todo_api" {
@@ -77,6 +83,13 @@ resource "aws_apigatewayv2_route" "create_todo" {
   route_key = "POST /todo"
   target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
 }
+
+resource "aws_apigatewayv2_route" "list_todo" {
+  api_id    = aws_apigatewayv2_api.todo_api.id
+  route_key = "GET /todo"
+  target    = "integrations/${aws_apigatewayv2_integration.lambda_integration.id}"
+}
+
 
 resource "aws_apigatewayv2_route" "update_todo" {
   api_id    = aws_apigatewayv2_api.todo_api.id

@@ -1,0 +1,1 @@
+- [Useful Resources](https://medium.com/twodigits/setting-up-a-nodejs-project-for-aws-lambda-and-layers-with-terraform-c4b3488b2794)

@@ -26,29 +26,12 @@ jobs:
         working-directory: ./8-ServerlessArchitecture/backend
         run: npm install
 
-      - name: Zip Lambda
-        run: zip -r lambda.zip backend/src
-
-      - name: Upload to S3
+      - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
         with:
           aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
-
-      - name: Ensure S3 bucket exists
-        run: |
-          if ! aws s3api head-bucket --bucket $LAMBDA_BUCKET 2>/dev/null; then
-            echo "Bucket not found. Creating $LAMBDA_BUCKET..."
-            aws s3api create-bucket \
-              --bucket $LAMBDA_BUCKET \
-              --region $AWS_DEFAULT_REGION \
-              --create-bucket-configuration LocationConstraint=$AWS_DEFAULT_REGION
-          else
-            echo "Bucket $LAMBDA_BUCKET already exists."
-          fi
-
-      - run: aws s3 cp lambda.zip s3://$LAMBDA_BUCKET/$LAMBDA_KEY
 
       - name: Setup Terraform
         uses: hashicorp/setup-terraform@v3
@@ -82,6 +65,7 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`http" >> $GITHUB_STEP_SUMMARY
           echo "POST   /todo         → Create a new todo" >> $GITHUB_STEP_SUMMARY
+          echo "GET    /todo         → List all todos" >> $GITHUB_STEP_SUMMARY
           echo "PATCH  /todo/{id}    → Update a todo by ID" >> $GITHUB_STEP_SUMMARY
           echo "DELETE /todo/{id}    → Delete a todo by ID" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY

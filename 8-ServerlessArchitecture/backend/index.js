@@ -1,11 +1,15 @@
 let todos = [];
 let currentId = 1;
 
-export const main = async (event) => {
+module.exports.handler = async (event) => {
     const method = event.requestContext.http.method;
     const path = event.requestContext.http.path;
 
     try {
+        if (method === "GET" && path === "/todo") {
+            return response(200, todos);
+        }
+
         if (method === "POST" && path === "/todo") {
             const body = JSON.parse(event.body || "{}");
             if (!body.text) {
