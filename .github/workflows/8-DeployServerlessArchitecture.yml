@@ -3,7 +3,29 @@ on:
   workflow_dispatch:
 
 jobs:
-  deploy:
+  Test:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./8-ServerlessArchitecture/backend
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.20.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Tests
+        run: npm run test
+
+  Deploy:
     runs-on: ubuntu-latest
     env:
       AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
@@ -20,7 +42,7 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v3
         with:
-          node-version: 20
+          node-version: 22.20.0
 
       - name: Install dependencies
         working-directory: ./8-ServerlessArchitecture/backend

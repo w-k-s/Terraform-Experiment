@@ -4,7 +4,10 @@
     "main": "src/handler.js",
     "type": "module",
     "scripts": {
-        "start": "node src/handler.js"
+        "start": "node src/handler.js",
+        "test": "jest --coverage"
     },
-    "dependencies": {}
+    "devDependencies": {
+        "jest": "^30.2.0"
+    }
 }

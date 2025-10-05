@@ -49,3 +49,8 @@ const response = (statusCode, body) => ({
     statusCode,
     body: body ? JSON.stringify(body) : undefined,
 });
+
+module.exports._reset = () => {
+    todos = [];
+    currentId = 1;
+};
