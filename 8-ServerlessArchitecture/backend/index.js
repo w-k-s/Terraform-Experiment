@@ -1,12 +1,49 @@
-let todos = [];
-let currentId = 1;
+const AWS = require("aws-sdk");
+const Knex = require("knex");
+
+const TABLE_NAME = "todos";
+
+let knexInstance;
+
+
+async function getKnex() {
+    if (knexInstance) return knexInstance;
+
+    const secretsManager = new AWS.SecretsManager();
+    const secretName = process.env.AWS_SECRETSMANAGER_SECRET_NAME;
+
+    if (!secretName) {
+        throw new Error("Missing AWS_SECRETSMANAGER_SECRET_NAME");
+    }
+
+    const secretValue = await secretsManager
+        .getSecretValue({ SecretId: secretName })
+        .promise();
+
+    const secret = JSON.parse(secretValue.SecretString || "{}");
+    const connectionString = secret.db_conn_string;
+
+    if (!connectionString) {
+        throw new Error("Missing db_conn_string in secret");
+    }
+
+    knexInstance = Knex({
+        client: "pg",
+        connection: connectionString,
+        pool: { min: 0, max: 5 },
+    });
+
+    return knexInstance;
+}
 
 module.exports.handler = async (event) => {
     const method = event.requestContext.http.method;
     const path = event.requestContext.http.path;
+    const knex = await getKnex();
 
     try {
         if (method === "GET" && path === "/todo") {
+            const todos = await knex(TABLE_NAME).select("*").orderBy("id");
             return response(200, todos);
         }
 
@@ -15,32 +52,45 @@ module.exports.handler = async (event) => {
             if (!body.text) {
                 return response(400, { message: "Missing text" });
             }
-            const todo = { id: currentId++, text: body.text, completed: false };
-            todos.push(todo);
+
+            const [todo] = await knex(TABLE_NAME)
+                .insert({ text: body.text, completed: false })
+                .returning("*");
+
             return response(201, todo);
         }
 
         if (method === "PATCH" && path.match(/^\/todo\/\d+$/)) {
-            const id = path.split("/").pop();
+            const id = parseInt(path.split("/").pop());
             const body = JSON.parse(event.body || "{}");
-            const todo = todos.find((t) => t.id === parseInt(id));
-            if (!todo) return response(404, { message: "Todo not found" });
-            if (body.text !== undefined) todo.text = body.text;
-            if (body.completed !== undefined) todo.completed = body.completed;
-            return response(200, todo);
+
+            const updated = await knex(TABLE_NAME)
+                .where({ id })
+                .update({
+                    ...(body.text !== undefined && { text: body.text }),
+                    ...(body.completed !== undefined && { completed: body.completed }),
+                })
+                .returning("*");
+
+            if (updated.length === 0) {
+                return response(404, { message: "Todo not found" });
+            }
+
+            return response(200, updated[0]);
         }
 
         if (method === "DELETE" && path.match(/^\/todo\/\d+$/)) {
-            const id = path.split("/").pop();
-            const index = todos.findIndex((t) => t.id === parseInt(id));
-            if (index === -1) return response(404, { message: "Todo not found" });
-            todos.splice(index, 1);
+            const id = parseInt(path.split("/").pop());
+            const deleted = await knex(TABLE_NAME).where({ id }).del();
+            if (deleted === 0) {
+                return response(404, { message: "Todo not found" });
+            }
             return response(204, null);
         }
 
         return response(404, { message: "Not found" });
     } catch (err) {
-        console.error(err);
+        console.error("Error:", err);
         return response(500, { message: "Internal server error" });
     }
 };
@@ -50,7 +100,7 @@ const response = (statusCode, body) => ({
     body: body ? JSON.stringify(body) : undefined,
 });
 
-module.exports._reset = () => {
-    todos = [];
-    currentId = 1;
+module.exports._reset = async () => {
+    const knex = await getKnex();
+    await knex(TABLE_NAME).truncate();
 };

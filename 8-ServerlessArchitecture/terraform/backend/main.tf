@@ -9,7 +9,7 @@ terraform {
   backend "s3" {
     # This assumes we have a bucket created called io.wks.terraform
     bucket = "io.wks.terraform"
-    key    = "serverless.state.json"
+    key    = "backend.todo-serverless.state.json"
     region = "ap-south-1"
   }
 
@@ -23,12 +23,6 @@ provider "aws" {
       Project = var.project_name
     }
   }
-}
-
-provider "aws" {
-  # We need the ACM certificate to be created in us-east-1 for Cloudfront to be able to use it
-  alias  = "acm_provider"
-  region = "us-east-1"
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -51,10 +45,30 @@ resource "aws_iam_role_policy_attachment" "lambda_basic_exec" {
   policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_secrets_managed" {
+  role = aws_iam_role.lambda_exec.name
+  # A little too permissive (we only need read), but okay for now
+  policy_arn = "arn:aws:iam::aws:policy/SecretsManagerReadWrite"
+}
+
+
 data "archive_file" "lambda_zip" {
   type        = "zip"
-  source_file = "../backend/index.js"
-  output_path = "../backend/function.zip"
+  source_file = "../../backend/index.js"
+  output_path = "../../backend/function.zip"
+}
+
+data "archive_file" "layer_zip" {
+  type        = "zip"
+  source_dir  = "../../backend/layer"
+  output_path = "../../backend/nodejs.zip"
+}
+
+resource "aws_lambda_layer_version" "todo_layer" {
+  filename            = data.archive_file.layer_zip.output_path
+  layer_name          = "todo_layer"
+  compatible_runtimes = ["nodejs20.x"]
+  source_code_hash    = data.archive_file.layer_zip.output_base64sha256
 }
 
 resource "aws_lambda_function" "todo_lambda" {
@@ -64,6 +78,14 @@ resource "aws_lambda_function" "todo_lambda" {
   runtime          = "nodejs20.x"
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+
+  layers = [aws_lambda_layer_version.todo_layer.arn]
+
+  environment {
+    variables = {
+      AWS_SECRETSMANAGER_SECRET_NAME = var.aws_secretsmanager_secret_name
+    }
+  }
 }
 
 resource "aws_apigatewayv2_api" "todo_api" {

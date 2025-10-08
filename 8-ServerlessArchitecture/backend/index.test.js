@@ -1,14 +1,73 @@
+const { PostgreSqlContainer } = require("@testcontainers/postgresql");
 const { handler, _reset } = require("./index.js");
 
+jest.mock("aws-sdk", () => {
+    let mockSecretString;
+    return {
+        __setSecretString: (value) => { mockSecretString = value; },
+        SecretsManager: jest.fn(() => ({
+            getSecretValue: jest.fn(() => ({
+                promise: async () => ({
+                    SecretString: JSON.stringify(mockSecretString),
+                }),
+            })),
+        })),
+    };
+});
+
+const AWS = require("aws-sdk");
+
+const buildEvent = (method, path, body = null) => ({
+    requestContext: { http: { method, path } },
+    body: body ? JSON.stringify(body) : null,
+});
+
 describe("Todo API", () => {
-    beforeEach(() => {
-        _reset();
+    let container;
+    let connectionString;
+    let knex;
+
+    beforeAll(async () => {
+        container = await new PostgreSqlContainer("postgres:15-alpine")
+            .withDatabase("testdb")
+            .withUsername("postgres")
+            .withPassword("postgres")
+            .start();
+
+        connectionString = container.getConnectionUri();
+        process.env.AWS_SECRETSMANAGER_SECRET_NAME = "test-secret";
+
+        AWS.__setSecretString({
+            db_conn_string: connectionString,
+        });
+
+        // Not ideal :/
+        const { Client } = require("pg");
+        const client = new Client({ connectionString });
+        await client.connect();
+        await client.query(`
+      CREATE TABLE IF NOT EXISTS todos (
+        id SERIAL PRIMARY KEY,
+        text TEXT NOT NULL,
+        completed BOOLEAN DEFAULT FALSE
+      );
+    `);
+        await client.end();
+    }, 30000);
+
+    beforeEach(async () => {
+        await _reset();
     });
 
+    afterAll(async () => {
+        const Knex = require("knex");
+        knex = Knex({
+            client: "pg",
+            connection: connectionString,
+        });
+        await knex.destroy();
 
-    const buildEvent = (method, path, body = null) => ({
-        requestContext: { http: { method, path } },
-        body: body ? JSON.stringify(body) : null,
+        if (container) await container.stop();
     });
 
     test("POST /todo should create a todo", async () => {
@@ -44,6 +103,4 @@ describe("Todo API", () => {
         const res = await handler(event);
         expect(res.statusCode).toBe(204);
     });
-
-
 });

@@ -1,0 +1,17 @@
+{
+  "name": "todo-migrations",
+  "version": "1.0.0",
+  "description": "Migrations module for the Todo serverless application",
+  "main": "knexfile.js",
+  "type": "module",
+  "scripts": {
+    "migrate": "knex migrate:latest"
+  },
+  "author": "w-k-s",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.1692.0",
+    "knex": "^3.1.0",
+    "pg": "^8.16.3"
+  }
+}

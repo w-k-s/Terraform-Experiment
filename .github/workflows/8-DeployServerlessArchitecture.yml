@@ -3,7 +3,69 @@ on:
   workflow_dispatch:
 
 jobs:
-  Test:
+  provision:
+    name: Provision
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./8-ServerlessArchitecture/terraform/infra
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v3
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Validate
+        run: terraform validate
+
+      - name: Terraform Apply
+        env:
+          TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+          TF_VAR_supabase_region: ${{ vars.SUPABASE_REGION }}
+          TF_VAR_supabase_organization_id: ${{ vars.SUPABASE_ORGANIZATION_ID }}
+          TF_VAR_supabase_access_token: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+          TF_VAR_supabase_database_password: ${{ secrets.RDS_PSQL_MASTER_PASSWORD }}
+          TF_VAR_aws_secretsmanager_secret_name: ${{ vars.AWS_SECRETSMANAGER_SECRET_NAME }}
+        run: terraform apply -auto-approve
+
+  db:
+    name: Run DB Migrations
+    needs: provision
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./8-ServerlessArchitecture/db
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: 22.20.0
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Run Tests
+        env:
+          AWS_REGION: ${{ vars.AWS_REGION }}
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_SECRETSMANAGER_SECRET_NAME: ${{ vars.AWS_SECRETSMANAGER_SECRET_NAME }}
+        run: npm run migrate
+
+  test:
+    name: Run Unit Tests
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -15,9 +77,6 @@ jobs:
         uses: actions/setup-node@v3
         with:
           node-version: 22.20.0
-
-      - name: Install dependencies
-        run: npm install
 
       - name: Install dependencies
         run: npm install
@@ -27,15 +86,13 @@ jobs:
 
   Deploy:
     runs-on: ubuntu-latest
-    env:
-      AWS_DEFAULT_REGION: ${{ vars.AWS_REGION }}
-      AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-      AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-      LAMBDA_BUCKET: ${{ vars.SERVERLESS_PROJECT_BUCKET }}
-      LAMBDA_KEY: ${{ vars.SERVERLESS_PROJECT_KEY }}
+    needs:
+      - provision
+      - test
+      - db
     defaults:
       run:
-        working-directory: ./8-ServerlessArchitecture
+        working-directory: ./8-ServerlessArchitecture/terraform/backend
     steps:
       - uses: actions/checkout@v3
 
@@ -45,8 +102,15 @@ jobs:
           node-version: 22.20.0
 
       - name: Install dependencies
+        working-directory: ./8-ServerlessArchitecture/backend/layer/nodejs
+        run: npm install
+
+      - name: Install dependencies
         working-directory: ./8-ServerlessArchitecture/backend
         run: npm install
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
 
       - name: Configure AWS Credentials
         uses: aws-actions/configure-aws-credentials@v3
@@ -55,39 +119,48 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ vars.AWS_REGION }}
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v3
-
       - name: Terraform Init
-        working-directory: ./8-ServerlessArchitecture/terraform
         run: terraform init
 
       - name: Terraform Validate
-        working-directory: ./8-ServerlessArchitecture/terraform
         run: terraform validate
 
       - name: Terraform Apply
-        working-directory: ./8-ServerlessArchitecture/terraform
-        run: terraform apply -auto-approve -var="aws_region=$AWS_DEFAULT_REGION" -var="lambda_s3_bucket=$LAMBDA_BUCKET" -var="lambda_s3_key=$LAMBDA_KEY"
+        env:
+          TF_VAR_aws_region: ${{ vars.AWS_REGION }}
+          TF_VAR_aws_secretsmanager_secret_name: ${{ vars.AWS_SECRETSMANAGER_SECRET_NAME }}
+        run: terraform apply -auto-approve
 
       - name: Get API Endpoint
         id: tf_output
-        working-directory: ./8-ServerlessArchitecture/terraform
         run: |
           API_URL=$(terraform output -raw api_endpoint)
           echo "api_url=$API_URL" >> $GITHUB_OUTPUT
 
       - name: Publish GitHub Summary
         run: |
-          echo "### 🚀 Todo API Deployed Successfully" >> $GITHUB_STEP_SUMMARY
+          echo "### Deployment Outcome" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "**Base URL:** [${{ steps.tf_output.outputs.api_url }}](${{ steps.tf_output.outputs.api_url }})" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "**Available Endpoints:**" >> $GITHUB_STEP_SUMMARY
+          echo "**Example cURL Commands:**" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "\`\`\`http" >> $GITHUB_STEP_SUMMARY
-          echo "POST   /todo         → Create a new todo" >> $GITHUB_STEP_SUMMARY
-          echo "GET    /todo         → List all todos" >> $GITHUB_STEP_SUMMARY
-          echo "PATCH  /todo/{id}    → Update a todo by ID" >> $GITHUB_STEP_SUMMARY
-          echo "DELETE /todo/{id}    → Delete a todo by ID" >> $GITHUB_STEP_SUMMARY
+          echo "\`\`\`bash" >> $GITHUB_STEP_SUMMARY
+          echo "# Create a new todo" >> $GITHUB_STEP_SUMMARY
+          echo "curl -X POST \\" >> $GITHUB_STEP_SUMMARY
+          echo "  -H 'Content-Type: application/json' \\" >> $GITHUB_STEP_SUMMARY
+          echo "  -d '{\"text\":\"Buy milk\"}' \\" >> $GITHUB_STEP_SUMMARY
+          echo "  '${{ steps.tf_output.outputs.api_url }}/todo'" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# List all todos" >> $GITHUB_STEP_SUMMARY
+          echo "curl '${{ steps.tf_output.outputs.api_url }}/todo'" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Update a todo by ID" >> $GITHUB_STEP_SUMMARY
+          echo "curl -X PATCH \\" >> $GITHUB_STEP_SUMMARY
+          echo "  -H 'Content-Type: application/json' \\" >> $GITHUB_STEP_SUMMARY
+          echo "  -d '{\"text\":\"Updated text\",\"completed\":true}' \\" >> $GITHUB_STEP_SUMMARY
+          echo "  '${{ steps.tf_output.outputs.api_url }}/todo/1'" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "# Delete a todo by ID" >> $GITHUB_STEP_SUMMARY
+          echo "curl -X DELETE '${{ steps.tf_output.outputs.api_url }}/todo/1'" >> $GITHUB_STEP_SUMMARY
           echo "\`\`\`" >> $GITHUB_STEP_SUMMARY
