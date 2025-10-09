@@ -78,6 +78,7 @@ resource "aws_lambda_function" "todo_lambda" {
   runtime          = "nodejs20.x"
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  timeout          = 30
 
   layers = [aws_lambda_layer_version.todo_layer.arn]
 
