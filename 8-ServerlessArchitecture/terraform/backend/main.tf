@@ -21,8 +21,15 @@ provider "aws" {
   default_tags {
     tags = {
       Project = var.project_name
+      Name    = var.project_name
     }
   }
+}
+
+provider "aws" {
+  # Cloudfront WAF must be created in us-east-1
+  alias  = "us_east_1"
+  region = "us-east-1"
 }
 
 resource "aws_iam_role" "lambda_exec" {
@@ -78,6 +85,7 @@ resource "aws_lambda_function" "todo_lambda" {
   runtime          = "nodejs20.x"
   role             = aws_iam_role.lambda_exec.arn
   source_code_hash = data.archive_file.lambda_zip.output_base64sha256
+  timeout          = 30
 
   layers = [aws_lambda_layer_version.todo_layer.arn]
 
@@ -137,4 +145,182 @@ resource "aws_apigatewayv2_stage" "default" {
   api_id      = aws_apigatewayv2_api.todo_api.id
   name        = "$default"
   auto_deploy = true
+}
+
+locals {
+  api_domain = replace(aws_apigatewayv2_api.todo_api.api_endpoint, "https://", "")
+  origin_id  = "api-origin-${aws_apigatewayv2_api.todo_api.id}"
+}
+
+resource "aws_cloudfront_distribution" "todo_cf" {
+
+  origin {
+    domain_name = local.api_domain
+    origin_id   = local.origin_id
+
+    custom_origin_config {
+      http_port              = 80
+      https_port             = 443
+      origin_protocol_policy = "https-only"
+      origin_ssl_protocols   = ["TLSv1.2"]
+    }
+
+  }
+
+  enabled             = true
+  is_ipv6_enabled     = true
+  comment             = "CloudFront in front of todo-api"
+  price_class         = "PriceClass_100"
+  default_root_object = ""
+
+  aliases = [] # We'll use the domain name provided by cloudfront
+
+  default_cache_behavior {
+    target_origin_id = local.origin_id
+    # cache_policy_id  = "658327ea-f89d-4fab-a63d-7e88639e58f6" # CachingOptimized
+    cache_policy_id          = "4135ea2d-6df8-44a3-9df3-4b5a84be39ad" # CachingDisabled
+    origin_request_policy_id = "b689b0a8-53d0-40ab-baf2-68738e2966ac" # AllViewerExceptHostHeader (Recommended for API GW)
+
+    allowed_methods = ["GET", "HEAD", "OPTIONS", "PUT", "PATCH", "POST", "DELETE"]
+    cached_methods  = ["GET", "HEAD"]
+
+    viewer_protocol_policy = "redirect-to-https"
+    min_ttl                = 0
+    default_ttl            = 3600
+    max_ttl                = 86400
+    compress               = true
+  }
+
+  restrictions {
+    geo_restriction {
+      restriction_type = "none"
+    }
+  }
+
+  viewer_certificate {
+    cloudfront_default_certificate = true
+  }
+
+  web_acl_id = aws_wafv2_web_acl.cf_web_acl.arn
+
+  # Wait for Lambda provisioning
+  depends_on = [aws_lambda_permission.apigw_lambda]
+
+}
+
+
+resource "aws_wafv2_web_acl" "cf_web_acl" {
+  provider    = aws.us_east_1
+  name        = "${var.project_code}-cf-web-acl"
+  description = "WAF Web ACL for CloudFront distribution"
+  scope       = "CLOUDFRONT"
+  default_action {
+    allow {}
+  }
+
+  visibility_config {
+    cloudwatch_metrics_enabled = true
+    sampled_requests_enabled   = true
+    metric_name                = "${var.project_code}_cf_acl"
+  }
+
+  # See: https://docs.aws.amazon.com/waf/latest/developerguide/aws-managed-rule-groups-baseline.html
+  rule {
+    name     = "AWS-AWSManagedRulesCommonRuleSet"
+    priority = 1
+    override_action {
+      none {}
+    }
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesCommonRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      sampled_requests_enabled   = true
+      metric_name                = "${var.project_code}_common_rules"
+    }
+  }
+
+  rule {
+    # block requests from services that permit the obfuscation of viewer identity. These include requests from VPNs
+    name     = "AWS-AWSManagedRulesAnonymousIpList"
+    priority = 2
+    override_action {
+      none {}
+    }
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesAnonymousIpList"
+        vendor_name = "AWS"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      sampled_requests_enabled   = true
+      metric_name                = "${var.project_code}_anon_ip"
+    }
+  }
+
+  rule {
+    # rules to block request patterns that are known to be invalid and are associated with exploitation or discovery of vulnerabilities
+    name     = "AWS-AWSManagedRulesKnownBadInputsRuleSet"
+    priority = 3
+    override_action {
+      none {}
+    }
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesKnownBadInputsRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      sampled_requests_enabled   = true
+      metric_name                = "${var.project_code}_known_bad"
+    }
+  }
+
+  rule {
+    # block request patterns associated with exploitation of SQL databases, like SQL injection attacks
+    name     = "AWS-AWSManagedRulesSQLiRuleSet"
+    priority = 4
+    override_action {
+      none {}
+    }
+    statement {
+      managed_rule_group_statement {
+        name        = "AWSManagedRulesSQLiRuleSet"
+        vendor_name = "AWS"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      sampled_requests_enabled   = true
+      metric_name                = "${var.project_code}_sqli"
+    }
+  }
+
+  rule {
+    name     = "RateLimit_IP"
+    priority = 5
+    action {
+      block {}
+    }
+    statement {
+      rate_based_statement {
+        limit              = 2000 # per 5 minutes
+        aggregate_key_type = "IP"
+      }
+    }
+    visibility_config {
+      cloudwatch_metrics_enabled = true
+      sampled_requests_enabled   = true
+      metric_name                = "${var.project_code}_rate_limit"
+    }
+  }
+
 }

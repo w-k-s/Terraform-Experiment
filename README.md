@@ -9,6 +9,7 @@
 - [x] 5. [**LoadBalanced Data Service**](/5-DataService) Route 53 -> Api Gateway (Edge) -> VPC Link -> ELB -> EC2 -> RDS
 - [x] 6. [**ECS Cluster**](/6-ContainerizedServices) Route 53 -> Api Gateway (Edge) -> VPC Link -> ELB -> ECS -> RDS
 - [ ] 7. **EKS Cluster** Route 53 -> Api Gateway (Edge) -> VPC Link -> ELB -> EKS -> RDS
+- [ ] 8. [**Serverless Architecture**](/8-ServerlessArchitecture) Cloudfront -> Api Gateway (Edge) -> Lambda -> Supabase
 
 ## Required Environment Variables
 

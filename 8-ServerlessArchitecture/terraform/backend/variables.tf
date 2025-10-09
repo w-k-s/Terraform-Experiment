@@ -1,7 +1,13 @@
 variable "project_name" {
   type        = string
   description = "the name of the project"
-  default     = "Toso Serverless"
+  default     = "Todo Serverless"
+}
+
+variable "project_code" {
+  type        = string
+  description = "the name of the project"
+  default     = "TODO"
 }
 
 variable "aws_region" {

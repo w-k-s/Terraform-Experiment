@@ -134,8 +134,8 @@ jobs:
       - name: Get API Endpoint
         id: tf_output
         run: |
-          API_URL=$(terraform output -raw api_endpoint)
-          echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+          API_URL=$(terraform output -raw cloudfront_domain)
+          echo "api_url=https://$API_URL" >> $GITHUB_OUTPUT
 
       - name: Publish GitHub Summary
         run: |
@@ -158,7 +158,7 @@ jobs:
           echo "# Update a todo by ID" >> $GITHUB_STEP_SUMMARY
           echo "curl -X PATCH \\" >> $GITHUB_STEP_SUMMARY
           echo "  -H 'Content-Type: application/json' \\" >> $GITHUB_STEP_SUMMARY
-          echo "  -d '{\"text\":\"Updated text\",\"completed\":true}' \\" >> $GITHUB_STEP_SUMMARY
+          echo "  -d '{\"text\":\"Buy milk\",\"completed\":true}' \\" >> $GITHUB_STEP_SUMMARY
           echo "  '${{ steps.tf_output.outputs.api_url }}/todo/1'" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "# Delete a todo by ID" >> $GITHUB_STEP_SUMMARY

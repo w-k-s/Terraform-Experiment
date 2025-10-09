@@ -37,6 +37,9 @@ async function getKnex() {
 }
 
 module.exports.handler = async (event) => {
+
+    console.log("Received event:", JSON.stringify(event, null, 2));
+
     const method = event.requestContext.http.method;
     const path = event.requestContext.http.path;
     const knex = await getKnex();
@@ -90,13 +93,16 @@ module.exports.handler = async (event) => {
 
         return response(404, { message: "Not found" });
     } catch (err) {
-        console.error("Error:", err);
+        console.log("Error:", err);
         return response(500, { message: "Internal server error" });
     }
 };
 
 const response = (statusCode, body) => ({
     statusCode,
+    headers: {
+        "Content-Type": "application/json"
+    },
     body: body ? JSON.stringify(body) : undefined,
 });
 
